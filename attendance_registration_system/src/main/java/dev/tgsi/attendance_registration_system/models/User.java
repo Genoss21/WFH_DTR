@@ -56,7 +56,7 @@ public class User {
 		this.password = password;
 	}
 
-	public int getRole() {
+	public int getRoleId() {
 		return role_id;
 	}
 

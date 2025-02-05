@@ -31,7 +31,7 @@ public class UserDto {
 		this.password = password;
 	}
 
-	public int getRole() {
+	public int getRole_id() {
 		return role_id;
 	}
 

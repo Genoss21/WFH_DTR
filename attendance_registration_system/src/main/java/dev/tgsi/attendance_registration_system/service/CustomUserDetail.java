@@ -7,14 +7,18 @@ import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import dev.tgsi.attendance_registration_system.models.RoleModel;
 import dev.tgsi.attendance_registration_system.models.User;
 
 public class CustomUserDetail implements UserDetails {
 	
 	private User user;
+
+	private RoleModel roleModel;
 	
-	public CustomUserDetail(User user) {
+	public CustomUserDetail(User user, RoleModel roleModel) {
 		this.user = user;
+		this.roleModel = roleModel;
 	}
 
 	@Override
@@ -23,7 +27,7 @@ public class CustomUserDetail implements UserDetails {
 		return Collections.singletonList(new GrantedAuthority() {
 			@Override
 			public String getAuthority() {
-				return String.valueOf(user.getRole());
+				return String.valueOf(roleModel.getRole_sh_name());
 			}
 		});
 	}

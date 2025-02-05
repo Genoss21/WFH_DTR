@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface RoleRepository extends JpaRepository<RoleModel, Long> {
     
-    RoleModel findByRoleModel (String role_sh_name);
+    RoleModel findByRoleId (int roleId);
 
     
 }
