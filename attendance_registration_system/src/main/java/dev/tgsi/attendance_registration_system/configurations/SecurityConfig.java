@@ -43,7 +43,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin-page").hasAuthority("SysAdmin")
+                .requestMatchers("/admin-page").hasAnyAuthority("SysAdmin", "AccManager","ProjManager")
                 .requestMatchers("/user-page").hasAuthority("User")
                 .anyRequest().authenticated()
             )

@@ -27,7 +27,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             .orElse("");
 
         // Redirect based on the role
-        if ("SysAdmin".equals(role)) {
+        if ("SysAdmin".equals(role) || "AccManager".equals(role) ||"ProjManager".equals(role)) {
             response.sendRedirect("/admin-page");
         } else if ("User".equals(role)) {
             response.sendRedirect("/user-page");
