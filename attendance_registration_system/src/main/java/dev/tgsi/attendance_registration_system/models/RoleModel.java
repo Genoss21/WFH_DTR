@@ -1,28 +1,34 @@
 package dev.tgsi.attendance_registration_system.models;
 
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "tbl_role_mst")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "tbl_role_mst", uniqueConstraints = @UniqueConstraint(columnNames = "role_sh_name"))
 public class RoleModel {
 
     @Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long role_id;
-	
-	private String title;
-	private String role_sh_name;
-	
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    @Column(name = "role_id") 
+    private Integer roleId;
+   
+    @Column(name = "title", nullable = false, length = 100)
+    private String title;
 
-    
+    @Column(name = "role_sh_name", nullable = false, length = 50)
+    private String roleShName;
+
+    @Column(name = "role_user_level")
+    private Integer roleUserLevel;
+
+
+ 
+    public RoleModel(String title, String roleShName, Integer roleUserLevel) {
+        this.title = title;
+        this.roleShName = roleShName;
+        this.roleUserLevel = roleUserLevel;
+    }
 }

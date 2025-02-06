@@ -1,78 +1,36 @@
 package dev.tgsi.attendance_registration_system.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 @Entity
-@Table(name = "tbl_user", uniqueConstraints = @UniqueConstraint(columnNames = "username"))
+@Table(name = "tbl_user")
 public class User {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long epm_id;
-	
-	private String username;
-	private String password;
-	private int role_id;
-	
-	
-	public User() {
-		super();
-	}
 
-	public User(String username, String password, int role_id) {
-		
-		this.username = username;
-		this.password = password;
-		this.role_id = role_id;
-		
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    @Column(name = "emp_id")
+    private Long empId;
 
-	public Long getId() {
-		return epm_id;
-	}
+    @Column(name = "username", nullable = false, unique = true, length = 100)
+    private String username;
 
-	public void setId(Long emp_id) {
-		this.epm_id = emp_id;
-	}
+    @Column(name = "password", nullable = false)
+    private String password;
 
-	public String getUsername() {
-		return username;
-	}
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "role_id", nullable = false) 
+    private RoleModel role; 
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public int getRoleId() {
-		return role_id;
-	}
-
-	public void setRole(int role_id) {
-		this.role_id = role_id;
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
+    
+    public User(String username, String password, RoleModel role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 }
