@@ -15,7 +15,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     @Column(name = "emp_id")
-    private Long empId;
+    private String empId;
 
     @Column(name = "username", nullable = false, unique = true, length = 100)
     private String username;
@@ -27,10 +27,15 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false) 
     private RoleModel role; 
 
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "position_id", nullable = false) 
+    private PositionModel position; 
+
     
-    public User(String username, String password, RoleModel role) {
+    public User(String username, String password, RoleModel role, PositionModel position) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.position = position;
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import dev.tgsi.attendance_registration_system.models.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByUsername(String username);
 }
