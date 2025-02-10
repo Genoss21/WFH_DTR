@@ -22,11 +22,6 @@ public class SecurityConfig {
         this.customSuccessHandler = customSuccessHandler;
     }
 
-    /*@Bean
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }*/
-
     @SuppressWarnings("deprecation")
     @Bean
     public static NoOpPasswordEncoder passwordEncoder() {
@@ -41,9 +36,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) 
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin-page").hasAnyAuthority("SysAdmin", "AccManager","ProjManager")
+                .requestMatchers("/user-image/**").permitAll() // Allow access to image endpoint
+                .requestMatchers("/admin-page").hasAnyAuthority("SysAdmin", "AccManager", "ProjManager")
                 .requestMatchers("/user-page").hasAuthority("User")
                 .anyRequest().authenticated()
             )
