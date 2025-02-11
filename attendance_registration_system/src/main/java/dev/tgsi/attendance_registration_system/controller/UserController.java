@@ -10,15 +10,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.security.Principal;
 import java.util.Optional;
+import org.springframework.ui.Model;
+
+import dev.tgsi.attendance_registration_system.models.User;
+import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import java.util.List;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
+import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +39,13 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private  AttendanceRepository attendanceRepository;
+    
+    @Autowired
+    private  AttendanceService attendanceService;
+
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -62,6 +77,20 @@ public class UserController {
         // Add the employees list to the model
         List<PersonalInfoModel> employees = userService.getAllEmployees();
         model.addAttribute("employees", employees);
+
+        // !Added
+        // !Author: Stvn
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String empId = user.getEmpId();
+        model.addAttribute("records", attendanceService.getUserAttendance(empId));
+        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(empId));
+        model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(empId));
+        model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(empId));
+        // !end of added
 
         return "employee_dashboard";
     }

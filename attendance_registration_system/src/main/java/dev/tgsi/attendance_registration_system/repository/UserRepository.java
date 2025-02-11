@@ -11,4 +11,8 @@ import dev.tgsi.attendance_registration_system.models.User;
 public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByUsername(String username);
+
+    // ! Update 02/11/2025
+    Optional<User> findByEmpId(String empId);
+
 }

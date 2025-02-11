@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import java.util.*;
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -12,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 public class User {
 
     @Id
-    @Column(name = "emp_id", length = 50)
+    @Column(name = "emp_id", length = 50, nullable = false)
     private String empId;
 
     @Column(name = "username", nullable = false, unique = true, length = 100)
@@ -35,6 +37,12 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private PersonalInfoModel personalInfo;
+    
+    // ! Added: 02/11/2025
+    // Mapping the user for attendance records
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<AttendanceRecord> attendanceRecords;
+    // ! End of added
 
     @Override
     public String toString() {

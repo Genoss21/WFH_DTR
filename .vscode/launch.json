@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AttendanceRegistrationSystemApplication<attendance_registration_system>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "dev.tgsi.attendance_registration_system.AttendanceRegistrationSystemApplication",
+            "projectName": "attendance_registration_system",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
