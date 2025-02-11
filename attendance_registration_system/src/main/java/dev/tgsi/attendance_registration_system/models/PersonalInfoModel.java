@@ -3,6 +3,7 @@ package dev.tgsi.attendance_registration_system.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tbl_personal_info")
@@ -15,27 +16,35 @@ public class PersonalInfoModel {
     @Column(name = "pid")
     private Integer personalInfoId;
 
+    @Column(name = "emp_id", length = 50)
+    private String empId;
+
     @Column(name = "fname", nullable = false, length = 150)
     private String firstName;
 
     @Column(name = "lname", nullable = false, length = 150)
     private String lastName;
 
-    @Column(name = "mname", nullable = true, length = 150)
+    @Column(name = "mname", length = 150)
     private String midName;
 
     @Column(name = "email", nullable = false, length = 150)
     private String email;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "emp_id", nullable = false)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "emp_id", referencedColumnName = "emp_id", insertable = false, updatable = false)
+    @JsonBackReference
     private User user;
 
-    public PersonalInfoModel(String firstName, String lastName, String midName, String email, User user) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.midName = midName;
-        this.email = email;
-        this.user = user;
+    @Override
+    public String toString() {
+        return "PersonalInfoModel{" +
+                "personalInfoId=" + personalInfoId +
+                ", empId='" + empId + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", midName='" + midName + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

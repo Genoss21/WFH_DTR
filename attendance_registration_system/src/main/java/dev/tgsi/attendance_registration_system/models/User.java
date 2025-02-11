@@ -3,6 +3,7 @@ package dev.tgsi.attendance_registration_system.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Data
 @NoArgsConstructor
@@ -11,14 +12,13 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "emp_id")
+    @Column(name = "emp_id", length = 50)
     private String empId;
 
     @Column(name = "username", nullable = false, unique = true, length = 100)
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -29,19 +29,21 @@ public class User {
     @JoinColumn(name = "position_id", nullable = false)
     private PositionModel position;
 
-    @Column(name = "img_src", nullable = true)
+    @Column(name = "img_src", length = 255)
     private String imgSrc;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pid")
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private PersonalInfoModel personalInfo;
 
-    public User(String username, String password, RoleModel role, PositionModel position, String imgSrc, PersonalInfoModel personalInfo) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-        this.position = position;
-        this.imgSrc = imgSrc;
-        this.personalInfo = personalInfo;
+    @Override
+    public String toString() {
+        return "User{" +
+                "empId='" + empId + '\'' +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                ", position=" + position +
+                ", imgSrc='" + imgSrc + '\'' +
+                '}';
     }
 }

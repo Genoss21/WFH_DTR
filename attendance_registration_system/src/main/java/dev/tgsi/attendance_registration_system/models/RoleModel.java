@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 public class RoleModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    @Column(name = "role_id") 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
     private Integer roleId;
-   
+
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
@@ -24,11 +24,19 @@ public class RoleModel {
     @Column(name = "role_user_level")
     private Integer roleUserLevel;
 
-
- 
     public RoleModel(String title, String roleShName, Integer roleUserLevel) {
         this.title = title;
         this.roleShName = roleShName;
         this.roleUserLevel = roleUserLevel;
+    }
+
+    @Override
+    public String toString() {
+        return "RoleModel{" +
+                "roleId=" + roleId +
+                ", title='" + title + '\'' +
+                ", roleShName='" + roleShName + '\'' +
+                ", roleUserLevel=" + roleUserLevel +
+                '}';
     }
 }

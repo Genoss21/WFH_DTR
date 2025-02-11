@@ -8,26 +8,31 @@ import lombok.NoArgsConstructor;
 @Table(name = "tbl_position_mst")
 @Data
 @NoArgsConstructor
-
 public class PositionModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    @Column(name = "position_id") 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "position_id")
     private Integer positionId;
-   
+
     @Column(name = "position_name", nullable = false, length = 100)
     private String positionName;
 
     @Column(name = "position_sh_name", nullable = false, length = 50)
     private String positionShName;
 
-   
-
     public PositionModel(String positionName, String positionShName) {
         this.positionName = positionName;
         this.positionShName = positionShName;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "PositionModel{" +
+                "positionId=" + positionId +
+                ", positionName='" + positionName + '\'' +
+                ", positionShName='" + positionShName + '\'' +
+                '}';
+    }
 }
+
