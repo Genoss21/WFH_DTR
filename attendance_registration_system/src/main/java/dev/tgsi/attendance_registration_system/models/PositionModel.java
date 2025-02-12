@@ -15,10 +15,10 @@ public class PositionModel {
     @Column(name = "position_id")
     private Integer positionId;
 
-    @Column(name = "position_name", nullable = false, length = 100)
+    @Column(name = "position_name")
     private String positionName;
 
-    @Column(name = "position_sh_name", nullable = false, length = 50)
+    @Column(name = "position_sh_name")
     private String positionShName;
 
     public PositionModel(String positionName, String positionShName) {

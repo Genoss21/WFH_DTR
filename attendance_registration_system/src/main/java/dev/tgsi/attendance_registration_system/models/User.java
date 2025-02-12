@@ -14,24 +14,24 @@ import java.util.*;
 public class User {
 
     @Id
-    @Column(name = "emp_id", length = 50, nullable = false)
+    @Column(name = "emp_id")
     private String empId;
 
-    @Column(name = "username", nullable = false, unique = true, length = 100)
+    @Column(name = "username")
     private String username;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password")
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "role_id")
     private RoleModel role;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "position_id", nullable = false)
+    @JoinColumn(name = "position_id")
     private PositionModel position;
 
-    @Column(name = "img_src", length = 255)
+    @Column(name = "img_src")
     private String imgSrc;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

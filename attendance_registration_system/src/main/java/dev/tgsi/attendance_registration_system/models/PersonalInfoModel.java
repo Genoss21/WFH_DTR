@@ -16,23 +16,20 @@ public class PersonalInfoModel {
     @Column(name = "pid")
     private Integer personalInfoId;
 
-    @Column(name = "emp_id", length = 50)
-    private String empId;
-
-    @Column(name = "fname", nullable = false, length = 150)
+    @Column(name = "fname")
     private String firstName;
 
-    @Column(name = "lname", nullable = false, length = 150)
+    @Column(name = "lname")
     private String lastName;
 
-    @Column(name = "mname", length = 150)
+    @Column(name = "mname")
     private String midName;
 
-    @Column(name = "email", nullable = false, length = 150)
+    @Column(name = "email")
     private String email;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "emp_id", referencedColumnName = "emp_id", insertable = false, updatable = false)
+    @JoinColumn(name = "emp_id", referencedColumnName = "emp_id")
     @JsonBackReference
     private User user;
 
@@ -40,7 +37,6 @@ public class PersonalInfoModel {
     public String toString() {
         return "PersonalInfoModel{" +
                 "personalInfoId=" + personalInfoId +
-                ", empId='" + empId + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", midName='" + midName + '\'' +

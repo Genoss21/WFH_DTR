@@ -15,10 +15,10 @@ public class RoleModel {
     @Column(name = "role_id")
     private Integer roleId;
 
-    @Column(name = "title", nullable = false, length = 100)
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "role_sh_name", nullable = false, length = 50)
+    @Column(name = "role_sh_name")
     private String roleShName;
 
     @Column(name = "role_user_level")
