@@ -364,6 +364,7 @@ class="hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full
             <!-- !Updated 02/11/2025 -->
             <!-- !Author: Stvn -->
              <!-- h2 is for debuging only it can be remove -->
+              
             <h2>Welcome, <span th:text="${user.personalInfo.firstName}">User</span>!</h2>
             <div class="flow-root max-h-[755px] overflow-y-auto"> <!--overflow-y-auto for scroll-->
               <div class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -471,8 +472,11 @@ class="hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full
       <div class="bg-white p-4">
         <!-- Time-in/Time-out Row -->
         <div class="flex justify-between items-center">
-          <!-- !Modified 02/02/2025 -->
+          <!-- !Modified 02/13/2025 -->
            <!-- !Author: Stvn -->
+            <!-- clock -->
+
+            <div id="clock"></div>
           <span id="clock" class="text-4xl font-semibold text-gray-800">6:01:00 AM</span>
           <button id="timeButton" onclick="toggleTime()" 
                   class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
@@ -658,6 +662,20 @@ class="hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full
 </div>
 
  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.js"></script>
+ 
+ <script>
+  // for realtime clock
+  function updateTime() {
+     const now = new Date();
+     const hours = String(now.getHours()).padStart(2, '0');
+     const minutes = String(now.getMinutes()).padStart(2, '0');
+     const seconds = String(now.getSeconds()).padStart(2, '0');
+     document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+ }
+ setInterval(updateTime, 1000);
+ updateTime(); 
+</script>
+ 
  <script>
    document.querySelectorAll('[data-modal-hide]').forEach(button => {
      button.addEventListener('click', () => {
@@ -749,18 +767,7 @@ class="hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full
           };
 </script>
 
-<script>
-   // for realtime clock
-   function updateTime() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-  }
-  setInterval(updateTime, 1000);
-  updateTime(); 
-</script>
+
 <!-- !End of added -->
 
 <!-- Time in Time out

@@ -29,7 +29,7 @@ public class PersonalInfoModel {
     private String email;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "emp_id", referencedColumnName = "emp_id")
+    @JoinColumn(name = "emp_id")
     @JsonBackReference
     private User user;
 
