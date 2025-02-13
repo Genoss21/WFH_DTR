@@ -202,65 +202,77 @@
         </div>
 
         <!-- Modal Body -->
-        <form class="px-6 py-4 space-y-6">
-            <!-- Date Picker -->
-            <div class="flex flex-col">
-                <label for="leave-date" class="text-[#333333] dark:text-gray-300 font-medium mb-1">Select Date:</label>
-              <div class="relative flex flex-col">
-                <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                  </svg>
-                </div>
-                <input datepicker id="default-datepicker" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date">
+        <form class="px-6 py-4 space-y-6" th:action="@{/admin-page/file-leave}" method="post" th:object="${leaveDto}">
+          <!-- Date Picker -->
+          <div class="flex flex-col">
+              <label for="leave-date" class="text-[#333333] dark:text-gray-300 font-medium mb-1">Select Date:</label>
+            <div class="relative flex flex-col">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                </svg>
               </div>
+              <input datepicker id="default-datepicker" 
+                type="text"
+                name="leaveDateDto"
+                class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                placeholder="Select date"
+                th:value="${leaveDto.leaveDateDto}" required>
             </div>
+          </div>
 
 
-            <!-- Type of Leave -->
-            <div class="flex flex-col">
-                <label for="leave-type" class="text-[#333333] dark:text-gray-300 font-medium">Type of Leave:</label>
-                <select id="leave-type" class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option value="vacation">Vacation Leave</option>
-                    <option value="sick">Sick Leave</option>
-                    <option value="emergency">Emergency Leave</option>
-                    <option value="bereavement">Bereavement</option>
-                    <option value="honeymoon">Honeymoon</option>
-                    <option value="paternity">Paternity</option>
-                </select>
-            </div>
+          <!-- Type of Leave -->
+          <div class="flex flex-col">
+              <label for="leave-type" class="text-[#333333] dark:text-gray-300 font-medium">Type of Leave:</label>
+              <select id="leave-type" 
+                class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                name="leaveTypeDto"
+                th:field="${leaveDto.leaveTypeDto}" required>
+                  <option value="vacation">Vacation Leave</option>
+                  <option value="sick">Sick Leave</option>
+                  <option value="emergency">Emergency Leave</option>
+                  <option value="bereavement">Bereavement</option>
+                  <option value="honeymoon">Honeymoon</option>
+                  <option value="paternity">Paternity</option>
+              </select>
+          </div>
 
-            <!-- Leave Duration -->
-            <div class="flex flex-col">
-                <label for="leave-duration" class="text-[#333333] dark:text-gray-300 font-medium">Leave Duration:</label>
-                <select id="leave-duration" class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option value="am">AM Only</option>
-                    <option value="pm">PM Only</option>
-                    <option value="whole">Whole Day</option>
-                </select>
-            </div>
+          <!-- Leave Duration -->
+          <div class="flex flex-col">
+              <label for="leave-duration" class="text-[#333333] dark:text-gray-300 font-medium">Leave Duration:</label>
+              <select id="leave-duration" class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              th:field="${leaveDto.leaveDurationDto}" required>
+                  <option value="am">AM Only</option>
+                  <option value="pm">PM Only</option>
+                  <option value="whole">Whole Day</option>
+              </select>
+          </div>
 
-            <!-- Remarks -->
-            <div class="flex flex-col">
-                <label for="remarks" class="text-[#333333] dark:text-gray-300 font-medium">Remarks:</label>
-                <textarea id="remarks" rows="4" 
-                    class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                    placeholder="Enter your remarks..."></textarea>
-            </div>
-        </form>
+          <!-- Remarks -->
+          <div class="flex flex-col">
+              <label for="remarks" class="text-[#333333] dark:text-gray-300 font-medium">Remarks:</label>
+              <textarea id="remarks" rows="4" name="remarksDto"
+                  class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                  placeholder="Enter your remarks..."
+                  th:value="${leaveDto.remarksDto}"
+                  required></textarea>
+          </div>
+      
 
-        <!-- Modal Footer -->
-        <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
-            <button type="submit" 
-                class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 rounded-lg font-medium">
-                Submit
-            </button>
-        </div>
-    </div>
+      <!-- Modal Footer -->
+      <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
+          <button type="submit" 
+              class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 rounded-lg font-medium">
+              Submit
+          </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 
-    <!-- End of modals -->
+  <!-- End of modals -->
     
     <!-- Main Content -->
     <main class="flex flex-grow mt-20 flex-col lg:flex-row bg-gray-100 dark:bg-[#191A1F]">

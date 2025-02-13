@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import dev.tgsi.attendance_registration_system.models.User;
 
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
+import dev.tgsi.attendance_registration_system.models.LeaveModel;
 import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
+import dev.tgsi.attendance_registration_system.repository.LeaveRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AttendanceService {
@@ -21,6 +24,9 @@ public class AttendanceService {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private LeaveRepository leaveRepository;
 
     public void clockIn(String empId) {
         User user = userRepository.findByEmpId(empId)
@@ -125,6 +131,26 @@ public class AttendanceService {
                 .orElse(null);
 
         }
+
+    @Transactional
+    public AttendanceRecord saveLeave(LeaveModel leaveModel , User user) {
+        AttendanceRecord attendanceModel =  new AttendanceRecord();
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        leaveRepository.save(leaveModel);
+        attendanceModel.setLeaveModel(leaveModel);
+        attendanceModel.setUser(user);
+        attendanceModel.setDate(leaveModel.getLeaveDate());
+        attendanceModel.setCreatedOn(LocalDateTime.parse(now.toString()));
+        attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+        attendanceModel.setDelFlag(0);
+        attendanceModel.setStatus("on Leave");
+        attendanceModel.setEditedById(user.getEmpId());
+        attendanceModel.setEditedByRole(user.getRole().getRoleShName());
+        attendanceModel.setRemarks("on Leave");
+        return attendanceRepository.save(attendanceModel);
+
+    }
     
 }
 // ! End

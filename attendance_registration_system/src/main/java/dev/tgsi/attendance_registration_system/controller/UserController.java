@@ -25,6 +25,7 @@ import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import java.util.List;
 import dev.tgsi.attendance_registration_system.models.User;
+import dev.tgsi.attendance_registration_system.dto.LeaveDto;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.service.UserService;
@@ -90,6 +91,9 @@ public class UserController {
         model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(empId));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(empId));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(empId));
+
+        LeaveDto leaveDto = new LeaveDto();
+        model.addAttribute("leaveDto", leaveDto);   
         // !end of added
 
         return "Emp_dashboard";
@@ -134,6 +138,8 @@ public class UserController {
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(empId));
         // !end of added
 
+        LeaveDto leaveDto = new LeaveDto();
+        model.addAttribute("leaveDto", leaveDto);
 
         return "Mngr_dashboard";
     }
