@@ -45,7 +45,7 @@ public class AttendanceController {
         model.addAttribute("username", username);
         
 
-        return "employee_dashboard";
+        return "Emp_dashboard";
     }
 
     @PostMapping("/clock-in")

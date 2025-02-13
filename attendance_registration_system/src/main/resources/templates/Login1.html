@@ -79,6 +79,22 @@
             </div>
           </div>
         </div>
+
+        <div id="toast" class="hidden fixed top-0 left-1/2 transform -translate-x-1/2 mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">
+          Logout Successfully
+      </div>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              const params = new URLSearchParams(window.location.search);
+              if (params.has('logout')) {
+                  const toast = document.getElementById('toast');
+                  toast.classList.remove('hidden');
+                  setTimeout(() => {
+                      toast.classList.add('hidden');
+                  }, 3000);
+              }
+          });
+      </script>
         <!-- Right side (login form) -->
         <div
           class="relative flex flex-col justify-between items-center w-full max-w-md px-6 mx-auto lg:w-2/6 h-full"
@@ -94,18 +110,18 @@
             </div>
 
             <div class="mt-8 w-full">
-              <form id="loginForm" novalidate>
+              <form action="/login" method="post">
                 <div>
                   <label
-                    for="email"
+                    for="username"
                     class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
                   >
                     Username
                   </label>
                   <input
-                    type="email"
-                    name="email"
-                    id="email"
+                    type="text"
+                    name="username"
+                    id="username"
                     placeholder="sample username"
                     class="block w-full px-4 py-2 h-[44px] text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />

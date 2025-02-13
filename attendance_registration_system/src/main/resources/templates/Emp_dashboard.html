@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Management</title>
+    <title>Employees Attendance Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.css" rel="stylesheet" />
     <!-- Add this to your <head> section -->
@@ -69,26 +69,28 @@
         <!-- Profile Info (Aligned with Image) -->
         <div class="flex items-center space-x-2 text-[#333333] dark:text-white">
           <div class="text-right leading-tight">
-            <p class="text-base font-semibold font-roboto noto-sans" th:text="${user != null ? user.username : 'Unknown User'}">Fritz Jerome Tobes</p>
-            <p class="text-sm text-[#333333] dark:text-gray-400 font-noto-sans-jp" th:text="${user != null and user.position != null ? user.position.positionName : 'No Position'}">Web Developer</p>
+            <p class="text-base font-semibold font-roboto noto-sans" th:text="|${user.personalInfo.firstName} ${user.personalInfo.lastName}|">Full Name</p>
+            <p class="text-sm text-[#333333] dark:text-gray-400 font-noto-sans-jp" th:text="${user.position.positionName}">Position Name</p>
           </div>
   
           <!-- Profile Button -->
           <button type="button" class="flex text-sm bg-[#292C35] rounded-full focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
             <span class="sr-only">Open user menu</span>
-            <img class="w-10 h-10 rounded-full" th:src="@{/user-image/{empId}(empId=${user.empId})}" alt="User Photo">
+            <div class="profile">
+              <img id="profileImage" class="w-9 h-9 rounded-full" th:src="@{/user-image/{empId}(empId=${user.empId})}" alt="User Photo">
+          </div>
           </button>
         </div>
   
         <!-- Dropdown menu -->
         <div class="z-50 hidden my-4 text-sm bg-white divide-y divide-gray-100 rounded-lg shadow-md w-60 dark:bg-[#191A1F] dark:divide-gray-600" id="user-dropdown">
           <div class="px-4 py-3">
-            <p class="text-[#333333] dark:text-gray-100 font-medium font-noto-sans">Fritz Jerome Tobes</p>
-            <p class="text-[#333333] truncate dark:text-gray-400 font-roboto">name@flowbite.com</p>
+            <p class="text-[#333333] dark:text-gray-100 font-medium font-noto-sans"th:text="${user.username}">Username</p>
+            <p class="text-[#333333] truncate dark:text-gray-400 font-roboto"th:text="${user.personalInfo.email}">Email</p>
           </div>
           <ul class="py-2">
             <li>
-              <a th:href="@{/user_dashboard}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans">Dashboard</a>
+              <a th:href="@{/user-page}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans">Dashboard</a>
             </li>
             <li>
               <button data-modal-target="default-leave" data-modal-toggle="default-leave" class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-roboto">

@@ -51,7 +51,7 @@ public class UserController {
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "Login1";
     }
 
     @GetMapping("/user-page")
@@ -59,7 +59,7 @@ public class UserController {
         if (principal == null) {
             logger.error("No authenticated user found.");
             model.addAttribute("error", "No authenticated user found");
-            return "login";
+            return "Login1";
         }
 
         String username = principal.getName();
@@ -92,7 +92,7 @@ public class UserController {
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(empId));
         // !end of added
 
-        return "employee_dashboard";
+        return "Emp_dashboard";
     }
 
 
@@ -101,7 +101,7 @@ public class UserController {
         if (principal == null) {
             logger.error("No authenticated user found.");
             model.addAttribute("error", "No authenticated user found");
-            return "login";
+            return "Login1";
         }
 
         String username = principal.getName();
@@ -120,7 +120,7 @@ public class UserController {
         List<PersonalInfoModel> employees = userService.getAllEmployees();
         model.addAttribute("employees", employees);
 
-        return "manager_dashboard";
+        return "Mngr_dashboard";
     }
 
 
