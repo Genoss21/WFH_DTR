@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.css" rel="stylesheet" />
+    <!-- Add this to your <head> section -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Add this CSS to Tailwind Config or Global Styles -->
+    <style>
+        .font-roboto {
+        font-family: 'Roboto', sans-serif;
+        }
+        .font-noto-sans {
+        font-family: 'Noto Sans', sans-serif;
+        }
+        .font-noto-sans-jp {
+        font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        /* Scrollbar Styling */
+        /* Vertical scrollbar (Styled) */
+        .custom-scrollbar::-webkit-scrollbar {
+        width: 6px; /* Thin scrollbar */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1; /* Light gray background */
+        border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #888; /* Darker gray scrollbar */
+        border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Darker color on hover */
+        }
+
+        /* Horizontal scrollbar (Hidden) */
+        .custom-scrollbar::-webkit-scrollbar:horizontal {
+        display: none;
+        }
+
+        .custom-scrollbar {
+        scrollbar-width: thin; /* For Firefox */
+        overflow-x: auto; /* Allow horizontal scroll */
+        overflow-y: auto; /* Allow vertical scroll */
+        white-space: nowrap; /* Prevent text from wrapping */
+        }
+
+    </style>
+</head>
+<body class="min-h-screen min-w-[320px] flex flex-col text-[#333333] bg-white dark:bg-[#191A1F]">
+    
+    <!-- Navbar -->
+<nav class="w-full p-4 fixed top-0 z-10 bg-white dark:bg-[#191A1F] shadow-md">
+    <div class="flex items-center justify-between mx-auto">
+      <!-- Logo -->
+      <a href="" class="flex items-center">
+        <img src="https://www.tsukiden.com.ph/wp-content/uploads/2019/02/tsukiden_logo.png" class="h-8 px-4" alt="Company Logo" />
+      </a>
+  
+      <!-- User Menu -->
+      <div class="flex items-center space-x-4">
+        <!-- Profile Info (Aligned with Image) -->
+        <div class="flex items-center space-x-2 text-[#333333] dark:text-white">
+          <div class="text-right leading-tight">
+            <p class="text-base font-semibold font-roboto noto-sans" th:text="${user != null ? user.username : 'Unknown User'}">Fritz Jerome Tobes</p>
+            <p class="text-sm text-[#333333] dark:text-gray-400 font-noto-sans-jp" th:text="${user != null and user.position != null ? user.position.positionName : 'No Position'}">Web Developer</p>
+          </div>
+  
+          <!-- Profile Button -->
+          <button type="button" class="flex text-sm bg-[#292C35] rounded-full focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
+            <span class="sr-only">Open user menu</span>
+            <img class="w-10 h-10 rounded-full" th:src="@{/user-image/{empId}(empId=${user.empId})}" alt="User Photo">
+          </button>
+        </div>
+  
+        <!-- Dropdown menu -->
+        <div class="z-50 hidden my-4 text-sm bg-white divide-y divide-gray-100 rounded-lg shadow-md w-60 dark:bg-[#191A1F] dark:divide-gray-600" id="user-dropdown">
+          <div class="px-4 py-3">
+            <p class="text-[#333333] dark:text-gray-100 font-medium font-noto-sans">Fritz Jerome Tobes</p>
+            <p class="text-[#333333] truncate dark:text-gray-400 font-roboto">name@flowbite.com</p>
+          </div>
+          <ul class="py-2">
+            <li>
+              <a th:href="@{/user_dashboard}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans">Dashboard</a>
+            </li>
+            <li>
+              <button data-modal-target="default-leave" data-modal-toggle="default-leave" class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-roboto">
+                File Leave
+              </button>
+            </li>
+            <li>
+              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans-jp">About Us</a>
+            </li>
+            <li>
+              <a th:href="@{/logout}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-roboto">
+                <span sec:authorize="isAuthenticated"></span> Log out
+              </a>
+            </li>
+          </ul>
+  
+          <!-- Dark Mode Toggle -->
+          <div class="border-t py-3 px-4 flex justify-between items-center">
+            <span class="text-sm text-[#333333] dark:text-gray-100 font-noto-sans">Dark Mode</span>
+            <label for="dark-toggle" class="relative flex items-center cursor-pointer">
+              <input type="checkbox" id="dark-toggle" class="hidden peer">
+              <div class="w-10 h-6 bg-gray-300 peer-checked:bg-[#292C35] rounded-full transition"></div>
+              <div class="absolute left-1 top-1 w-4 h-4 bg-[#292C35] peer-checked:bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+    <!-- Modals here -->
+
+    <!-- Main Modal -->
+    <div id="default-modal" tabindex="-1" aria-hidden="true" aria-labelledby="modal-title"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center w-full h-full">
+
+        <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow-lg dark:bg-gray-800">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
+                <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-gray-100">Edit Time Logs</h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg w-8 h-8 flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-gray-100"
+                    data-modal-hide="default-modal">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7L1 13" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form>
+                <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
+                    <!-- Time-in -->
+                    <div>
+                        <label for="time-in" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-in:</label>
+                        <input type="text" id="time-in" name="time_in"
+                            class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="06:01:01 AM" required />
+                    </div>
+
+                    <!-- Time-out -->
+                    <div>
+                        <label for="time-out" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
+                        <input type="text" id="time-out" name="time_out"
+                            class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="02:59:59 PM" required />
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+                <div class="px-6 pb-6">
+                    <label for="remarks" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
+                    <textarea id="remarks" name="remarks" rows="4"
+                        class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="Enter remarks" required></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                 <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
+                    <button type="submit"
+                        class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Main modal 2 -->
+    <div id="default-leave" 
+    tabindex="-1" 
+    aria-hidden="true" 
+    class="hidden fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-black/30 backdrop-blur-sm">
+    
+    <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-lg dark:bg-gray-800">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Application Leave</h3>
+            <button type="button" 
+                class="text-[#333333] hover:bg-gray-200 hover:text-[#333333] rounded-full p-2 dark:text-white dark:hover:text-[#333333]" 
+                data-modal-hide="default-leave">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7L1 13"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form class="px-6 py-4 space-y-6">
+            <!-- Date Picker -->
+            <div class="flex flex-col">
+                <label for="leave-date" class="text-[#333333] dark:text-gray-300 font-medium mb-1">Select Date:</label>
+              <div class="relative flex flex-col">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                  </svg>
+                </div>
+                <input datepicker id="default-datepicker" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date">
+              </div>
+            </div>
+
+
+            <!-- Type of Leave -->
+            <div class="flex flex-col">
+                <label for="leave-type" class="text-[#333333] dark:text-gray-300 font-medium">Type of Leave:</label>
+                <select id="leave-type" class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="vacation">Vacation Leave</option>
+                    <option value="sick">Sick Leave</option>
+                    <option value="emergency">Emergency Leave</option>
+                    <option value="bereavement">Bereavement</option>
+                    <option value="honeymoon">Honeymoon</option>
+                    <option value="paternity">Paternity</option>
+                </select>
+            </div>
+
+            <!-- Leave Duration -->
+            <div class="flex flex-col">
+                <label for="leave-duration" class="text-[#333333] dark:text-gray-300 font-medium">Leave Duration:</label>
+                <select id="leave-duration" class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="am">AM Only</option>
+                    <option value="pm">PM Only</option>
+                    <option value="whole">Whole Day</option>
+                </select>
+            </div>
+
+            <!-- Remarks -->
+            <div class="flex flex-col">
+                <label for="remarks" class="text-[#333333] dark:text-gray-300 font-medium">Remarks:</label>
+                <textarea id="remarks" rows="4" 
+                    class="mt-1 w-full p-2.5 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                    placeholder="Enter your remarks..."></textarea>
+            </div>
+        </form>
+
+        <!-- Modal Footer -->
+        <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
+            <button type="submit" 
+                class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 rounded-lg font-medium">
+                Submit
+            </button>
+        </div>
+    </div>
+</div>
+
+
+    <!-- End of modals -->
+    
+    <!-- Main Content -->
+    <main class="flex flex-grow mt-20 flex-col lg:flex-row bg-gray-100 dark:bg-[#191A1F]">
+        <!-- Left Side (80%) -->
+        <section class="flex-1 lg:basis-4/5 flex flex-col p-4">
+            <!-- Container -->
+            <div class="flex flex-col h-full">
+                <!-- Time Logs Container -->
+                <div class="bg-white dark:bg-[#292C35] rounded-md shadow mb-4">
+                  <!-- Header Section -->
+                  <div class="z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <!-- Title -->
+                      <h2 class="text-xl font-semibold text-[#292C35] dark:text-gray-100 sm:text-3xl uppercase p-4 font-noto-sans">
+                          Time Logs
+                      </h2>
+
+                      <!-- Filter Section -->
+                      <div class="flex flex-col sm:flex-row items-center justify-end gap-4 lg:pr-4 md:pr-4 sm:pr-0 mb-4 lg:mb-0">
+                          <!-- Department Dropdown -->
+                          <select id="department"
+                              class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
+                              <option selected>Choose by Project</option>
+                              <option value="1">Seat Plan</option>
+                              <option value="2">Control Center</option>
+                          </select>
+
+                          <!-- Member Dropdown -->
+                          <select id="member"
+                              class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
+                              <option selected>Choose a Member</option>
+                              <option value="Fritz">Fritz</option>
+                              <option value="Jojit">Jojit</option>
+                              <option value="Jude">Jude</option>
+                              <option value="Steven">Steven</option>
+                              <option value="Jonnel">Jonnel</option>
+                              <option value="Auriel">Auriel</option>
+                              <option value="Rex">Rex</option>
+                          </select>
+
+                          <!-- Date Range Picker -->
+                          <div id="date-range-picker" date-rangepicker class="flex items-center">
+                              <div class="relative">
+                                  <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                      <svg class="w-4 h-4 text-[#4C5F7F] dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                      </svg>
+                                  </div>
+                                  <input id="datepicker-range-start" name="start" type="text" placeholder="Start Date"
+                                      class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                              </div>
+                              <span class="mx-4 text-[#333333] dark:text-gray-400">to</span>
+                              <div class="relative">
+                                  <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                      <svg class="w-4 h-4 text-[#4C5F7F] dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                      </svg>
+                                  </div>
+                                  <input id="datepicker-range-end" name="end" type="text" placeholder="End Date"
+                                      class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                              </div>
+                          </div>
+
+                          <!-- Filter Button -->
+                          <button type="button"
+                              class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
+                              Filter
+                          </button>
+                      </div>
+                  </div>
+                </div>
+
+                
+                    <!-- Table Container -->
+                    <div class="flex-grow overflow-hidden bg-white dark:bg-[#292C35] shadow rounded-md">
+                        <div class="overflow-x-auto">
+                        <div class="max-h-[calc(100vh-200px)] min-h-[350px] md:min-h-[450px] overflow-y-auto custom-scrollbar">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-[#292C35]">
+                                <tr>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Date</th>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time In</th>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time Out</th>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Remarks</th>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]">
+                                <!-- Example Row -->
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                    <a href="#" class="hover:underline">01.27.2025</a>
+                                </td>
+                                <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                </td>
+                                <td class="px-6 py-4 flex gap-2 justify-center">
+                                    <!-- Edit Button -->
+                                    <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                    class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                    <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                    </svg>
+                                    Edit
+                                    </button>
+                                    <!-- Delete Button -->
+                                    <a href="#"
+                                    class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                    <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                    </svg>
+                                    Delete
+                                    </a>
+                                </td>
+                                </tr>
+                                <!-- More Rows Go Here -->
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        <a href="#" class="hover:underline">01.27.2025</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                    </td>
+                                    <td class="px-6 py-4 flex gap-2 justify-center">
+                                        <!-- Edit Button -->
+                                        <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                        </svg>
+                                        Edit
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <a href="#"
+                                        class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                        </svg>
+                                        Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        <a href="#" class="hover:underline">01.27.2025</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                    </td>
+                                    <td class="px-6 py-4 flex gap-2 justify-center">
+                                        <!-- Edit Button -->
+                                        <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                        </svg>
+                                        Edit
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <a href="#"
+                                        class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                        </svg>
+                                        Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        <a href="#" class="hover:underline">01.27.2025</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                    </td>
+                                    <td class="px-6 py-4 flex gap-2 justify-center">
+                                        <!-- Edit Button -->
+                                        <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                        </svg>
+                                        Edit
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <a href="#"
+                                        class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                        </svg>
+                                        Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        <a href="#" class="hover:underline">01.27.2025</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                    </td>
+                                    <td class="px-6 py-4 flex gap-2 justify-center">
+                                        <!-- Edit Button -->
+                                        <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                        </svg>
+                                        Edit
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <a href="#"
+                                        class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                        </svg>
+                                        Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        <a href="#" class="hover:underline">01.27.2025</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                    </td>
+                                    <td class="px-6 py-4 flex gap-2 justify-center">
+                                        <!-- Edit Button -->
+                                        <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                        </svg>
+                                        Edit
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <a href="#"
+                                        class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                        </svg>
+                                        Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        <a href="#" class="hover:underline">01.27.2025</a>
+                                    </td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">06:00:01</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">15:00:48</td>
+                                    <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, nihil.
+                                    </td>
+                                    <td class="px-6 py-4 flex gap-2 justify-center">
+                                        <!-- Edit Button -->
+                                        <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                        </svg>
+                                        Edit
+                                        </button>
+                                        <!-- Delete Button -->
+                                        <a href="#"
+                                        class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                        </svg>
+                                        Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                    
+                                    
+                <!-- Pagination -->
+                <div class="p-2 mt-4 sticky bottom-0">
+                    <nav class="flex items-center justify-center" aria-label="Page navigation example">
+                        <ul class="flex h-8 items-center -space-x-px text-sm">
+                        <li>
+                          <a href="#" class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
+                          <span class="sr-only">Previous</span>
+                          <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
+                          </svg>
+                          </a>
+                        </li>
+                        <li>
+                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">1</a>
+                        </li>
+                        <li>
+                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">2</a>
+                        </li>
+                        <li>
+                          <a href="#" aria-current="page" class="z-10 flex h-8 items-center justify-center border border-primary-300 bg-primary-50 px-3 leading-tight text-primary-600 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 bg-gray-100 dark:bg-[#191A1F] text-[#333333] dark:text-gray-100">3</a>
+                        </li>
+                        <li>
+                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">...</a>
+                        </li>
+                        <li>
+                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">100</a>
+                        </li>
+                        <li>
+                          <a href="#" class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
+                          <span class="sr-only">Next</span>
+                            <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
+                            </svg>
+                          </a>
+                        </li>
+                        </ul>
+                      </nav>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Right Side (20%) -->
+        <aside class="lg:basis-1/5 bg-gray-50 dark:bg-[#191A1F] p-4 flex flex-col gap-4 ">
+            <!-- Container -->
+            <div class="flex flex-col h-full">
+                <!-- Time and Button -->
+                <div class="p-4 bg-white dark:bg-[#292C35] rounded-md shadow mb-4">
+                    <!-- Time-in/Time-out Row -->
+                    <div class="flex justify-between items-center">
+                        <span id="time-display" class="text-2xl font-normal text-[#333333] dark:text-gray-100">
+                            6:01:00 AM
+                        </span>
+                        <button id="time-toggle-btn" 
+                                class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg shadow-md transition duration-300 ease-in-out hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            Time-in
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Time Records -->
+                <div class="p-4 bg-white dark:bg-[#292C35] rounded-lg shadow mb-4">
+                    <div class="flex flex-col gap-4">
+                      <!-- Time-in -->
+                      <div class="flex justify-between items-center text-[#333333] dark:text-gray-100">
+                        <span class="text-xl font-semibold">Time-in:</span>
+                        <span class="text-[15px] font-medium">06:01:00</span>
+                      </div>
+                      <!-- Time-out -->
+                      <div class="flex justify-between items-center text-[#333333] dark:text-gray-100">
+                        <span class="text-xl font-semibold">Time-out:</span>
+                        <span class="text-[15px] font-medium">--:--:--</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                
+                <!-- Search Bar -->
+                <div class="rounded-lg shadow mb-4">
+                    <div class="flex flex-wrap items-center justify-between gap-4 md:flex-nowrap">
+                        <label for="table-search-users" class="sr-only">Search</label>
+                        <div class="relative w-full max-w-full">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-[#4C5F7F] dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                </svg>
+                            </div>
+                            <input type="text" id="table-search-users" class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-[#292C35] dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500" placeholder="Search for users">
+                        </div>
+                    </div>
+                </div>
+  
+                <!-- Employee Cards List -->
+                <div class="flex-grow">
+                    <div class="max-h-[640px] overflow-y-auto rounded-lg shadow custom-scrollbar">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                          <!-- Table Header -->
+                          <thead class="text-xs text-[#333333] uppercase bg-gray-50 dark:bg-[#292C35] dark:text-gray-400 sticky top-0 z-10">
+                            <tr>
+                              <th scope="col" class="px-6 py-3">Name</th>
+                              <th scope="col" class="px-6 py-3">Status</th>
+                            </tr>
+                          </thead>
+                          <!-- Table Body -->
+                          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Employee Row -->
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="Bonnie Green">
+                                <div class="ps-3">
+                                  <div class="text-base font-semibold">Bonnie Green</div>
+                                  <div class="font-normal text-gray-500">bonnie@flowbite.com</div>
+                                </div>
+                              </th>
+                              <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                  <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                </div>
+                              </td>
+                            </tr>
+                      
+                            <!-- More Employee Rows -->
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-4.jpg" alt="Leslie Livingston">
+                                <div class="ps-3">
+                                  <div class="text-base font-semibold">Leslie Livingston</div>
+                                  <div class="font-normal text-gray-500">leslie@flowbite.com</div>
+                                </div>
+                              </th>
+                              <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                  <div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2"></div> Offline
+                                </div>
+                              </td>
+                            </tr>
+                      
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-5.jpg" alt="Mark Doe">
+                                <div class="ps-3">
+                                  <div class="text-base font-semibold">Mark Doe</div>
+                                  <div class="font-normal text-gray-500">mark@flowbite.com</div>
+                                </div>
+                              </th>
+                              <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                  <div class="h-2.5 w-2.5 rounded-full bg-gray-500 me-2"></div> Leave
+                                </div>
+                              </td>
+                            </tr>
+                      
+                            <!-- Add more rows for testing the scroll -->
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                <div class="ps-3">
+                                  <div class="text-base font-semibold">Alice Brown</div>
+                                  <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                </div>
+                              </th>
+                              <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                  <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                </div>
+                              </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+
+                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
+                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
+                                  <div class="ps-3">
+                                    <div class="text-base font-semibold">Alice Brown</div>
+                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
+                                  </div>
+                                </th>
+                                <td class="px-6 py-4">
+                                  <div class="flex items-center">
+                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
+                                  </div>
+                                </td>
+                            </tr>
+                      
+                          </tbody>
+                        </table>
+                    </div>                      
+                </div>
+            </div>
+        </aside>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
+        <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.js"></script>
+    <script>
+      // Modal toggle/hide scripts remain unchanged
+      document.querySelectorAll('[data-modal-hide]').forEach(button => {
+        button.addEventListener('click', () => {
+          document.body.classList.remove('overflow-hidden');
+        });
+      });
+    
+      document.querySelectorAll('[data-modal-toggle]').forEach(button => {
+        button.addEventListener('click', () => {
+          document.body.classList.add('overflow-hidden');
+        });
+      });
+    </script>
+    
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
+    
+    <script>
+      // On page load, check local storage and set dark mode accordingly.
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark");
+        const darkToggle = document.querySelector("input[type='checkbox']#dark-toggle");
+        if (darkToggle) {
+          darkToggle.checked = true;
+        }
+      }
+    
+      // Function to toggle dark mode and save the setting in local storage.
+      function darkModeListener() {
+        document.documentElement.classList.toggle("dark");
+        if (document.documentElement.classList.contains("dark")) {
+          localStorage.setItem("darkMode", "enabled");
+        } else {
+          localStorage.setItem("darkMode", "disabled");
+        }
+      }
+    
+      // Add event listener to the dark mode toggle checkbox.
+      const darkToggle = document.querySelector("input[type='checkbox']#dark-toggle");
+      if (darkToggle) {
+        darkToggle.addEventListener("click", darkModeListener);
+      }
+    </script>
+   
+   <!--Time in Time out-->
+   <script>
+     // JavaScript to toggle between Time-in and Time-out
+     document.getElementById("time-toggle-btn").addEventListener("click", function () {
+       const timeDisplay = document.getElementById("time-display");
+       const button = this;
+   
+       // Check the current state and toggle
+       if (button.innerText === "Time-in") {
+         const currentTime = new Date().toLocaleTimeString(); // Get current time
+         timeDisplay.innerText = `${currentTime}`;
+         button.innerText = "Time-out"; // Switch button text
+       } else {
+         const currentTime = new Date().toLocaleTimeString(); // Get current time
+         timeDisplay.innerText = `${currentTime}`;
+         button.innerText = "Time-in"; // Switch button text
+       }
+     });
+   </script>   
+</body>
+</html>
