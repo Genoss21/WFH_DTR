@@ -1,68 +1,64 @@
 package dev.tgsi.attendance_registration_system.service;
 
-import java.util.Collection;
-
-import java.util.Collections;
-
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import dev.tgsi.attendance_registration_system.models.User;
 
+import java.util.Collection;
+import java.util.Collections;
+
 public class CustomUserDetail implements UserDetails {
-	
-	private User user;
-	
-	public CustomUserDetail(User user) {
-		this.user = user;
-	}
+    
+    private User user;
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return Collections.singletonList(new GrantedAuthority() {
-			@Override
-			public String getAuthority() {
-				return String.valueOf(user.getRole());
-			}
-		});
-	}
-	
-	
+    // Constructor
+    public CustomUserDetail(User user) {
+        if (user == null || user.getRole() == null) {
+            throw new IllegalArgumentException("User and User role cannot be null");
+        }
+        this.user = user;
+    }
 
-	@Override
-	public String getPassword() {
-		return user.getPassword();
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Using SimpleGrantedAuthority to return the role as an authority
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getRoleShName()));
+    }
 
-	@Override
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return user.getUsername();
-	}
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Assuming account never expires, could be modified based on business logic
+    }
 
-	@Override
-	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Modify as per your logic for account lock status
+    }
 
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Modify as per your logic for credential expiry
+    }
 
+    @Override
+    public boolean isEnabled() {
+        // Modify based on your business logic if a user is enabled/disabled
+        return true; // Assuming always enabled, change based on status in the DB
+    }
+
+    // Getters for User object if needed
+    public User getUser() {
+        return user;
+    }
 }

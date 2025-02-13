@@ -1,78 +1,57 @@
 package dev.tgsi.attendance_registration_system.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import java.util.*;
+
+@Data
+@NoArgsConstructor
 @Entity
-@Table(name = "tbl_user", uniqueConstraints = @UniqueConstraint(columnNames = "username"))
+@Table(name = "tbl_user")
 public class User {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long epm_id;
-	
-	private String username;
-	private String password;
-	private int role_id;
-	
-	
-	public User() {
-		super();
-	}
 
-	public User(String username, String password, int role_id) {
-		
-		this.username = username;
-		this.password = password;
-		this.role_id = role_id;
-		
-	}
+    @Id
+    @Column(name = "emp_id")
+    private String empId;
 
-	public Long getId() {
-		return epm_id;
-	}
+    @Column(name = "username")
+    private String username;
 
-	public void setId(Long emp_id) {
-		this.epm_id = emp_id;
-	}
+    @Column(name = "password")
+    private String password;
 
-	public String getUsername() {
-		return username;
-	}
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private RoleModel role;
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "position_id")
+    private PositionModel position;
 
-	public String getPassword() {
-		return password;
-	}
+    @Column(name = "img_src")
+    private String imgSrc;
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private PersonalInfoModel personalInfo;
+    
+    // ! Added: 02/11/2025
+    // Mapping the user for attendance records
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<AttendanceRecord> attendanceRecords;
+    // ! End of added
 
-	public int getRole() {
-		return role_id;
-	}
-
-	public void setRole(int role_id) {
-		this.role_id = role_id;
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "empId='" + empId + '\'' +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                ", position=" + position +
+                ", imgSrc='" + imgSrc + '\'' +
+                '}';
+    }
 }
