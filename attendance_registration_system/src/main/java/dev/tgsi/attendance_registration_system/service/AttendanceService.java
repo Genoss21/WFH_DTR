@@ -2,13 +2,15 @@
 
 package dev.tgsi.attendance_registration_system.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import dev.tgsi.attendance_registration_system.models.User;
-
+import dev.tgsi.attendance_registration_system.models.AttendanceRecord.Status;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.LeaveModel;
 import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
@@ -38,7 +40,11 @@ public class AttendanceService {
 
         AttendanceRecord attendanceRecord = new AttendanceRecord();
         attendanceRecord.setUser(user);
-        attendanceRecord.setTimeIn(LocalDateTime.now());
+        attendanceRecord.setDate(LocalDate.now()); // set today's date
+        attendanceRecord.setTimeIn(LocalTime.now()); // time-in record
+        attendanceRecord.setStatus(Status.ONLINE); // set status
+        attendanceRecord.setCreatedOn(LocalDateTime.now()); // set created on
+        attendanceRecord.setUpdatedOn(LocalDateTime.now()); // set updated on
         attendanceRepository.save(attendanceRecord);
     }
 
@@ -50,7 +56,9 @@ public class AttendanceService {
         }
 
         AttendanceRecord record = openRecords.get(0);
-        record.setTimeOut(LocalDateTime.now());
+        record.setTimeOut(LocalTime.now());
+        record.setStatus(Status.OFFLINE);
+        record.setUpdatedOn(LocalDateTime.now());
         attendanceRepository.save(record);
     }
 
@@ -105,18 +113,18 @@ public class AttendanceService {
     }
     
 
-    public LocalDateTime getLatestTimeIn(String empId) {
+    public LocalTime getLatestTimeIn(String empId) {
         List<AttendanceRecord> userRecords = attendanceRepository.findByUser_EmpId(empId);
 
         return userRecords.stream()
             .filter(record -> record.getTimeOut() != null)
             .map(AttendanceRecord::getTimeIn)
-            .max(LocalDateTime::compareTo)
+            .max(LocalTime::compareTo)
             .orElse(null);
     }
 
 
-    public LocalDateTime getLatestTimeOut(String empId) {
+    public LocalTime getLatestTimeOut(String empId) {
         List<AttendanceRecord> userRecords = attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(empId);
 
         if (!userRecords.isEmpty()) {
@@ -127,30 +135,30 @@ public class AttendanceService {
                 .stream()
                 .filter(record -> record.getTimeOut() != null)
                 .map(AttendanceRecord::getTimeOut)
-                .max(LocalDateTime::compareTo)
+                .max(LocalTime::compareTo)
                 .orElse(null);
 
         }
 
-    @Transactional
-    public AttendanceRecord saveLeave(LeaveModel leaveModel , User user) {
-        AttendanceRecord attendanceModel =  new AttendanceRecord();
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        leaveRepository.save(leaveModel);
-        attendanceModel.setLeaveModel(leaveModel);
-        attendanceModel.setUser(user);
-        attendanceModel.setDate(leaveModel.getLeaveDate());
-        attendanceModel.setCreatedOn(LocalDateTime.parse(now.toString()));
-        attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
-        attendanceModel.setDelFlag(0);
-        attendanceModel.setStatus("on Leave");
-        attendanceModel.setEditedById(user.getEmpId());
-        attendanceModel.setEditedByRole(user.getRole().getRoleShName());
-        attendanceModel.setRemarks("on Leave");
-        return attendanceRepository.save(attendanceModel);
+    // @Transactional
+    // public AttendanceRecord saveLeave(LeaveModel leaveModel , User user) {
+    //     AttendanceRecord attendanceModel =  new AttendanceRecord();
+    //     //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    //     LocalDateTime now = LocalDateTime.now();
+    //     leaveRepository.save(leaveModel);
+    //     attendanceModel.setLeaveModel(leaveModel);
+    //     attendanceModel.setUser(user);
+    //     attendanceModel.setDate(leaveModel.getLeaveDate());
+    //     attendanceModel.setCreatedOn(LocalDateTime.parse(now.toString()));
+    //     attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+    //     attendanceModel.setDelFlag(0);
+    //     attendanceModel.setStatus("on Leave");
+    //     attendanceModel.setEditedById(user.getEmpId());
+    //     attendanceModel.setEditedByRole(user.getRole().getRoleShName());
+    //     attendanceModel.setRemarks("on Leave");
+    //     return attendanceRepository.save(attendanceModel);
 
-    }
+    // }
     
 }
 // ! End

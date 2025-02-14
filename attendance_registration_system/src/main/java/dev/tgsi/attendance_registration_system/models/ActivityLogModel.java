@@ -31,8 +31,8 @@ public class ActivityLogModel {
     @Column(name = "log_id")
     private int logId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "emp_id")
+    @ManyToOne
+    @JoinColumn(name = "emp_id", referencedColumnName = "emp_id")
     private User user;
 
     @Column(name = "log_desc")
@@ -55,5 +55,7 @@ public class ActivityLogModel {
         this.regDate = regDate;
         this.updateDate = updateDate;
     }
+
+    
 
 }

@@ -14,7 +14,7 @@ import java.util.*;
 public class User {
 
     @Id
-    @Column(name = "emp_id")
+    @Column(name = "emp_id", length = 50)
     private String empId;
 
     @Column(name = "username")
