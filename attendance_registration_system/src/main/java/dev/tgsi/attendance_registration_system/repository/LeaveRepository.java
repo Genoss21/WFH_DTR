@@ -8,5 +8,5 @@ import dev.tgsi.attendance_registration_system.models.LeaveModel;
 @Repository
 public interface LeaveRepository extends JpaRepository<LeaveModel, Integer> {
 
-    
+    LeaveModel findByLeaveId(Integer leaveId);
 }

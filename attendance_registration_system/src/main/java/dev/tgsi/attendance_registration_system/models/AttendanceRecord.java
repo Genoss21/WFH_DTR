@@ -37,7 +37,7 @@ public class AttendanceRecord {
     @Column(name ="date")
     private LocalDate date;
 
-    @Column(name ="time_in", nullable = false)
+    @Column(name ="time_in")
     private LocalTime timeIn;
 
     @Column(name ="time_out")
@@ -68,9 +68,12 @@ public class AttendanceRecord {
     @Column(name ="edited_by_id")
     private String editedById;
 
+    @Column(name ="deleted_by_id")
+    private String deletedById;
+
     public AttendanceRecord(User user, LeaveModel leaveModel, LocalDate date, LocalTime timeIn, LocalTime timeOut, String status,
             String remarks, int delFlag, LocalDateTime createdOn, LocalDateTime updatedOn, String editedByRole, String editedByName,
-            String editedById) {
+            String editedById, String deletedById) {
         this.user = user;
         this.leaveModel = leaveModel;
         this.date = date;
@@ -84,6 +87,7 @@ public class AttendanceRecord {
         this.editedByRole = editedByRole;
         this.editedByName = editedByName;
         this.editedById = editedById;
+        this.deletedById = deletedById;
     }
 
 

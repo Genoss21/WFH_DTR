@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 
-import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.models.User;
@@ -26,9 +26,6 @@ public class AttendanceController {
     private AttendanceService attendanceService;
 
     @Autowired
-    private AttendanceRepository attendanceRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @GetMapping("/")
@@ -39,12 +36,11 @@ public class AttendanceController {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String empId = user.getEmpId();
-        model.addAttribute("records", attendanceService.getUserAttendance(empId));
-        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(empId));
+        //String empId = user.getEmpId();
+        model.addAttribute("records", attendanceService.getUserAttendance(user));
+        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("username", username);
         
-
         return "Emp_dashboard";
     }
 
@@ -57,9 +53,8 @@ public class AttendanceController {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String empId = user.getEmpId();
-        attendanceService.clockIn(empId);
-        return "Clocked in successfully";
+        attendanceService.saveTimeIn(user);
+        return "Time in successfully";
     }
 
     @PostMapping("/clock-out")
@@ -71,9 +66,8 @@ public class AttendanceController {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String empId = user.getEmpId();
-        attendanceService.clockOut(empId);
-        return "Clocked out successfully";
+        attendanceService.saveTimeOut( user);
+        return "Time out successfully";
     }
 
     @GetMapping("/check-status")
@@ -85,9 +79,35 @@ public class AttendanceController {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String empId = user.getEmpId();
-        return attendanceService.isUserClockedIn(empId);
+        //String empId = user.getEmpId();
+        return attendanceService.isUserClockedIn(user);
 
+    }
+
+    @GetMapping("/user/delete/{attendanceId}")
+    public String deleteUserAttendance(@PathVariable(name="attendanceId") Long id){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        attendanceService.deleteAttendance(id,user);
+        return "redirect:/user-page";
+    }
+
+    @GetMapping("/admin/delete/{attendanceId}")
+    public String deleteAdminAttendance(@PathVariable(name="attendanceId") Long id){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        attendanceService.deleteAttendance(id,user);
+        return "redirect:/admin-page";
     }
 }
 // !End of file

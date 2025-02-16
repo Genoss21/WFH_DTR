@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
+import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
@@ -46,7 +48,10 @@ public class AttendanceApiController {
         }
 
         User user = userOptional.get();
-        boolean clockIn = !attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(user.getEmpId()).isEmpty();
+        //boolean clockIn = !attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(user.getEmpId()).isEmpty();
+        TargetDateTime dateTime = new TargetDateTime();
+        AttendanceRecord attendanceRecord = attendanceRepository.findTodayAttendance(user.getEmpId(), dateTime.getTargetDate());
+        boolean clockIn = attendanceRecord == null ? false : true;
 
         Map<String, Object> response = new HashMap<>();
         response.put("clockedIn", clockIn);

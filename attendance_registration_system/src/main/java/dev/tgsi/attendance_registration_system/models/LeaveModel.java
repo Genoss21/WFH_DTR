@@ -39,11 +39,19 @@ public class LeaveModel {
     @Column(name = "remarks")
     private String remarks;
 
-    public LeaveModel(LocalDate leaveDate, String leaveType, String leaveDuration, String remarks) {
+    @Column(name = "del_flag")
+    private int delFlag;
+
+    @Column(name = "deleted_by_id")
+    private String deletedById;
+
+    public LeaveModel(LocalDate leaveDate, String leaveType, String leaveDuration, String remarks, int delFlag, String deletedById) {
         this.leaveDate = leaveDate;
         this.leaveType = leaveType;
         this.leaveDuration = leaveDuration;
         this.remarks = remarks;
+        this.delFlag = delFlag;
+        this.deletedById = deletedById;
     }
 
 }
