@@ -501,176 +501,10 @@
                             </tr>
                           </thead>
                           <!-- Table Body -->
-                          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                          <tbody id="userTable" class="divide-y divide-gray-200 dark:divide-gray-700 overscroll-x-none">
                             <!-- Employee Row -->
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="Bonnie Green">
-                                <div class="ps-3">
-                                  <div class="text-base font-semibold">Bonnie Green</div>
-                                  <div class="font-normal text-gray-500">bonnie@flowbite.com</div>
-                                </div>
-                              </th>
-                              <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                  <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                </div>
-                              </td>
-                            </tr>
-                      
-                            <!-- More Employee Rows -->
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-4.jpg" alt="Leslie Livingston">
-                                <div class="ps-3">
-                                  <div class="text-base font-semibold">Leslie Livingston</div>
-                                  <div class="font-normal text-gray-500">leslie@flowbite.com</div>
-                                </div>
-                              </th>
-                              <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                  <div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2"></div> Offline
-                                </div>
-                              </td>
-                            </tr>
-                      
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-5.jpg" alt="Mark Doe">
-                                <div class="ps-3">
-                                  <div class="text-base font-semibold">Mark Doe</div>
-                                  <div class="font-normal text-gray-500">mark@flowbite.com</div>
-                                </div>
-                              </th>
-                              <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                  <div class="h-2.5 w-2.5 rounded-full bg-gray-500 me-2"></div> Leave
-                                </div>
-                              </td>
-                            </tr>
-                      
-                            <!-- Add more rows for testing the scroll -->
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                <div class="ps-3">
-                                  <div class="text-base font-semibold">Alice Brown</div>
-                                  <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                </div>
-                              </th>
-                              <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                  <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                </div>
-                              </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-
-                            <tr class="bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]">
-                                <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                  <img class="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-6.jpg" alt="Alice Brown">
-                                  <div class="ps-3">
-                                    <div class="text-base font-semibold">Alice Brown</div>
-                                    <div class="font-normal text-gray-500">alice@flowbite.com</div>
-                                  </div>
-                                </th>
-                                <td class="px-6 py-4">
-                                  <div class="flex items-center">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> Online
-                                  </div>
-                                </td>
-                            </tr>
-                      
                           </tbody>
+                        
                         </table>
                     </div>                      
                 </div>
@@ -682,6 +516,74 @@
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
         <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
     </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('table-search-users');
+        
+        function updateUserTable(users) {
+          const tbody = document.getElementById('userTable');
+          tbody.innerHTML = ''; // Clear current rows
+    
+          users.forEach(user => {
+            // Default statusColor for OFFLINE
+            let statusColor = 'bg-red-500';
+            if (user.status === 'ONLINE') {
+              statusColor = 'bg-green-500';
+            } else if (user.status === 'ON_LEAVE') {
+              statusColor = 'bg-gray-500';
+            }
+    
+            const tr = document.createElement('tr');
+            tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
+            tr.innerHTML = `
+              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <img class="w-10 h-10 rounded-full" src="${user.imgSrc}" alt="${user.fullName}">
+                <div class="ps-3">
+                  <div class="text-base font-semibold">${user.fullName}</div>
+                  <div class="font-normal text-gray-500">${user.email}</div>
+                </div>
+              </th>
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div> ${user.status}
+                </div>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+    
+        async function fetchUsers(query = '') {
+          try {
+            const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            const users = await response.json();
+            updateUserTable(users);
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          }
+        }
+    
+        // Initial load: fetch all users (default offline unless the database marks them online)
+        fetchUsers();
+    
+        // Update the table as the user types in the search field
+        searchInput.addEventListener('input', (event) => {
+          const query = event.target.value;
+          fetchUsers(query);
+        });
+    
+        // Optional: Poll every 30 seconds to refresh user statuses
+        setInterval(() => {
+          const currentQuery = searchInput.value;
+          fetchUsers(currentQuery);
+        }, 30000);
+      });
+    </script>
+    
     <script>
       // Modal toggle/hide scripts remain unchanged
       document.querySelectorAll('[data-modal-hide]').forEach(button => {

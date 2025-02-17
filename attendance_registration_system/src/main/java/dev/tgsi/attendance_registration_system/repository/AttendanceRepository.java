@@ -34,6 +34,5 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, Lo
 
     @Query("SELECT a FROM AttendanceRecord a WHERE a.user.empId = :empId AND a.date >= :startDate AND a.date <= :endDate AND a.delFlag = 0 ORDER BY a.date DESC " )
     List<AttendanceRecord> getAttendanceRecordByDate(String empId, LocalDate startDate, LocalDate endDate);
-    
 } 
 // ! End of Update  
