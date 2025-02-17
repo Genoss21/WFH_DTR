@@ -13,7 +13,7 @@ public class TargetDateTime {
         //LocalTime time = LocalTime.of(5, 0, 0);;
        // LocalDateTime dateTime;
         if(timeOut.isBefore(LocalTime.of(5, 1, 0))){
-            date = LocalDate.now().minusDays(1);
+            date = LocalDate.now();
             //dateTime = date.atTime(time);
         }
         else{

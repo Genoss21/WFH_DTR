@@ -82,7 +82,7 @@ public class UserController {
 
         //String empId = user.getEmpId();
         model.addAttribute("records", attendanceService.getUserAttendance(user));
-        //model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(empId));
+        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
 
@@ -127,7 +127,7 @@ public class UserController {
 
         //String empId = user.getEmpId();
         model.addAttribute("records", attendanceService.getUserAttendance(user));
-        //model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(empId));
+        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
         // !end of added
