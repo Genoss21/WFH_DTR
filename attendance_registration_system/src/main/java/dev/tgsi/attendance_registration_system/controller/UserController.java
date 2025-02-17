@@ -6,6 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.MediaType;
@@ -17,11 +18,15 @@ import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import java.util.List;
+
+import dev.tgsi.attendance_registration_system.dto.FilterDates;
 import dev.tgsi.attendance_registration_system.dto.LeaveDto;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
@@ -95,7 +100,7 @@ public class UserController {
 
 
     @GetMapping("/admin-page")
-    public String adminPage(Model model, Principal principal) {
+    public String adminPage(Model model, Principal principal,@ModelAttribute FilterDates filterDates) {
         if (principal == null) {
             logger.error("No authenticated user found.");
             model.addAttribute("error", "No authenticated user found");
@@ -126,10 +131,19 @@ public class UserController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         //String empId = user.getEmpId();
-        model.addAttribute("records", attendanceService.getUserAttendance(user));
         model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
+        model.addAttribute("date",filterDates);
+        if(filterDates.getStartDate()==null && filterDates.getEndDate()== null){
+            model.addAttribute("records", attendanceService.getUserAttendance(user));
+        }
+        else{
+           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+           LocalDate startdDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
+           LocalDate endDate =  LocalDate.parse(filterDates.getEndDate(),formatter);
+           model.addAttribute("records", attendanceService.getAttendanceRecordByDate(user,startdDate,endDate));
+        }
         // !end of added
 
         LeaveDto leaveDto = new LeaveDto();
