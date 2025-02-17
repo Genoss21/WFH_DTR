@@ -110,7 +110,7 @@
             </div>
 
             <div class="mt-8 w-full">
-              <form action="/login" method="post">
+              <form id= "loginForm" action="/login" method="post">
                 <div>
                   <label
                     for="username"
@@ -226,17 +226,17 @@
     <script>
       // Form validation: Turn input borders red if fields are empty on submit
       const form = document.getElementById("loginForm");
-      const emailInput = document.getElementById("email");
+      const usernameInput = document.getElementById("username");
       const passwordInput = document.getElementById("password");
 
       form.addEventListener("submit", function (e) {
         let hasError = false;
 
-        if (emailInput.value.trim() === "") {
-          emailInput.classList.add("border-red-500");
+        if (usernameInput.value.trim() === "") {
+          usernameInput.classList.add("border-red-500");
           hasError = true;
         } else {
-          emailInput.classList.remove("border-red-500");
+          usernameInput.classList.remove("border-red-500");
         }
 
         if (passwordInput.value.trim() === "") {
