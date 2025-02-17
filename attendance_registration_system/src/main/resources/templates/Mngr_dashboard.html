@@ -290,6 +290,7 @@
                       </h2>
 
                       <!-- Filter Section -->
+                      <form th:action="@{/admin-page}" method="get">
                       <div class="flex flex-col sm:flex-row items-center justify-end gap-4 lg:pr-4 md:pr-4 sm:pr-0 mb-4 lg:mb-0">
                           <!-- Department Dropdown -->
                           <select id="department"
@@ -314,7 +315,7 @@
 
                           <!-- Date Range Picker -->
                           <div id="date-range-picker" date-rangepicker th:object="${date}" class="flex items-center">
-                            <form th:action="@{/admin-page}" method="get">
+                            
                             <div class="relative">
                                   <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                       <svg class="w-4 h-4 text-[#4C5F7F] dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -552,7 +553,7 @@
             let statusColor = 'bg-red-500'; // default for OFFLINE
             if (user.status === 'Online') {
               statusColor = 'bg-green-500';
-            } else if (user.status === 'On_leave') {
+            } else if (user.status === 'On leave') {
               statusColor = 'bg-gray-500';
             }
     
