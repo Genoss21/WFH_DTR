@@ -518,22 +518,24 @@
     </footer>
 
     <script>
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('DOMContentLoaded', async () => {
         const searchInput = document.getElementById('table-search-users');
         
+        // Function to update the table with user rows
         function updateUserTable(users) {
           const tbody = document.getElementById('userTable');
           tbody.innerHTML = ''; // Clear current rows
     
           users.forEach(user => {
-            // Default statusColor for OFFLINE
-            let statusColor = 'bg-red-500';
-            if (user.status === 'ONLINE') {
+            // Set the indicator color based on status
+            let statusColor = 'bg-red-500'; // default for OFFLINE
+            if (user.status === 'Online') {
               statusColor = 'bg-green-500';
-            } else if (user.status === 'ON_LEAVE') {
+            } else if (user.status === 'On leave') {
               statusColor = 'bg-gray-500';
             }
     
+            // Create a table row for each user
             const tr = document.createElement('tr');
             tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
             tr.innerHTML = `
@@ -554,6 +556,7 @@
           });
         }
     
+        // Function to fetch users with an optional query parameter
         async function fetchUsers(query = '') {
           try {
             const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
@@ -567,22 +570,17 @@
           }
         }
     
-        // Initial load: fetch all users (default offline unless the database marks them online)
+        // Initial load: fetch all users (empty query)
         fetchUsers();
     
-        // Update the table as the user types in the search field
+        // Listen for input events to update the table as the user types
         searchInput.addEventListener('input', (event) => {
           const query = event.target.value;
           fetchUsers(query);
         });
-    
-        // Optional: Poll every 30 seconds to refresh user statuses
-        setInterval(() => {
-          const currentQuery = searchInput.value;
-          fetchUsers(currentQuery);
-        }, 30000);
       });
     </script>
+    
     
     <script>
       // Modal toggle/hide scripts remain unchanged

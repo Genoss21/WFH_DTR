@@ -1,5 +1,6 @@
 package dev.tgsi.attendance_registration_system.controller;
 
+import java.lang.annotation.Target;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
 import dev.tgsi.attendance_registration_system.dto.UserSearchDto;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
@@ -39,11 +41,28 @@ public class UserSearchController {
             );
         }
 
-        LocalDate today = LocalDate.now();
+        // LocalDate today = LocalDate.now();
+        TargetDateTime dateTime = new TargetDateTime();
         List<UserSearchDto> results = employees.stream().map(employee -> {
             User user = employee.getUser();
-            AttendanceRecord attendanceRecord = attendanceRepository.findTodayAttendance(user.getEmpId(), today);
-            String status = (attendanceRecord != null) ? attendanceRecord.getStatus().name() : "OFFLINE";
+            // Retrieve today’s attendance record, if it exists
+            AttendanceRecord attendanceRecord = attendanceRepository.findbyDate(user.getEmpId(), dateTime.getBeforeDate());
+            String status = "Offline"; // default status
+
+            if (attendanceRecord != null) {
+                // status = attendanceRecord.getStatus().name(); // ONLINE, OFFLINE, or ON_LEAVE
+
+                switch (attendanceRecord.getStatus()) {
+                    case ONLINE:
+                        status = "Online";
+                        break;
+                    case ON_LEAVE:
+                        status = "On leave";
+                    default:
+                        break;
+                    
+                }
+            }
 
             String fullName = employee.getFirstName() + " " + employee.getLastName();
             return new UserSearchDto(fullName, employee.getEmail(), user.getImgSrc(), status);
@@ -51,4 +70,5 @@ public class UserSearchController {
 
         return ResponseEntity.ok(results);
     }
+
 }
