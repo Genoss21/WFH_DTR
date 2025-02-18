@@ -8,6 +8,7 @@ import lombok.Data;
 public class UserSearchDto {
     private String fullName;
     private String email;
+    private String empId;
     private String imgSrc;
     private String status; // e.g. ONLINE, OFFLINE, or ON_LEAVE
 }
