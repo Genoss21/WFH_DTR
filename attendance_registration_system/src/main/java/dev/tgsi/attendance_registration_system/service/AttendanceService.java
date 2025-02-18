@@ -279,9 +279,6 @@ public class AttendanceService {
     @Transactional
     public List<AttendanceRecord> getAttendanceRecordByDate(User user, LocalDate startDate, LocalDate endDate) {
         List<AttendanceRecord> attendanceRecords = attendanceRepository.getAttendanceRecordByDate(user.getEmpId(), startDate, endDate);
-        if (attendanceRecords.isEmpty()) {
-            throw new RuntimeException("No attendance records found for the specified date range");
-        }
         return attendanceRecords;
     }
     
