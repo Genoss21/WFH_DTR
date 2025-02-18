@@ -78,7 +78,14 @@
           <button type="button" class="flex text-sm bg-[#292C35] rounded-full focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
             <span class="sr-only">Open user menu</span>
             <div class="profile">
-              <img id="profileImage" class="w-9 h-9 rounded-full" th:src="@{/user-image/{empId}(empId=${user.empId})}" alt="User Photo">
+              <img
+                id="profileImage"
+                class="w-9 h-9 rounded-full"
+                data-fullname="${user.fullName}"
+                th:src="@{/user-image/{empId}(empId=${user.empId})}"
+                alt="User Photo"
+              />
+
           </div>
           </button>
         </div>
@@ -324,7 +331,7 @@
                                   </div>
                                   <input id="datepicker-range-start" name="startDate" type="text" placeholder="Start Date"
                                       class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                                      th:text="${date.startDate}">
+                                      th:field="${date.startDate}">
                               </div>
                               <span class="mx-4 text-[#333333] dark:text-gray-400">to</span>
                               <div class="relative">
@@ -335,7 +342,7 @@
                                   </div>
                                   <input id="datepicker-range-end" name="endDate" type="text" placeholder="End Date"
                                       class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                                      th:text="${date.endDate}">
+                                      th:field="${date.endDate}">
                               </div>
                           </div>
 
@@ -369,6 +376,11 @@
                                 <!-- Example Row -->
                                  <!-- !Table records -->
                                 <tr th:each="record : ${records}" th:object="${record}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                  <!-- Employee -->
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
+                                      th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
+                                      Fritz
+                                  </td> -->
                                   <!-- Date -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                       <a href="#" class="hover:underline" 
@@ -485,12 +497,12 @@
                       <!-- Time-in -->
                       <div class="flex justify-between items-center text-[#333333] dark:text-gray-100">
                         <span class="text-xl font-semibold">Time-in:</span>
-                        <span class="text-gray-900" th:text="${latestTimeIn != null ? #temporals.format(latestTimeIn, 'HH:mm:ss') : '--:--:--'}">06:01:00</span>
+                        <span class="text-[#333333] dark:text-gray-100" th:text="${latestTimeIn != null ? #temporals.format(latestTimeIn, 'HH:mm:ss') : '--:--:--'}">06:01:00</span>
                       </div>
                       <!-- Time-out -->
                       <div class="flex justify-between items-center text-[#333333] dark:text-gray-100">
                         <span class="text-xl font-semibold">Time-out:</span>
-                        <span class="text-gray-900" th:text="${latestTimeOut != null ? #temporals.format(latestTimeOut, 'HH:mm:ss') : '--:--:--'}">--:--:--</span></span>
+                        <span class="text-[#333333] dark:text-gray-100" th:text="${latestTimeOut != null ? #temporals.format(latestTimeOut, 'HH:mm:ss') : '--:--:--'}">--:--:--</span></span>
                       </div>
                     </div>
                   <!-- ! end of sidebar time-In/time-Out display -->
@@ -538,31 +550,52 @@
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
         <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
     </footer>
-    
+      
+    <!--For employee cards -->
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const searchInput = document.getElementById('table-search-users');
-        
+    
+        // Function to generate initials (First Letter of First Name + Last Name)
+        function getInitials(fullName) {
+          const nameParts = fullName.split(" ");
+          const firstInitial = nameParts[0] ? nameParts[0][0] : "";
+          const lastInitial = nameParts.length > 1 ? nameParts[1][0] : "";
+          return (firstInitial + lastInitial).toUpperCase();
+        }
+    
+        // Function to generate a random Tailwind color for avatars
+        function getRandomColor() {
+          const colors = ["bg-[#9F7842]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#A40011]",];
+          return colors[Math.floor(Math.random() * colors.length)];
+        }
+    
         // Function to update the table with user rows
         function updateUserTable(users) {
           const tbody = document.getElementById('userTable');
           tbody.innerHTML = ''; // Clear current rows
     
           users.forEach(user => {
-            // Set the indicator color based on status
-            let statusColor = 'bg-red-500'; // default for OFFLINE
+            // Determine user status color
+            let statusColor = 'bg-red-500'; // Default for OFFLINE
             if (user.status === 'Online') {
               statusColor = 'bg-green-500';
             } else if (user.status === 'On leave') {
               statusColor = 'bg-gray-500';
             }
     
+            // Generate user initials if no image is available
+            const initials = getInitials(user.fullName);
+            const avatar = user.imgSrc
+                ? `<img class="w-10 h-10 rounded-full" src="/user-image/${user.empId}" alt="${user.fullName}">`
+              : `<div class="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${getRandomColor()}">${initials}</div>`;
+    
             // Create a table row for each user
             const tr = document.createElement('tr');
             tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
             tr.innerHTML = `
               <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                <img class="w-10 h-10 rounded-full" src="${user.imgSrc}" alt="${user.fullName}">
+                ${avatar}
                 <div class="ps-3">
                   <div class="text-base font-semibold">${user.fullName}</div>
                   <div class="font-normal text-gray-500">${user.email}</div>

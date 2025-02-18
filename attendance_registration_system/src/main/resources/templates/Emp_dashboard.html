@@ -462,12 +462,12 @@
                       <!-- Time-in -->
                       <div class="flex justify-between items-center text-[#333333] dark:text-gray-100">
                         <span class="text-xl font-semibold">Time-in:</span>
-                        <span class="text-gray-900" th:text="${latestTimeIn != null ? #temporals.format(latestTimeIn, 'HH:mm:ss') : '--:--:--'}">06:01:00</span>
+                        <span class="text-[#333333] dark:text-gray-100" th:text="${latestTimeIn != null ? #temporals.format(latestTimeIn, 'HH:mm:ss') : '--:--:--'}">06:01:00</span>
                       </div>
                       <!-- Time-out -->
                       <div class="flex justify-between items-center text-[#333333] dark:text-gray-100">
                         <span class="text-xl font-semibold">Time-out:</span>
-                        <span class="text-gray-900" th:text="${latestTimeOut != null ? #temporals.format(latestTimeOut, 'HH:mm:ss') : '--:--:--'}">--:--:--</span></span>
+                        <span class="text-[#333333] dark:text-gray-100" th:text="${latestTimeOut != null ? #temporals.format(latestTimeOut, 'HH:mm:ss') : '--:--:--'}">--:--:--</span></span>
                       </div>
                     </div>
                   <!-- ! end of sidebar time-In/time-Out display -->
@@ -520,27 +520,47 @@
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const searchInput = document.getElementById('table-search-users');
-        
+    
+        // Function to generate initials (First Letter of First Name + Last Name)
+        function getInitials(fullName) {
+          const nameParts = fullName.split(" ");
+          const firstInitial = nameParts[0] ? nameParts[0][0] : "";
+          const lastInitial = nameParts.length > 1 ? nameParts[1][0] : "";
+          return (firstInitial + lastInitial).toUpperCase();
+        }
+    
+        // Function to generate a random Tailwind color for avatars
+        function getRandomColor() {
+          const colors = ["bg-blue-500", "bg-green-500", "bg-red-500", "bg-purple-500", "bg-yellow-500", "bg-pink-500"];
+          return colors[Math.floor(Math.random() * colors.length)];
+        }
+    
         // Function to update the table with user rows
         function updateUserTable(users) {
           const tbody = document.getElementById('userTable');
           tbody.innerHTML = ''; // Clear current rows
     
           users.forEach(user => {
-            // Set the indicator color based on status
-            let statusColor = 'bg-red-500'; // default for OFFLINE
+            // Determine user status color
+            let statusColor = 'bg-red-500'; // Default for OFFLINE
             if (user.status === 'Online') {
               statusColor = 'bg-green-500';
             } else if (user.status === 'On leave') {
               statusColor = 'bg-gray-500';
             }
     
+            // Generate user initials if no image is available
+            const initials = getInitials(user.fullName);
+            const avatar = user.imgSrc
+                ? `<img class="w-10 h-10 rounded-full" src="/user-image/${user.empId}" alt="${user.fullName}">`
+              : `<div class="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${getRandomColor()}">${initials}</div>`;
+    
             // Create a table row for each user
             const tr = document.createElement('tr');
             tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
             tr.innerHTML = `
               <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                <img class="w-10 h-10 rounded-full" src="${user.imgSrc}" alt="${user.fullName}">
+                ${avatar}
                 <div class="ps-3">
                   <div class="text-base font-semibold">${user.fullName}</div>
                   <div class="font-normal text-gray-500">${user.email}</div>
