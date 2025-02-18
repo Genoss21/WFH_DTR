@@ -1,7 +1,5 @@
 package dev.tgsi.attendance_registration_system.controller;
 
-import java.lang.annotation.Target;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +63,7 @@ public class UserSearchController {
             }
 
             String fullName = employee.getFirstName() + " " + employee.getLastName();
-            return new UserSearchDto(fullName, employee.getEmail(), user.getImgSrc(), status);
+            return new UserSearchDto(fullName, employee.getEmail(),user.getEmpId(), user.getImgSrc(), status);
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(results);
