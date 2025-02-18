@@ -155,14 +155,14 @@
             </div>
 
             <!-- Modal Body -->
-            <form>
+            <form >
                 <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
                     <!-- Time-in -->
                     <div>
                         <label for="time-in" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-in:</label>
                         <input type="text" id="time-in" name="time_in"
                             class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="06:01:01 AM" required />
+                             required />
                     </div>
 
                     <!-- Time-out -->
@@ -170,7 +170,7 @@
                         <label for="time-out" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
                         <input type="text" id="time-out" name="time_out"
                             class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="02:59:59 PM" required />
+                             required />
                     </div>
                 </div>
 
@@ -179,7 +179,7 @@
                     <label for="remarks" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
                     <textarea id="remarks" name="remarks" rows="4"
                         class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Enter remarks" required></textarea>
+                         required></textarea>
                 </div>
 
                 <!-- Submit Button -->
@@ -380,7 +380,7 @@
                             <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]">
                                 <!-- error filter -->
                                    <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                  <td colspan="5" class="text-center text-red-500" th:text="${filterError}">error</td>
+                                  <td colspan="5" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
                                 </tr>
                                  <!-- !Table records -->
                                 <tr th:each="record : ${records}" th:object="${record}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">

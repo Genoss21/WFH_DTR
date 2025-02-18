@@ -107,8 +107,8 @@ public class UserController {
            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
             model.addAttribute("records", attendanceRecords);
             } else {
-            model.addAttribute("records", new ArrayList<>());
-            model.addAttribute("error", "No attendance record found.");
+            //model.addAttribute("records", new ArrayList<>());
+            model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
         }
         else{
@@ -171,8 +171,8 @@ public class UserController {
            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
             model.addAttribute("records", attendanceRecords);
             } else {
-            model.addAttribute("records", new ArrayList<>());
-            model.addAttribute("error", "No attendance record found.");
+            //model.addAttribute("records", new ArrayList<>());
+            model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
 
         }
