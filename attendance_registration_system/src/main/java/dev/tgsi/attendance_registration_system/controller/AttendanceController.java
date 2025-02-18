@@ -3,6 +3,10 @@
 package dev.tgsi.attendance_registration_system.controller;
 
 import org.springframework.security.core.Authentication;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -11,6 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+
 import org.springframework.ui.Model;
 
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
@@ -54,7 +61,11 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.saveTimeIn(user);
-        return "Time in successfully";
+        Map<String, String> response = new HashMap<>();
+        response.put("title", "Good Morning");
+        response.put("message", "Time-in Successfully");
+        response.put("status", "success");
+        return new Gson().toJson(response);
     }
 
     @PostMapping("/clock-out")
@@ -67,7 +78,11 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.saveTimeOut( user);
-        return "Time out successfully";
+        Map<String, String> response = new HashMap<>();
+        response.put("title", "Good Bye!");
+        response.put("message", "Time-out Successfully");
+        response.put("status", "success");
+        return new Gson().toJson(response);
     }
 
     @GetMapping("/check-status")

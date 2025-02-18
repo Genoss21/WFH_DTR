@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Managers Attendance Management</title>
+    <!-- for toast message -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- for tailwindcss -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.css" rel="stylesheet" />
     <!-- Add this to your <head> section -->
@@ -695,52 +698,101 @@
 <!-- ! Added: 02/13/25 -->
    <!-- ! auth: stvn -->
    <script>
-    let isClockedIn = false;
+          document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById("timeButton");
+    let isClockedIn = localStorage.getItem("isClockedIn") === "true";
 
-function toggleTime() {
-  const button = document.getElementById("timeButton");
-  const endpoint = isClockedIn
-      ? "/attendance/clock-out"
-      : "/attendance/clock-in";
+    // Set button text based on stored state
+    button.innerText = isClockedIn ? "Time Out" : "Time In";
 
-  if (isClockedIn) {
-      button.innerText = "Time In";
-      fetch(endpoint, { method: "POST" })
-          .then((response) => {
-              if (!response.ok) {
-                  throw new Error("Network response was not ok");
-              }
-              return response.text();
-          })
-          .then((data) => {
-              console.log(data);
-              location.reload(); // Refresh the page to update the table
-          })
-          .catch((error) => {
-              console.error("Error during clock-out:", error);
-          });
+    button.addEventListener("click", toggleTime);
 
-      isClockedIn = false;
-  } else {
-      button.innerText = "Time Out";
-      fetch(endpoint, { method: "POST" })
-          .then((response) => {
-              if (!response.ok) {
-                  throw new Error("Network response was not ok");
-              }
-              return response.text();
-          })
-          .then((data) => {
-              console.log(data);
-              location.reload(); // Refresh the page to update the table
-          })
-          .catch((error) => {
-              console.error("Error during clock-in:", error);
-          });
-      isClockedIn = true;
-  }
-  // isClockedIn = !isClockedIn;
-}
+    function toggleTime() {
+        const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+
+        fetch(endpoint, { method: "POST" })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("You are already rendered your time");
+            }
+            return response.json(); // Parse JSON response
+        })
+        .then(data => {
+            console.log(data);
+
+            // Toggle state
+            isClockedIn = !isClockedIn;
+            localStorage.setItem("isClockedIn", isClockedIn);
+            setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+
+            // Show modal with response data
+            showModal(data.title, data.message, data.status);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            showModal("Error", "You are already rendered your time", "error");
+        });
+    }
+    function showModal(title, message, icon) {
+        Swal.fire({
+            icon: icon, // "success" or "error"
+            title: title,
+            text: message,
+            confirmButtonText: "OK",
+            background: "#fff",
+            color: "#333",
+            position: "center"
+        });
+    }
+});
+//     let isClockedIn = false;
+
+// function toggleTime() {
+//   const button = document.getElementById("timeButton");
+//   const endpoint = isClockedIn
+//       ? "/attendance/clock-out"
+//       : "/attendance/clock-in";
+
+//   if (isClockedIn) {
+//       button.innerText = "Time In";
+//       fetch(endpoint, { method: "POST" })
+//           .then((response) => {
+//               if (!response.ok) {
+//                   throw new Error("Network response was not ok");
+//               }
+//               return response.text();
+//           })
+//           .then((data) => {
+//               console.log(data);
+//               location.reload(); // Refresh the page to update the table
+//           })
+//           .catch((error) => {
+//               console.error("Error during clock-out:", error);
+//           });
+
+//       isClockedIn = false;
+//   } else {
+//       button.innerText = "Time Out";
+//       fetch(endpoint, { method: "POST" })
+//           .then((response) => {
+//               if (!response.ok) {
+//                   throw new Error("Network response was not ok");
+//               }
+//               return response.text();
+//           })
+//           .then((data) => {
+//               console.log(data);
+//               location.reload(); // Refresh the page to update the table
+//           })
+//           .catch((error) => {
+//               console.error("Error during clock-in:", error);
+//           });
+//       isClockedIn = true;
+//   }
+//   // isClockedIn = !isClockedIn;
+// }
 
 // Check if the user is already clocked in on page load
 window.onload = function () {
