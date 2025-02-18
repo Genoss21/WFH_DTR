@@ -28,9 +28,6 @@ public class PersonalInfoModel {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "profile_picture")
-    private String profilePicture; // Store profile image URL or path
-
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "emp_id")
     @JsonBackReference
@@ -54,7 +51,6 @@ public class PersonalInfoModel {
                 ", lastName='" + lastName + '\'' +
                 ", midName='" + midName + '\'' +
                 ", email='" + email + '\'' +
-                ", profilePicture='" + profilePicture + '\'' +
                 '}';
     }
 }
