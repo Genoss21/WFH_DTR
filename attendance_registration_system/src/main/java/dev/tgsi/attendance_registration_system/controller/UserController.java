@@ -24,10 +24,13 @@ import java.util.Optional;
 
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.tgsi.attendance_registration_system.dto.FilterDates;
 import dev.tgsi.attendance_registration_system.dto.LeaveDto;
+import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.service.UserService;
@@ -55,7 +58,7 @@ public class UserController {
     }
 
     @GetMapping("/user-page")
-    public String userPage(Model model, Principal principal) {
+    public String userPage(Model model, Principal principal,@ModelAttribute FilterDates filterDates) {
         if (principal == null) {
             logger.error("No authenticated user found.");
             model.addAttribute("error", "No authenticated user found");
@@ -86,10 +89,31 @@ public class UserController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         //String empId = user.getEmpId();
-        model.addAttribute("records", attendanceService.getUserAttendance(user));
+        //model.addAttribute("records", attendanceService.getUserAttendance(user));
         model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
+        model.addAttribute("date",filterDates);
+
+        List<AttendanceRecord> attendanceRecords;
+
+        if(filterDates.getStartDate()!=null && !filterDates.getStartDate().isEmpty() 
+            && filterDates.getEndDate()!= null && !filterDates.getEndDate().isEmpty()){
+
+           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+           LocalDate startdDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
+           LocalDate endDate =  LocalDate.parse(filterDates.getEndDate(),formatter);
+           attendanceRecords = attendanceService.getAttendanceRecordByDate(user,startdDate,endDate);
+           if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+            model.addAttribute("records", attendanceRecords);
+            } else {
+            model.addAttribute("records", new ArrayList<>());
+            model.addAttribute("error", "No attendance record found.");
+            }
+        }
+        else{
+            model.addAttribute("records", attendanceService.getUserAttendance(user));
+        }
 
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);   
@@ -135,14 +159,25 @@ public class UserController {
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
         model.addAttribute("date",filterDates);
-        if(filterDates.getStartDate()==null && filterDates.getEndDate()== null){
-            model.addAttribute("records", attendanceService.getUserAttendance(user));
-        }
-        else{
+
+        List<AttendanceRecord> attendanceRecords;
+        if(filterDates.getStartDate()!=null && !filterDates.getStartDate().isEmpty() 
+            && filterDates.getEndDate()!= null && !filterDates.getEndDate().isEmpty()){
+
            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
            LocalDate startdDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
            LocalDate endDate =  LocalDate.parse(filterDates.getEndDate(),formatter);
-           model.addAttribute("records", attendanceService.getAttendanceRecordByDate(user,startdDate,endDate));
+           attendanceRecords = attendanceService.getAttendanceRecordByDate(user,startdDate,endDate);
+           if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+            model.addAttribute("records", attendanceRecords);
+            } else {
+            model.addAttribute("records", new ArrayList<>());
+            model.addAttribute("error", "No attendance record found.");
+            }
+
+        }
+        else{
+            model.addAttribute("records", attendanceService.getUserAttendance(user));
         }
         // !end of added
 
