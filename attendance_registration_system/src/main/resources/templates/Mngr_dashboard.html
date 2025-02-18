@@ -77,16 +77,21 @@
           <!-- Profile Button -->
           <button type="button" class="flex text-sm bg-[#292C35] rounded-full focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
             <span class="sr-only">Open user menu</span>
-            <div class="profile">
+            <div th:if="${user.imgSrc != null }" class="profile">
               <img
                 id="profileImage"
-                class="w-9 h-9 rounded-full"
-                data-fullname="${user.fullName}"
+                class="w-10 h-10 rounded-full"
                 th:src="@{/user-image/{empId}(empId=${user.empId})}"
                 alt="User Photo"
               />
 
-          </div>
+            </div>
+            <!-- Show initials if user.imgSrc is null -->
+            <div th:if="${user.imgSrc == null }" 
+                class="w-10 h-10 flex items-center justify-center rounded-full text-white text-lg font-bold"
+                style="background-color: #3498db;">
+                <span th:text="${user.personalInfo.getInitials()}"></span>
+                </div>
           </button>
         </div>
   
@@ -373,7 +378,10 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]">
-                                <!-- Example Row -->
+                                <!-- error filter -->
+                                   <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                  <td colspan="5" class="text-center text-red-500" th:text="${filterError}">error</td>
+                                </tr>
                                  <!-- !Table records -->
                                 <tr th:each="record : ${records}" th:object="${record}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
                                   <!-- Employee -->
@@ -388,12 +396,12 @@
                                   </td>
                                   <!-- Time-in -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                      th:text="${#temporals.format(record.timeIn, 'HH:mm:ss')}">
+                                      th:text="${record.timeIn != null ? #temporals.format(record.timeIn, 'HH:mm:ss') : '--:--:--'}">
                                       06:00:01
                                   </td>
                                   <!-- Time-out -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                      th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
+                                      th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--'}">
                                       15:00:48
                                   </td>
                                   <!-- remarks -->
