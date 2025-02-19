@@ -723,9 +723,19 @@
             // Toggle state
             isClockedIn = !isClockedIn;
             localStorage.setItem("isClockedIn", isClockedIn);
+
+            // Delay reload for UI update
             setTimeout(function() {
-                        location.reload();
-                    }, 2000);
+                location.reload();
+            }, 2000);
+
+            // If user clocks out, clear localStorage after 5 minutes (300,000ms)
+            if (!isClockedIn) {
+                setTimeout(() => {
+                    localStorage.removeItem("isClockedIn");
+                    console.log("Local storage cleared after timeout");
+                }, 300000); // 5 minutes
+            }
 
             // Show modal with response data
             showModal(data.title, data.message, data.status);
@@ -735,6 +745,7 @@
             showModal("Error", "You are already rendered your time", "error");
         });
     }
+
     function showModal(title, message, icon) {
         Swal.fire({
             icon: icon, // "success" or "error"
