@@ -13,48 +13,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Add this CSS to Tailwind Config or Global Styles -->
     <style>
-        .font-roboto {
+      .font-roboto {
         font-family: 'Roboto', sans-serif;
-        }
-        .font-noto-sans {
+      }
+      .font-noto-sans {
         font-family: 'Noto Sans', sans-serif;
-        }
-        .font-noto-sans-jp {
+      }
+      .font-noto-sans-jp {
         font-family: 'Noto Sans JP', sans-serif;
-        }
-
-        /* Scrollbar Styling */
-        /* Vertical scrollbar (Styled) */
-        .custom-scrollbar::-webkit-scrollbar {
-        width: 6px; /* Thin scrollbar */
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1; /* Light gray background */
-        border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #888; /* Darker gray scrollbar */
-        border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #555; /* Darker color on hover */
-        }
-
-        /* Horizontal scrollbar (Hidden) */
-        .custom-scrollbar::-webkit-scrollbar:horizontal {
+      }
+    
+      /* Hide Scrollbars for Modern Browsers */
+      .custom-scrollbar {
+        /* Allow scrolling */
+        overflow-x: auto;
+        overflow-y: auto;
+        white-space: nowrap; /* Prevent text wrapping */
+    
+        /* Hide scrollbar in Firefox */
+        scrollbar-width: none;
+        /* Hide scrollbar in IE, Edge */
+        -ms-overflow-style: none;
+      }
+    
+      /* Hide scrollbar in Chrome, Safari, and Opera */
+      .custom-scrollbar::-webkit-scrollbar {
         display: none;
-        }
-
-        .custom-scrollbar {
-        scrollbar-width: thin; /* For Firefox */
-        overflow-x: auto; /* Allow horizontal scroll */
-        overflow-y: auto; /* Allow vertical scroll */
-        white-space: nowrap; /* Prevent text from wrapping */
-        }
-
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.js"></script>
 </head>
@@ -537,17 +522,17 @@
   
                 <!-- Employee Cards List -->
                 <div class="flex-grow">
-                    <div class="max-h-[640px] overflow-y-auto rounded-lg shadow custom-scrollbar">
-                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                  <div class="max-h-[540px] overflow-y-auto rounded-lg shadow custom-scrollbar">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                           <!-- Table Header -->
-                          <thead class="text-xs text-[#333333] uppercase bg-gray-50 dark:bg-[#292C35] dark:text-gray-400 sticky top-0 z-10">
+                          <thead class="text-xs text-[#333333] uppercase bg-gray-50 dark:bg-[#292C35] dark:text-gray-400 sticky top-0 z-0">
                             <tr>
                               <th scope="col" class="px-6 py-3">Name</th>
                               <th scope="col" class="px-6 py-3">Status</th>
                             </tr>
                           </thead>
                           <!-- Table Body -->
-                          <tbody id="userTable" class="divide-y divide-gray-200 dark:divide-gray-700 overscroll-x-none">
+                          <tbody id="userTable" class="divide-y divide-gray-200 dark:divide-gray-700 overscroll-x-none overflow-y-auto">
                             <!-- Employee Row -->
                           </tbody>
                         </table>
@@ -577,7 +562,7 @@
     
         // Function to generate a random Tailwind color for avatars
         function getRandomColor() {
-          const colors = ["bg-[#9F7842]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#A40011]",];
+          const colors = ["bg-[#A40011]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#9F7842]"];
           return colors[Math.floor(Math.random() * colors.length)];
         }
     
@@ -605,18 +590,20 @@
             const tr = document.createElement('tr');
             tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
             tr.innerHTML = `
-              <th scope="row" class="flex items-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                ${avatar}
-                <div class="ps-3">
-                  <div class="text-base font-semibold">${user.fullName}</div>
-                  <div class="font-normal text-gray-500">${user.email}</div>
-                </div>
-              </th>
-              <td class="px-6 py-4">
-                <div class="flex items-center">
-                  <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div> ${user.status}
-                </div>
-              </td>
+              <th scope="row"
+                class="flex items-center box-border basis-[20%] p-4 font-medium text-gray-900 whitespace-nowrap dark:text-white overflow-hidden">
+              ${avatar}
+              <div class="ps-3 overflow-hidden">
+                <div class="text-base font-semibold truncate">${user.fullName}</div>
+                <div class="font-normal text-gray-500 truncate">${user.email}</div>
+              </div>
+            </th>
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div>
+                ${user.status}
+              </div>
+            </td>
             `;
             tbody.appendChild(tr);
           });
