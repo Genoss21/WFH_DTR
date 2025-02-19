@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +23,22 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.Set;
 
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import dev.tgsi.attendance_registration_system.dto.FilterDates;
 import dev.tgsi.attendance_registration_system.dto.LeaveDto;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
+import dev.tgsi.attendance_registration_system.models.ProjectModel;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
+import dev.tgsi.attendance_registration_system.service.ProjectService;
 import dev.tgsi.attendance_registration_system.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +53,10 @@ public class UserController {
     private UserService userService;
     
     @Autowired
-    private  AttendanceService attendanceService;
+    private AttendanceService attendanceService;
 
+    @Autowired
+    private ProjectService projectService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -124,13 +132,13 @@ public class UserController {
 
 
     @GetMapping("/admin-page")
-    public String adminPage(Model model, Principal principal,@ModelAttribute FilterDates filterDates) {
+    public String adminPage(Model model, Principal principal, @RequestParam("projectId") Optional<Long> projectId, @ModelAttribute FilterDates filterDates) {
         if (principal == null) {
             logger.error("No authenticated user found.");
             model.addAttribute("error", "No authenticated user found");
             return "Login1";
         }
-
+    
         String username = principal.getName();
         logger.info("Authenticated username: " + username);
         Optional<User> userOptional = userRepository.findByUsername(username);
@@ -142,7 +150,7 @@ public class UserController {
             logger.error("User not found: " + username);
             model.addAttribute("error", "User not found");
         }
-
+    
         // Add the employees list to the model
         List<PersonalInfoModel> employees = userService.getAllEmployees();
         model.addAttribute("employees", employees);
@@ -150,43 +158,54 @@ public class UserController {
         // !Added
         // !Author: Stvn 
         //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
+    
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
-
+    
         //String empId = user.getEmpId();
         model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
-        model.addAttribute("date",filterDates);
-
+        model.addAttribute("date", filterDates);
+    
         List<AttendanceRecord> attendanceRecords;
-        if(filterDates.getStartDate()!=null && !filterDates.getStartDate().isEmpty() 
-            && filterDates.getEndDate()!= null && !filterDates.getEndDate().isEmpty()){
-
-           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-           LocalDate startdDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
-           LocalDate endDate =  LocalDate.parse(filterDates.getEndDate(),formatter);
-           attendanceRecords = attendanceService.getAttendanceRecordByDate(user,startdDate,endDate);
-           if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
-            model.addAttribute("records", attendanceRecords);
+        if (filterDates.getStartDate() != null && !filterDates.getStartDate().isEmpty()
+            && filterDates.getEndDate() != null && !filterDates.getEndDate().isEmpty()) {
+    
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            LocalDate startDate = LocalDate.parse(filterDates.getStartDate(), formatter);
+            LocalDate endDate = LocalDate.parse(filterDates.getEndDate(), formatter);
+            attendanceRecords = attendanceService.getAttendanceRecordByDate(user, startDate, endDate);
+            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+                model.addAttribute("records", attendanceRecords);
             } else {
             //model.addAttribute("records", new ArrayList<>());
-            model.addAttribute("filterError", "No attendance records found for the specified date range.");
+                model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
-
-        }
-        else{
+        } else {
             model.addAttribute("records", attendanceService.getUserAttendance(user));
         }
         // !end of added
-
+    
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
-
-        return "Mngr_dashboard";
+    
+        // Add project list to the model
+        List<ProjectModel> projects = projectService.getAllProjects();
+        model.addAttribute("projects", projects);
+    
+        // Initialize projectId and fetch members if projectId is present
+        if (projectId.isPresent()) {
+            Set<User> members = projectService.getProjectMembers(projectId.get().intValue());
+            model.addAttribute("members", members);
+            model.addAttribute("projectId", projectId.get());
+        } else {
+            model.addAttribute("members", Collections.emptySet());
+            model.addAttribute("projectId", null);
+        }
+    return "Mngr_dashboard";
     }
-
+    
 
     @GetMapping(value = "/user-image/{empId}")
     @ResponseBody
@@ -209,4 +228,8 @@ public class UserController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(resource);
     }
+
+   
+    
+    
 }

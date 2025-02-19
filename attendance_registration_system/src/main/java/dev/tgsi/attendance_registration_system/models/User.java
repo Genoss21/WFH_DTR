@@ -44,6 +44,24 @@ public class User {
     private Set<AttendanceRecord> attendanceRecords;
     // ! End of added
 
+    // added By JDC
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<UserProjectModel> userProjects;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return empId != null && empId.equals(user.empId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+    
+
     @Override
     public String toString() {
         return "User{" +

@@ -291,28 +291,26 @@
 
                       <!-- Filter Section -->
                       <form th:action="@{/admin-page}" method="get">
-                      <div class="flex flex-col sm:flex-row items-center justify-end gap-4 lg:pr-4 md:pr-4 sm:pr-0 mb-4 lg:mb-0">
-                          <!-- Department Dropdown -->
-                          <select id="department"
-                              class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
-                              <option selected>Choose by Project</option>
-                              <option value="1">Seat Plan</option>
-                              <option value="2">Control Center</option>
-                          </select>
+                        <div class="flex flex-col sm:flex-row items-center justify-end gap-4 lg:pr-4 md:pr-4 sm:pr-0 mb-4 lg:mb-0">
+                    <!-- Project Dropdown -->
+        <select id="department" name="projectId"
+        class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4"
+        onchange="this.form.submit()">
+        <option  th:if="${not #lists.isEmpty(projects)}">Choose by Project</option>
+        <th:block th:each="project : ${projects}">
+            <option th:value="${project.projectId}" th:text="${project.projectName}"
+                    th:selected="${project.projectId == projectId}"></option>
+        </th:block>
+    </select>
 
-                          <!-- Member Dropdown -->
-                          <select id="member"
-                              class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
-                              <option selected>Choose a Member</option>
-                              <option value="Fritz">Fritz</option>
-                              <option value="Jojit">Jojit</option>
-                              <option value="Jude">Jude</option>
-                              <option value="Steven">Steven</option>
-                              <option value="Jonnel">Jonnel</option>
-                              <option value="Auriel">Auriel</option>
-                              <option value="Rex">Rex</option>
-                          </select>
-
+    <!-- Member Dropdown -->
+    <select id="member"
+        class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
+        <option selected>Choose a member</option>
+        <th:block th:each="member : ${members}">
+            <option th:value="${member.empId}" th:text="${member.username}"></option>
+        </th:block>
+    </select>
                           <!-- Date Range Picker -->
                           <div id="date-range-picker" date-rangepicker th:object="${date}" class="flex items-center">
                             

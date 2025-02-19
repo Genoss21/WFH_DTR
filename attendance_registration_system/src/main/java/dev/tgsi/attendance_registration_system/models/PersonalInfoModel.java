@@ -44,6 +44,19 @@ public class PersonalInfoModel {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonalInfoModel that = (PersonalInfoModel) o;
+        return personalInfoId != null && personalInfoId.equals(that.personalInfoId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
     public String toString() {
         return "PersonalInfoModel{" +
                 "personalInfoId=" + personalInfoId +
