@@ -1,18 +1,22 @@
-    package dev.tgsi.attendance_registration_system.models;
-    import java.util.Set;
+package dev.tgsi.attendance_registration_system.models;
+import java.util.List;
 
-    import jakarta.persistence.*;
-    import lombok.Data;
-    import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
-    @Entity
-    @Table(name = "tbl_project_mst")
-    @Data
-    @NoArgsConstructor
-    public class ProjectModel {
+@Entity
+@Table(name = "tbl_project_mst")
+@Data
+@NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class ProjectModel {
 
-        @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "proj_id")
     private Integer projectId;
@@ -20,9 +24,15 @@
     @Column(name = "proj_name")
     private String projectName;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<UserProjectModel> userProjects;
+    public ProjectModel(Integer projectId, String projectName) {
+        this.projectId = projectId;
+        this.projectName = projectName;
+    }
 
+    @OneToMany(mappedBy = "project")
+    @JsonIgnore
+    private List<UserProjectModel> userProjects;
+        
     @Override
     public String toString() {
         return "ProjectModel{" +
@@ -31,4 +41,4 @@
                 '}';
     }
         
-    }
+}
