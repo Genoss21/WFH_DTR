@@ -10,9 +10,9 @@ public class TargetDateTime {
         
         LocalTime timeOut = LocalTime.now();
         LocalDate date;
-        //LocalTime time = LocalTime.of(5, 0, 0);;
+        //LocalTime time = LocalTime.of(6, 0, 0);;
        // LocalDateTime dateTime;
-        if(timeOut.isBefore(LocalTime.of(5, 1, 0))){
+        if(timeOut.isBefore(LocalTime.of(6, 0, 1))){
             date = LocalDate.now();
             //dateTime = date.atTime(time);
         }
