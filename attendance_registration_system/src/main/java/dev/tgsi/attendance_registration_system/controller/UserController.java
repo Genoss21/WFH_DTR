@@ -179,7 +179,7 @@ public class UserController {
         }
 
         List<AttendanceRecord> attendanceRecords;
-        if( memberId == null && startdDate != null && endDate != null ){
+        if( (memberId == null || memberId.isEmpty()) && startdDate != null && endDate != null ){
 
            attendanceRecords = attendanceService.getAttendanceRecordByDate(user,startdDate,endDate);
 
@@ -204,11 +204,12 @@ public class UserController {
         }
         // !end of added
 
+        model.addAttribute("selectedMemberId", memberId);
+        model.addAttribute("selectedProjectId", projectId);
+
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
 
-        model.addAttribute("selectedMemberId", memberId);
-        model.addAttribute("selectedProjectId", projectId);
         model.addAttribute("projects", projectService.projectList(user));
 
         return "Mngr_dashboard";
