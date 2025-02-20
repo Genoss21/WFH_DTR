@@ -683,64 +683,69 @@
    <!-- ! auth: stvn -->
    <script>
           document.addEventListener("DOMContentLoaded", function () {
-    const button = document.getElementById("timeButton");
-    let isClockedIn = localStorage.getItem("isClockedIn") === "true";
 
-    // Set button text based on stored state
-    button.innerText = isClockedIn ? "Time Out" : "Time In";
+const username = "[[${#authentication.name}]]";
+const userSpecificKey = `isClockedIn_${username}`;
 
-    button.addEventListener("click", toggleTime);
+const button = document.getElementById("timeButton");
+let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
 
-    function toggleTime() {
-        const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+// Set button text based on stored state
+button.innerText = isClockedIn ? "Time Out" : "Time In";
 
-        fetch(endpoint, { method: "POST" })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("You are already rendered your time");
-            }
-            return response.json(); // Parse JSON response
-        })
-        .then(data => {
-            console.log(data);
+button.addEventListener("click", toggleTime);
 
-            // Toggle state
-            isClockedIn = !isClockedIn;
-            localStorage.setItem("isClockedIn", isClockedIn);
+function toggleTime() {
+    const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
 
-            // Delay reload for UI update
-            setTimeout(function() {
-                location.reload();
-            }, 2000);
+    fetch(endpoint, { method: "POST" })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("You are already rendered your time");
+        }
+        return response.json(); // Parse JSON response
+    })
+    .then(data => {
+        // console.log(data);
 
-            // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-            if (!isClockedIn) {
-                setTimeout(() => {
-                    localStorage.removeItem("isClockedIn");
-                    console.log("Local storage cleared after timeout");
-                }, 300000); // 5 minutes
-            }
 
-            // Show modal with response data
-            showModal(data.title, data.message, data.status);
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            showModal("Error", "You are already rendered your time", "error");
-        });
-    }
+        // Toggle state
+        isClockedIn = !isClockedIn;
+        localStorage.setItem(userSpecificKey, isClockedIn);
 
-    function showModal(title, message, icon) {
-        Swal.fire({
-            icon: icon, // "success" or "error"
-            title: title,
-            text: message,
-            confirmButtonText: "OK",
-            background: "#fff",
-            color: "#333",
-            position: "center"
-        });
-    }
+        // Delay reload for UI update
+        setTimeout(function() {
+            location.reload();
+        }, 2000);
+
+        // If user clocks out, clear localStorage after 5 minutes (300,000ms)
+        if (!isClockedIn) {
+            setTimeout(() => {
+                localStorage.removeItem(userSpecificKey);
+                console.log("Local storage cleared after timeout");
+            }); // 5 minutes
+        }
+
+        // Show modal with response data
+        showModal(data.title, data.message, data.status);
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        showModal("Error", "You are already rendered your time", "error");
+    });
+}
+
+function showModal(title, message, icon) {
+    Swal.fire({
+        icon: icon, // "success" or "error"
+        title: title,
+        text: message,
+        confirmButtonText: "OK",
+        background: "#fff",
+        color: "#333",
+        position: "center"
+    });
+}
 });
 //     let isClockedIn = false;
 
