@@ -102,12 +102,16 @@
             <li>
               <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans-jp">About Us</a>
             </li>
+            <!-- Added by JDC-->
             <li>
-              <a th:href="@{/logout}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-roboto">
-                <span sec:authorize="isAuthenticated"></span> Log out
-              </a>
-            </li>
+              <a href="#" onclick="confirmLogout(event)" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans-jp">Log out</a>
+          </li>
+             <!--end-->
+          
           </ul>
+
+          
+       
   
           <!-- Dark Mode Toggle -->
           <div class="border-t py-3 px-4 flex justify-between items-center">
@@ -143,6 +147,9 @@
                 </button>
             </div>
 
+
+            
+        
             <!-- Modal Body -->
             <form>
                 <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
@@ -682,69 +689,64 @@
    <!-- ! auth: stvn -->
    <script>
             document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById("timeButton");
+    let isClockedIn = localStorage.getItem("isClockedIn") === "true";
 
-const username = "[[${#authentication.name}]]";
-const userSpecificKey = `isClockedIn_${username}`;
+    // Set button text based on stored state
+    button.innerText = isClockedIn ? "Time Out" : "Time In";
 
-const button = document.getElementById("timeButton");
-let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
+    button.addEventListener("click", toggleTime);
 
-// Set button text based on stored state
-button.innerText = isClockedIn ? "Time Out" : "Time In";
+    function toggleTime() {
+        const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
 
-button.addEventListener("click", toggleTime);
+        fetch(endpoint, { method: "POST" })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("You are already rendered your time");
+            }
+            return response.json(); // Parse JSON response
+        })
+        .then(data => {
+            console.log(data);
 
-function toggleTime() {
-    const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+            // Toggle state
+            isClockedIn = !isClockedIn;
+            localStorage.setItem("isClockedIn", isClockedIn);
 
-    fetch(endpoint, { method: "POST" })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("You are already rendered your time");
-        }
-        return response.json(); // Parse JSON response
-    })
-    .then(data => {
-        // console.log(data);
+            // Delay reload for UI update
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
 
+            // If user clocks out, clear localStorage after 5 minutes (300,000ms)
+            if (!isClockedIn) {
+                setTimeout(() => {
+                    localStorage.removeItem("isClockedIn");
+                    console.log("Local storage cleared after timeout");
+                }, 300000); // 5 minutes
+            }
 
-        // Toggle state
-        isClockedIn = !isClockedIn;
-        localStorage.setItem(userSpecificKey, isClockedIn);
+            // Show modal with response data
+            showModal(data.title, data.message, data.status);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            showModal("Error", "You are already rendered your time", "error");
+        });
+    }
 
-        // Delay reload for UI update
-        setTimeout(function() {
-            location.reload();
-        }, 2000);
-
-        // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-        if (!isClockedIn) {
-            setTimeout(() => {
-                localStorage.removeItem(userSpecificKey);
-                console.log("Local storage cleared after timeout");
-            }); // 5 minutes
-        }
-
-        // Show modal with response data
-        showModal(data.title, data.message, data.status);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        showModal("Error", "You are already rendered your time", "error");
-    });
-}
-
-function showModal(title, message, icon) {
-    Swal.fire({
-        icon: icon, // "success" or "error"
-        title: title,
-        text: message,
-        confirmButtonText: "OK",
-        background: "#fff",
-        color: "#333",
-        position: "center"
-    });
-}
+    function showModal(title, message, icon) {
+        Swal.fire({
+            icon: icon, // "success" or "error"
+            title: title,
+            text: message,
+            confirmButtonText: "OK",
+            background: "#fff",
+            color: "#333",
+            position: "center"
+        });
+    }
 });
 
         //       let isClockedIn = false;
@@ -820,5 +822,38 @@ function showModal(title, message, icon) {
 </script>
 
    <!-- !end of added -->
+
+<!-- !added by jojit 02-20-25-->
+<script>
+  function confirmLogout(event) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showLogoutModal();
+  }
+  
+  function showLogoutModal() {
+      Swal.fire({
+          icon: 'warning', // "warning" icon for confirmation
+          title: 'Are you sure?',
+          text: 'Are you sure you want to log out?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, log out',
+          cancelButtonText: 'No, stay',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performLogout();
+          }
+      });
+  }
+  
+  function performLogout() {
+      window.location.href = '/logout'; // Use /logout directly
+  }
+  </script>
+ <!-- !end of added -->
+
+
 </body>
 </html>

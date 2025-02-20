@@ -101,11 +101,11 @@
             <li>
               <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans-jp">About Us</a>
             </li>
-            <li>
-              <a th:href="@{/logout}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-roboto">
-                <span sec:authorize="isAuthenticated"></span> Log out
-              </a>
-            </li>
+             <!-- Added by JDC-->
+             <li>
+              <a href="#" onclick="confirmLogout(event)" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 font-noto-sans-jp">Log out</a>
+          </li>
+             <!--end-->
           </ul>
   
           <!-- Dark Mode Toggle -->
@@ -295,18 +295,17 @@
                           <!-- Project Dropdown -->
                           <select id="project" onchange="fetchMembers(this.value)"
                               class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
-                              <option value="" th:selected="${selectedProjectId == null}">Choose by Project</option>
+                              <option value="" selected>Choose by Project</option>
                               <th:block th:each="project : ${projects}">
                               <option th:value="${project.projectId}" 
-                              th:text="${project.projectName}" 
-                              th:selected="${project.projectId == selectedProjectId}"></option>
+                              th:text="${project.projectName}"></option>
                               </th:block>
                           </select>
 
                           <!-- Member Dropdown -->
-                          <select id="member" name="memberId"
+                          <select id="member"
                               class="h-[44px] w-[200px] bg-gray-50 border border-gray-300 text-[#4C5F7F] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 px-4">
-                              <option value = "" th:selected ="${selectedMemberId == null}" >Choose a Member</option>
+                              <option selected>Choose a Member</option>
                               <!-- Options will be populated dynamically based on the selected project -->
                           </select>
 
@@ -683,69 +682,64 @@
    <!-- ! auth: stvn -->
    <script>
           document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById("timeButton");
+    let isClockedIn = localStorage.getItem("isClockedIn") === "true";
 
-const username = "[[${#authentication.name}]]";
-const userSpecificKey = `isClockedIn_${username}`;
+    // Set button text based on stored state
+    button.innerText = isClockedIn ? "Time Out" : "Time In";
 
-const button = document.getElementById("timeButton");
-let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
+    button.addEventListener("click", toggleTime);
 
-// Set button text based on stored state
-button.innerText = isClockedIn ? "Time Out" : "Time In";
+    function toggleTime() {
+        const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
 
-button.addEventListener("click", toggleTime);
+        fetch(endpoint, { method: "POST" })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("You are already rendered your time");
+            }
+            return response.json(); // Parse JSON response
+        })
+        .then(data => {
+            console.log(data);
 
-function toggleTime() {
-    const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+            // Toggle state
+            isClockedIn = !isClockedIn;
+            localStorage.setItem("isClockedIn", isClockedIn);
 
-    fetch(endpoint, { method: "POST" })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("You are already rendered your time");
-        }
-        return response.json(); // Parse JSON response
-    })
-    .then(data => {
-        // console.log(data);
+            // Delay reload for UI update
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
 
+            // If user clocks out, clear localStorage after 5 minutes (300,000ms)
+            if (!isClockedIn) {
+                setTimeout(() => {
+                    localStorage.removeItem("isClockedIn");
+                    console.log("Local storage cleared after timeout");
+                }, 300000); // 5 minutes
+            }
 
-        // Toggle state
-        isClockedIn = !isClockedIn;
-        localStorage.setItem(userSpecificKey, isClockedIn);
+            // Show modal with response data
+            showModal(data.title, data.message, data.status);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            showModal("Error", "You are already rendered your time", "error");
+        });
+    }
 
-        // Delay reload for UI update
-        setTimeout(function() {
-            location.reload();
-        }, 2000);
-
-        // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-        if (!isClockedIn) {
-            setTimeout(() => {
-                localStorage.removeItem(userSpecificKey);
-                console.log("Local storage cleared after timeout");
-            }); // 5 minutes
-        }
-
-        // Show modal with response data
-        showModal(data.title, data.message, data.status);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        showModal("Error", "You are already rendered your time", "error");
-    });
-}
-
-function showModal(title, message, icon) {
-    Swal.fire({
-        icon: icon, // "success" or "error"
-        title: title,
-        text: message,
-        confirmButtonText: "OK",
-        background: "#fff",
-        color: "#333",
-        position: "center"
-    });
-}
+    function showModal(title, message, icon) {
+        Swal.fire({
+            icon: icon, // "success" or "error"
+            title: title,
+            text: message,
+            confirmButtonText: "OK",
+            background: "#fff",
+            color: "#333",
+            position: "center"
+        });
+    }
 });
 //     let isClockedIn = false;
 
@@ -848,7 +842,7 @@ window.onload = function () {
       if (!projectId) {
         // If no project is selected, clear the member dropdown and return
         const memberDropdown = document.getElementById('member');
-        memberDropdown.innerHTML = '<option value = "" selected>Choose a Member</option>';
+        memberDropdown.innerHTML = '<option selected>Choose a Member</option>';
         return;
       }
         fetch(`/projects/${projectId}/members`)
@@ -857,7 +851,6 @@ window.onload = function () {
                 const memberDropdown = document.getElementById('member');
                 memberDropdown.innerHTML = ''; // Clear existing options
                 const option1 = document.createElement('option');
-                option1.value = '';
                 option1.text = 'Choose a Member';
                 memberDropdown.add(option1);
                 data.forEach(member => {
@@ -866,16 +859,61 @@ window.onload = function () {
                     option2.text = `${member.personalInfo.firstName} ${member.personalInfo.lastName}`;
                     memberDropdown.add(option2);
                 });
-
-            const selectedMemberId = document.getElementById('selectedMemberId').value;
-            if (selectedMemberId) {
-                memberDropdown.value = selectedMemberId;
-            }
-
             })
             .catch(error => console.error('Error fetching members:', error));
     }
 </script>
+
+
+<!-- !added by jojit 02-20-25-->
+<script>
+  function confirmLogout(event) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showLogoutModal();
+  }
+  
+  function showLogoutModal() {
+      Swal.fire({
+          icon: 'warning', // "warning" icon for confirmation
+          title: 'Are you sure?',
+          text: 'Are you sure you want to log out?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, log out',
+          cancelButtonText: 'No, stay',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performLogout();
+          }
+      });
+  }
+  
+  function performLogout() {
+      window.location.href = '/logout'; // Use /logout directly
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('logout')) {
+          showToast();
+      }
+  });
+  
+  function showToast() {
+      Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'You have successfully logged out.',
+          confirmButtonText: 'OK',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      });
+  }
+  
+  </script>
 
 </body>
 </html>
