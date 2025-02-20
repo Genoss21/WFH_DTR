@@ -25,7 +25,6 @@ import java.util.Optional;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dev.tgsi.attendance_registration_system.dto.FilterDates;
@@ -33,6 +32,7 @@ import dev.tgsi.attendance_registration_system.dto.LeaveDto;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.PersonalInfoModel;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
+import dev.tgsi.attendance_registration_system.service.ProjectService;
 import dev.tgsi.attendance_registration_system.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +48,9 @@ public class UserController {
     
     @Autowired
     private  AttendanceService attendanceService;
+
+    @Autowired
+    private ProjectService projectService;
 
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -183,6 +186,8 @@ public class UserController {
 
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
+
+        model.addAttribute("projects", projectService.projectList(user));
 
         return "Mngr_dashboard";
     }
