@@ -281,6 +281,12 @@ public class AttendanceService {
         List<AttendanceRecord> attendanceRecords = attendanceRepository.getAttendanceRecordByDate(user.getEmpId(), startDate, endDate);
         return attendanceRecords;
     }
+
+    @Transactional
+    public List<AttendanceRecord> getAttendanceRecordByMembersAndDate(String empId, LocalDate startDate, LocalDate endDate) {
+        List<AttendanceRecord> attendanceRecords = attendanceRepository.getAttendanceRecordByDate(empId, startDate, endDate);
+        return attendanceRecords;
+    }
     
 }
 // ! End

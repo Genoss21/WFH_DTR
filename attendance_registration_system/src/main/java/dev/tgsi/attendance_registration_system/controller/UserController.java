@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -127,7 +128,11 @@ public class UserController {
 
 
     @GetMapping("/admin-page")
-    public String adminPage(Model model, Principal principal,@ModelAttribute FilterDates filterDates) {
+    public String adminPage(Model model, Principal principal, 
+                        @ModelAttribute FilterDates filterDates, 
+                        @RequestParam(value="memberId" ,required = false) String memberId,
+                        @RequestParam(value="projectId" ,required = false) String projectId) {
+
         if (principal == null) {
             logger.error("No authenticated user found.");
             model.addAttribute("error", "No authenticated user found");
@@ -163,14 +168,21 @@ public class UserController {
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
         model.addAttribute("date",filterDates);
 
-        List<AttendanceRecord> attendanceRecords;
-        if(filterDates.getStartDate()!=null && !filterDates.getStartDate().isEmpty() 
-            && filterDates.getEndDate()!= null && !filterDates.getEndDate().isEmpty()){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        LocalDate startdDate = null;
+        LocalDate endDate = null;
 
-           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-           LocalDate startdDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
-           LocalDate endDate =  LocalDate.parse(filterDates.getEndDate(),formatter);
+        if (filterDates.getStartDate() != null && !filterDates.getStartDate().isEmpty() 
+            && filterDates.getEndDate() != null && !filterDates.getEndDate().isEmpty()) {
+            startdDate = LocalDate.parse(filterDates.getStartDate(), formatter);
+            endDate = LocalDate.parse(filterDates.getEndDate(), formatter);
+        }
+
+        List<AttendanceRecord> attendanceRecords;
+        if( memberId == null && startdDate != null && endDate != null ){
+
            attendanceRecords = attendanceService.getAttendanceRecordByDate(user,startdDate,endDate);
+
            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
             model.addAttribute("records", attendanceRecords);
             } else {
@@ -178,6 +190,14 @@ public class UserController {
             model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
 
+        }else if( memberId != null && startdDate != null && endDate != null ){
+
+            attendanceRecords = attendanceService.getAttendanceRecordByMembersAndDate(memberId,startdDate,endDate);
+            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+                model.addAttribute("records", attendanceRecords);
+            } else {
+                model.addAttribute("filterError", "No attendance records found for the specified date range.");
+            }
         }
         else{
             model.addAttribute("records", attendanceService.getUserAttendance(user));
@@ -187,6 +207,8 @@ public class UserController {
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
 
+        model.addAttribute("selectedMemberId", memberId);
+        model.addAttribute("selectedProjectId", projectId);
         model.addAttribute("projects", projectService.projectList(user));
 
         return "Mngr_dashboard";
