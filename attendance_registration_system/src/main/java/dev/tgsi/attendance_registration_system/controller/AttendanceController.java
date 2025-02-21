@@ -14,14 +14,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 
 import org.springframework.ui.Model;
 
+import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
+import dev.tgsi.attendance_registration_system.service.ActivityLogService;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
+import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
+import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
 
 
@@ -33,7 +38,13 @@ public class AttendanceController {
     private AttendanceService attendanceService;
 
     @Autowired
+    private ActivityLogService activityLogService;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
 
     @GetMapping("/")
     public String dashboard(Model model) {
@@ -122,6 +133,26 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.deleteAttendance(id,user);
+        return "redirect:/admin-page";
+    }
+
+    @GetMapping("/record/{attendanceId}")
+    @ResponseBody
+    public AttendanceRecord getAttendanceById(@PathVariable long attendanceId) {
+        return attendanceRepository.findByAttendanceId(attendanceId);
+        }
+
+    @RequestMapping(value = "/admin/edit", method = {RequestMethod.PUT , RequestMethod.GET})
+    public String updateAttendance(AttendanceDto attendanceDto){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        attendanceService.updateAttendance(attendanceDto.getAttendanceId(),user,attendanceDto);
+        activityLogService.saveLog("Edited attendance record" , user);
         return "redirect:/admin-page";
     }
 }
