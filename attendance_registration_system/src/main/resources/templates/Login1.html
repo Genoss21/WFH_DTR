@@ -97,7 +97,10 @@
 
             <div class="mt-8 w-full">
               <form id= "loginForm" action="/login" method="post">
-                 
+                <!-- JDC 02-21-25 -->
+                 <!-- Error message for wrong credentials -->
+                <div id="error-message" class="mt-4 text-red-500 hidden">Invalid username or password. Please try again.</div>
+                <!-- end -->
                 <div>
                   <label
                     for="username"
@@ -145,9 +148,7 @@
                   </button>
                 </div>
               </form>
-              <!-- Error message for wrong credentials -->
-              <div id="error-message" class="mt-4 text-red-500 hidden">Invalid username or password. Please try again.</div>  
-          </div>
+             <!--JDC 02-20-25-->
           <!-- Footer at the bottom -->
           <footer class="w-full dark:text-white text-[#333333] p-4 text-center text-xs">
             <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
@@ -289,30 +290,26 @@
 
 </script>
 
-
-
-    <!--JDC 02-20-25-->
-
-    <div id="toast" style="display: none; position: fixed; top: 20px; right: 20px; background-color: #4CAF50; color: #ffffff; padding: 16px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 1000;">
-  <strong>Success!</strong> You have successfully logged out.
-</div>
-
+<!---JDC 02-21-25-->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+      const errorMessageElement = document.getElementById('error-message');
       const params = new URLSearchParams(window.location.search);
-      if (params.has('logout')) {
-          showToast();
+      if (params.has('error')) {
+          errorMessageElement.classList.remove('hidden');
+          setTimeout(() => {
+              errorMessageElement.classList.add('hidden');
+          }, 3000);
       }
   });
-
-  function showToast() {
-      const toast = document.getElementById('toast');
-      toast.style.display = 'block';
-      setTimeout(() => {
-          toast.style.display = 'none';
-      }, 3000);
-  }
 </script>
+
+<!--end-->
+
+
+
+  
+
 
     
   </body>
