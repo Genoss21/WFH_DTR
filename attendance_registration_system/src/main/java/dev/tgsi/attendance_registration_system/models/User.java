@@ -2,6 +2,7 @@ package dev.tgsi.attendance_registration_system.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,6 +16,7 @@ import java.util.*;
 @Entity
 @Table(name = "tbl_user")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EqualsAndHashCode(exclude = {"personalInfo", "role", "attendanceRecords"})
 public class User {
 
     @Id
