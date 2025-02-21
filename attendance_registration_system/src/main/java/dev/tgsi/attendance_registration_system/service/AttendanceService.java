@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord.Status;
+import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
 import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.LeaveModel;
@@ -288,5 +289,29 @@ public class AttendanceService {
         return attendanceRecords;
     }
     
+    @Transactional
+    public AttendanceRecord updateAttendance(Long id, User user, AttendanceDto attendanceDto) {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        AttendanceRecord attendanceModel = attendanceRepository.findByAttendanceId(id);
+        if (attendanceModel != null) {
+
+                String fullName = user.getPersonalInfo().getFirstName() + " " + user.getPersonalInfo().getLastName();
+                attendanceModel.setEditedByName(fullName);
+                attendanceModel.setEditedById(user.getEmpId());
+                attendanceModel.setEditedByRole(user.getRole().getRoleShName());;
+                attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+                attendanceModel.setTimeIn(LocalTime.parse(attendanceDto.getTimeIn()));
+                attendanceModel.setTimeOut(LocalTime.parse(attendanceDto.getTimeOut()));
+                attendanceModel.setRemarks(attendanceDto.getRemarks());
+                return attendanceRepository.save(attendanceModel);
+                
+        } else {
+            throw new RuntimeException("Attendance record not found with ID: " + id);
+        }
+       
+    }
+
 }
 // ! End
