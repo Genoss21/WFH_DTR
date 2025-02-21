@@ -347,6 +347,7 @@
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Date</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time In</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time Out</th>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Edited By</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Remarks</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Actions</th>
                                 </tr>
@@ -373,10 +374,13 @@
                                     th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--'}">
                                     15:00:48
                                 </td>
+                                <!-- Edited by -->
+                                <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" 
+                                th:text="${record.editedByName != null ? record.editedByName : '-'}">                                   
+                                </td>
                                 <!-- remarks -->
                                 <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" 
-                                th:text="${record.remarks != null ? record.remarks : 'No remarks'}">
-                                    
+                                th:text="${record.remarks != null ? record.remarks : 'No remarks'}">   
                                 </td>
                                 <td class="px-6 py-4 flex gap-2 justify-center">
                                     <!-- Edit Button -->
