@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
+import dev.tgsi.attendance_registration_system.models.User;
 
 @Repository
 public interface AttendanceRepository extends JpaRepository<AttendanceRecord, Long> {
@@ -44,5 +45,9 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, Lo
 
     @Query("SELECT a FROM AttendanceRecord a WHERE a.user.empId = :empId AND a.date BETWEEN :startDate AND :endDate AND a.delFlag = 0 ORDER BY a.date DESC")
     Page<AttendanceRecord> findByUser_EmpIdAndDateBetween(String empId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    Page<AttendanceRecord> findByUser(User user, Pageable pageable);
+
+    Page<AttendanceRecord> findByUserAndDateBetween(User user, LocalDate startDate, LocalDate endDate, Pageable pageable);
 } 
 // ! End of Update  

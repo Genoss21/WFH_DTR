@@ -319,14 +319,34 @@ public class AttendanceService {
        
     }
     // Pagination
+    // public Page<AttendanceRecord> getUserAttendancePaginated(User user, int page, int size) {
+    //     Pageable pageable = PageRequest.of(page, size);
+    //     return attendanceRepository.findByUser_EmpId(user.getEmpId(), pageable);
+    // }
+
+    // public Page<AttendanceRecord> getUserAttendancePaginatedByDate(User user, LocalDate startDate, LocalDate endDate, int page, int size) {
+    //     Pageable pageable = PageRequest.of(page, size);
+    //     return attendanceRepository.findByUser_EmpIdAndDateBetween(user.getEmpId(), startDate, endDate, pageable);
+    // }
     public Page<AttendanceRecord> getUserAttendancePaginated(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return attendanceRepository.findByUser_EmpId(user.getEmpId(), pageable);
     }
-
+    
+    
     public Page<AttendanceRecord> getUserAttendancePaginatedByDate(User user, LocalDate startDate, LocalDate endDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return attendanceRepository.findByUser_EmpIdAndDateBetween(user.getEmpId(), startDate, endDate, pageable);
+    }
+    
+    public Page<AttendanceRecord> getAttendanceRecordPaginatedByMember(String empId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return attendanceRepository.findByUser_EmpId(empId, pageable);
+    }
+    
+    public Page<AttendanceRecord> getAttendanceRecordPaginatedByMemberAndDate(String empId, LocalDate startDate, LocalDate endDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return attendanceRepository.findByUser_EmpIdAndDateBetween(empId, startDate, endDate, pageable);
     }
 }
 // ! End
