@@ -148,9 +148,17 @@
                   </button>
                 </div>
               </form>
+
+               
+              <div class="flex-1 flex flex-col justify-center items-center text-gray-600 dark:text-gray-300 p-4">
+                <p id="daily-quote" class="italic text-sm text-center"></p>
+                <p id="quote-author" class="font-bold text-xs text-center"></p>
+              </div>
+
+
              <!--JDC 02-20-25-->
           <!-- Footer at the bottom -->
-          <footer class="w-full dark:text-white text-[#333333] p-4 text-center text-xs">
+          <footer class="mt-auto w-full text-center text-xs p-4">
             <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
           </footer>
         </div>
@@ -158,6 +166,28 @@
     </div>
 
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const quotes = [
+      { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+      { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+      { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+      { text: "Your time is limited, so don't waste it living someone else's life.", author: "Steve Jobs" },
+      { text: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
+      { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+      { text: "Hardships often prepare ordinary people for an extraordinary destiny.", author: "C.S. Lewis" },
+      { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+      { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+      { text: "The best way to predict the future is to invent it.", author: "Alan Kay" }
+    ];
+    
+    const dayOfMonth = new Date().getDate() % quotes.length;
+    document.getElementById("daily-quote").textContent = quotes[dayOfMonth].text;
+    document.getElementById("quote-author").textContent = "- " + quotes[dayOfMonth].author;
+  });
+</script>
+
     <!-- Scripts -->
     <script>
       // Modal toggle/hide scripts (if needed)
