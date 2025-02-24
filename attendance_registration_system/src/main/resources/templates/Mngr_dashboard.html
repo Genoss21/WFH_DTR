@@ -9,6 +9,7 @@
     <!-- for tailwindcss -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
     <!-- Add this to your <head> section -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Add this CSS to Tailwind Config or Global Styles -->
@@ -437,13 +438,17 @@
                         </div>
                         <!-- Export CSV Button (Positioned at Bottom Right) -->
                         <div class="flex justify-end p-4">
-                          <button onclick="previewCSV()"
+                          <button onclick="previewExcel()"
                                   class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
-                            Export CSV
+                            Export Excel
                           </button>
                         </div>
                     </div>
                 <!-- Pagination Controls-->
+                <div class="p-2 mt-4 flex justify-center" th:if="${totalPages > 1}">
+                  <nav>
+                      <ul class="flex items-center -space-x-px text-sm">
+                          <!-- Previous Page -->
                 <div class="p-2 mt-4 flex justify-center" th:if="${totalPages > 1}">
                   <nav>
                       <ul class="flex items-center -space-x-px text-sm">
@@ -598,24 +603,55 @@
             </div>
         </aside>
     </main>
-      <!-- CSV Preview Modal -->
-<div id="csvPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-  <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
-      <h2 class="text-xl font-bold mb-4">CSV Preview</h2>
-      <div class="overflow-auto max-h-64">
-          <table id="csvPreviewTable" class="w-full border-collapse border border-gray-300">
-              <thead class="bg-gray-200">
-                  <tr id="csvPreviewHeader"></tr>
-              </thead>
-              <tbody id="csvPreviewBody"></tbody>
-          </table>
+      <!-- Excel Preview Modal -->
+      <div id="excelPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full">
+            <h2 class="text-xl font-bold mb-4 flex justify-between">
+                <span>Excel Preview</span>
+                <button onclick="closePreview()" class="text-gray-500 hover:text-gray-700">&times;</button>
+            </h2>
+
+            <!-- Logo -->
+            <div class="flex justify-center mb-4">
+                <img src="https://www.tsukiden.com.ph/wp-content/uploads/2019/02/tsukiden_logo.png" alt="Company Logo" class="h-16">
+            </div>
+
+            <!-- Table Preview -->
+            <div class="overflow-auto max-h-64 border border-gray-300 rounded-lg">
+                <table id="excelPreviewTable" class="w-full border-collapse border border-gray-300">
+                    <thead class="bg-blue-500 text-white">
+                        <tr id="excelPreviewHeader"></tr>
+                    </thead>
+                    <tbody id="excelPreviewBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-4">
+                <button onclick="closePreview()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
+                <button onclick="exportToExcel()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Download Excel</button>
+            </div>
+        </div>
       </div>
-      <div class="flex justify-end mt-4">
-          <button onclick="closePreview()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
-          <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Download CSV</button>
-      </div>
-  </div>
-</div>
+
+      <!-- !CSV Preview Modal -->
+      <!-- <div id="csvPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
+            <h2 class="text-xl font-bold mb-4">CSV Preview</h2>
+            <div class="overflow-auto max-h-64">
+                <table id="csvPreviewTable" class="w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-200">
+                        <tr id="csvPreviewHeader"></tr>
+                    </thead>
+                    <tbody id="csvPreviewBody"></tbody>
+                </table>
+            </div>
+            <div class="flex justify-end mt-4">
+                <button onclick="closePreview()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
+                <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Download CSV</button>
+            </div>
+        </div>
+      </div> -->
 
     <!-- Footer -->
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
@@ -1025,12 +1061,10 @@
  <!--end-->
 
  <script>
-      let csvContent = "";
-
-function previewCSV() {
-    const empid = sessionStorage.getItem("empid") || "N/A";  
-    const username = sessionStorage.getItem("username") || "N/A";  
-    const email = sessionStorage.getItem("email") || "N/A";  
+    function previewExcel() {
+    const empid = sessionStorage.getItem("empid") || "N/A";
+    const username = sessionStorage.getItem("username") || "N/A";
+    const email = sessionStorage.getItem("email") || "N/A";
 
     let table = document.querySelector("table");
     if (!table) {
@@ -1040,15 +1074,13 @@ function previewCSV() {
 
     let rows = table.querySelectorAll("tr");
 
-    // Standard CSV Header
-    csvContent = '\uFEFF' + `"Employee ID","Username","Email","Date","Time In","Time Out","Edited By","Remarks"\n`;
+    // Clear previous data
+    let previewHeader = document.getElementById("excelPreviewHeader");
+    let previewBody = document.getElementById("excelPreviewBody");
+    previewHeader.innerHTML = "";
+    previewBody.innerHTML = "";
 
-    let previewHeader = document.getElementById("csvPreviewHeader");
-    let previewBody = document.getElementById("csvPreviewBody");
-
-    previewHeader.innerHTML = ""; // Clear previous data
-    previewBody.innerHTML = ""; 
-
+    // Define headers
     let headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
     headers.forEach(header => {
         let th = document.createElement("th");
@@ -1061,18 +1093,15 @@ function previewCSV() {
         let cols = row.querySelectorAll("td");
         if (cols.length > 0) {
             let rowData = [
-                empid,  
-                username,  
-                email,  
+                empid,
+                username,
+                email,
                 cols[0].innerText.trim(),  // Date
                 cols[1].innerText.trim(),  // Time In
                 cols[2].innerText.trim(),  // Time Out
                 cols[3].innerText.trim(),  // Edited By
                 cols[4].innerText.trim()   // Remarks
             ];
-
-            // Format CSV row, escaping double quotes
-            csvContent += rowData.map(value => `"${value.replace(/"/g, '""')}"`).join(",") + "\n";
 
             // Add row to preview table
             let tr = document.createElement("tr");
@@ -1087,21 +1116,187 @@ function previewCSV() {
     });
 
     // Show preview modal
-    document.getElementById("csvPreviewModal").classList.remove("hidden");
+    document.getElementById("excelPreviewModal").classList.remove("hidden");
 }
 
 function closePreview() {
-    document.getElementById("csvPreviewModal").classList.add("hidden");
+    document.getElementById("excelPreviewModal").classList.add("hidden");
 }
 
-function downloadCSV() {
-    let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    let link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "attendance_records.csv";
-    link.click();
-    closePreview();
+function exportToExcel() {
+    const empid = sessionStorage.getItem("empid") || "N/A";
+    const username = sessionStorage.getItem("username") || "N/A";
+    const email = sessionStorage.getItem("email") || "N/A";
+
+    let table = document.querySelector("table");
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+
+    let rows = table.querySelectorAll("tr");
+
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet([]);
+
+    
+    let imgBase64 = "../images/tsukiden_logo.png";
+    let img = new Image();
+    img.src = "data:image/png;base64," + imgBase64; 
+    ws["!images"] = [{ image: img.src, ref: "A1" }];
+
+   
+    const headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
+    XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A3" });
+
+    let rowIndex = 4;
+
+    rows.forEach((row) => {
+        let cols = row.querySelectorAll("td");
+        if (cols.length > 0) {
+            let rowData = [
+                empid,
+                username,
+                email,
+                cols[0].innerText.trim(), // Date
+                cols[1].innerText.trim(), // Time In
+                cols[2].innerText.trim(), // Time Out
+                cols[3].innerText.trim(), // Edited By
+                cols[4].innerText.trim()  // Remarks
+            ];
+            XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: `A${rowIndex}` });
+            rowIndex++;
+        }
+    });
+
+    // Styling: Auto-size columns
+    ws["!cols"] = [
+        { wch: 15 }, { wch: 20 }, { wch: 25 }, { wch: 15 },
+        { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 30 }
+    ];
+
+    // Apply header style (blue background, white bold text)
+    let headerRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
+        let cellRef = XLSX.utils.encode_cell({ r: 2, c: C });
+        if (!ws[cellRef]) continue;
+        ws[cellRef].s = {
+            font: { bold: true, color: { rgb: "FFFFFF" } },
+            fill: { fgColor: { rgb: "0070C0" } },
+            alignment: { horizontal: "center", vertical: "center" }
+        };
+    }
+
+    // Apply border to all cells
+    let cellRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let R = cellRange.s.r; R <= cellRange.e.r; R++) {
+        for (let C = cellRange.s.c; C <= cellRange.e.c; C++) {
+            let cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+            if (!ws[cellRef]) continue;
+            ws[cellRef].s = {
+                border: {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    right: { style: "thin" },
+                    bottom: { style: "thin" }
+                }
+            };
+        }
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
+    XLSX.writeFile(wb, "attendance_report.xlsx");
 }
+
+// Convert Image to Base64 for Excel (Optional, for inline images)
+// function getBase64Image(img) {
+//     let canvas = document.createElement("canvas");
+//     canvas.width = img.width;
+//     canvas.height = img.height;
+//     let ctx = canvas.getContext("2d");
+//     ctx.drawImage(img, 0, 0);
+//     return canvas.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
+// }
+
+
+
+//       let csvContent = "";
+
+// function previewCSV() {
+//     const empid = sessionStorage.getItem("empid") || "N/A";  
+//     const username = sessionStorage.getItem("username") || "N/A";  
+//     const email = sessionStorage.getItem("email") || "N/A";  
+
+//     let table = document.querySelector("table");
+//     if (!table) {
+//         alert("Table not found!");
+//         return;
+//     }
+
+//     let rows = table.querySelectorAll("tr");
+
+//     // Standard CSV Header
+//     csvContent = '\uFEFF' + `"Employee ID","Username","Email","Date","Time In","Time Out","Edited By","Remarks"\n`;
+
+//     let previewHeader = document.getElementById("csvPreviewHeader");
+//     let previewBody = document.getElementById("csvPreviewBody");
+
+//     previewHeader.innerHTML = ""; // Clear previous data
+//     previewBody.innerHTML = ""; 
+
+//     let headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
+//     headers.forEach(header => {
+//         let th = document.createElement("th");
+//         th.textContent = header;
+//         th.classList.add("border", "border-gray-300", "p-2", "text-left");
+//         previewHeader.appendChild(th);
+//     });
+
+//     rows.forEach((row, index) => {
+//         let cols = row.querySelectorAll("td");
+//         if (cols.length > 0) {
+//             let rowData = [
+//                 empid,  
+//                 username,  
+//                 email,  
+//                 cols[0].innerText.trim(),  // Date
+//                 cols[1].innerText.trim(),  // Time In
+//                 cols[2].innerText.trim(),  // Time Out
+//                 cols[3].innerText.trim(),  // Edited By
+//                 cols[4].innerText.trim()   // Remarks
+//             ];
+
+//             // Format CSV row, escaping double quotes
+//             csvContent += rowData.map(value => `"${value.replace(/"/g, '""')}"`).join(",") + "\n";
+
+//             // Add row to preview table
+//             let tr = document.createElement("tr");
+//             rowData.forEach(cellText => {
+//                 let td = document.createElement("td");
+//                 td.textContent = cellText;
+//                 td.classList.add("border", "border-gray-300", "p-2");
+//                 tr.appendChild(td);
+//             });
+//             previewBody.appendChild(tr);
+//         }
+//     });
+
+//     // Show preview modal
+//     document.getElementById("csvPreviewModal").classList.remove("hidden");
+// }
+
+// function closePreview() {
+//     document.getElementById("csvPreviewModal").classList.add("hidden");
+// }
+
+// function downloadCSV() {
+//     let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+//     let link = document.createElement("a");
+//     link.href = URL.createObjectURL(blob);
+//     link.download = "attendance_records.csv";
+//     link.click();
+//     closePreview();
+// }
 
 //   function exportToCSV() {
 //     const empid = sessionStorage.getItem("empid") || "N/A";  
