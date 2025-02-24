@@ -397,15 +397,18 @@
                                   </svg>
                                   Edit
                                   </button>
-                                  <!-- Delete Button -->
-                                   <a th:href="@{/attendance/admin/delete/{attendanceId}(attendanceId=${record.attendanceId})}"
-                                  class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
-                                  <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
-                                  </svg>
-                                  Delete
-                                  </a>
+
+                                   <!--JDC 02-24-25-->
+                                    <!-- Delete Button -->
+                                <a th:href="@{/attendance/user/delete/{attendanceId}(attendanceId=${record.attendanceId})}" onclick="confirmDelete(event, this.href)"
+                                class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                               </svg>
+                                 Delete
+                             </a>
+                              <!--end-->
+
                               </td>
                               </tr>
                               <!-- ! End of Table records -->
@@ -906,5 +909,55 @@
   }
   </script>
  <!-- !end of added -->
+
+
+ <!--Toast for delete button-->
+ <!---JDC 02-24-25-->
+ 
+
+<script>
+  function confirmDelete(event, deleteUrl) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showDeleteModal(deleteUrl);
+  }
+
+  function showDeleteModal(deleteUrl) {
+      Swal.fire({
+         // icon: 'question', // "question" icon for confirmation
+          title: 'Confirmation',
+          text: 'Are you sure you want to delete this record?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it',
+          cancelButtonText: 'No, keep it',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performDelete(deleteUrl);
+          }
+      });
+  }
+
+  function performDelete(deleteUrl) {
+      window.location.href = deleteUrl; // Use the provided URL for deletion
+      showDeleteToast(); // Show toast notification after deletion
+  }
+
+  function showDeleteToast() {
+      Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Record deleted successfully',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+      });
+  }
+</script>
+
+ <!--end-->
+
 </body>
 </html>
