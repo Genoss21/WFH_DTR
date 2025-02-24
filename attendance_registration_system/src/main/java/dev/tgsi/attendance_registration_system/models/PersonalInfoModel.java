@@ -29,9 +29,19 @@ public class PersonalInfoModel {
     private String email;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "emp_id", referencedColumnName = "emp_id")
+    @JoinColumn(name = "emp_id")
     @JsonBackReference
     private User user;
+
+    /**
+     * Returns initials (First Letter of First Name + First Letter of Last Name).
+     */
+    public String getInitials() {
+        if (firstName != null && lastName != null) {
+            return (firstName.substring(0, 1) + lastName.substring(0, 1)).toUpperCase();
+        }
+        return "U"; // Default initial if fname or lname is missing
+    }
 
     @Override
     public String toString() {

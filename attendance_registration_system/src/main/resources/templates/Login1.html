@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Login Page with Dark Mode Toggle</title>
+    <title>Login Page</title>
   </head>
   <body class="flex flex-col h-screen bg-white dark:bg-gray-900">
     <!-- Dark Mode Toggle Buttons (fixed at the top-right corner) -->
@@ -79,6 +79,8 @@
             </div>
           </div>
         </div>
+
+       
         <!-- Right side (login form) -->
         <div
           class="relative flex flex-col justify-between items-center w-full max-w-md px-6 mx-auto lg:w-2/6 h-full"
@@ -94,21 +96,27 @@
             </div>
 
             <div class="mt-8 w-full">
-              <form id="loginForm" novalidate>
+              <form id= "loginForm" action="/login" method="post">
+                <!-- JDC 02-21-25 -->
+                 <!-- Error message for wrong credentials -->
+                <div id="error-message" class="mt-4 text-red-500 hidden">Invalid username or password. Please try again.</div>
+                <!-- end -->
                 <div>
                   <label
-                    for="email"
+                    for="username"
                     class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
                   >
                     Username
                   </label>
                   <input
-                    type="email"
-                    name="email"
-                    id="email"
+                    type="text"
+                    name="username"
+                    id="username"
                     placeholder="sample username"
                     class="block w-full px-4 py-2 h-[44px] text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
+                  <p id="usernameError" class="text-red-500 hidden">Username is required.</p>
+                 
                 </div>
 
                 <div class="mt-6">
@@ -127,8 +135,10 @@
                     placeholder="Your Password"
                     class="block w-full px-4 py-2 h-[44px] text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
+                  <p id="passwordError" class="text-red-500 hidden">Password is required.</p>
                 </div>
 
+              
                 <div class="mt-6">
                   <button
                     type="submit"
@@ -138,8 +148,7 @@
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
+             <!--JDC 02-20-25-->
           <!-- Footer at the bottom -->
           <footer class="w-full dark:text-white text-[#333333] p-4 text-center text-xs">
             <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
@@ -148,6 +157,7 @@
       </div>
     </div>
 
+</div>
     <!-- Scripts -->
     <script>
       // Modal toggle/hide scripts (if needed)
@@ -207,33 +217,100 @@
       });
     </script>
 
-    <script>
-      // Form validation: Turn input borders red if fields are empty on submit
-      const form = document.getElementById("loginForm");
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("loginForm");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
+    const errorMessage = document.getElementById("error-message");
 
-      form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent default form submission
         let hasError = false;
 
-        if (emailInput.value.trim() === "") {
-          emailInput.classList.add("border-red-500");
-          hasError = true;
+        // Validate username
+        if (usernameInput.value.trim() === "") {
+            usernameInput.classList.add("border-red-500");
+            usernameError.classList.remove("hidden");
+            hasError = true;
         } else {
-          emailInput.classList.remove("border-red-500");
+            usernameInput.classList.remove("border-red-500");
+            usernameError.classList.add("hidden");
         }
 
+        // Validate password
         if (passwordInput.value.trim() === "") {
-          passwordInput.classList.add("border-red-500");
-          hasError = true;
+            passwordInput.classList.add("border-red-500");
+            passwordError.classList.remove("hidden");
+            hasError = true;
         } else {
-          passwordInput.classList.remove("border-red-500");
+            passwordInput.classList.remove("border-red-500");
+            passwordError.classList.add("hidden");
         }
 
-        if (hasError) {
-          e.preventDefault();
+        // If no validation errors, proceed with fetch request
+        if (!hasError) {
+            fetch("/login", {
+                method: "POST",
+                body: new URLSearchParams(new FormData(form)),
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            })
+            .then((response) => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                if (response.ok) {
+                    return response.json();
+                }
+
+                // Handle non-JSON error response
+                return Promise.reject("Invalid username or password. Please try again.");
+            })
+            .then((data) => {
+                if (data && !data.success) {
+                    errorMessage.textContent = data.message || "Invalid username or password. Please try again.";
+                    errorMessage.classList.remove("hidden");
+                }
+            })
+            .catch((error) => {
+                console.error("Error during authentication:", error);
+                errorMessage.textContent = error || "An unexpected error occurred. Please try again.";
+                errorMessage.classList.remove("hidden");
+            });
         }
-      });
-    </script>
+    });
+});
+
+
+</script>
+
+<!---JDC 02-21-25-->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const errorMessageElement = document.getElementById('error-message');
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('error')) {
+          errorMessageElement.classList.remove('hidden');
+          setTimeout(() => {
+              errorMessageElement.classList.add('hidden');
+          }, 3000);
+      }
+  });
+</script>
+
+<!--end-->
+
+
+
+  
+
+
+    
   </body>
 </html>

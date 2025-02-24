@@ -2,7 +2,11 @@ package dev.tgsi.attendance_registration_system.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.*;
@@ -11,10 +15,12 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "tbl_user")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EqualsAndHashCode(exclude = {"personalInfo", "role", "attendanceRecords"})
 public class User {
 
     @Id
-    @Column(name = "emp_id")
+    @Column(name = "emp_id", length = 50)
     private String empId;
 
     @Column(name = "username")
@@ -37,10 +43,20 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private PersonalInfoModel personalInfo;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<UserProjectModel> userProjects;
     
+    public User(String empId, PersonalInfoModel personalInfo) {
+        this.empId = empId;
+        this.personalInfo = personalInfo;
+    }
+
     // ! Added: 02/11/2025
     // Mapping the user for attendance records
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<AttendanceRecord> attendanceRecords;
     // ! End of added
 
