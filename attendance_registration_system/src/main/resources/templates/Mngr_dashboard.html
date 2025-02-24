@@ -378,10 +378,10 @@
                                  <!-- !Table records -->
                                 <tr th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
                                   <!-- Employee -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                       th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
                                       Fritz
-                                  </td>
+                                  </td> -->
                                   <!-- Date -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                       <a href="#" class="hover:underline" 
@@ -734,141 +734,94 @@
 <!-- ! Added: 02/13/25 -->
    <!-- ! auth: stvn -->
    
-          <script>
-            document.addEventListener("DOMContentLoaded", function () {
-              const username = "[[${#authentication.name}]]";
-              const userSpecificKey = `isClockedIn_${username}`;
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = "[[${#authentication.name}]]"; // Get the authenticated user's name
+        let isClockedInState = false; // Internal variable to track clock-in status
 
-              const button = document.getElementById("timeButton");
-              let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
+        const button = document.getElementById("timeButton");
 
-              // Set button text based on stored state
-              button.innerText = isClockedIn ? "Time Out" : "Time In";
+        // Fetch the user's clock-in status from the backend when the page loads
+        fetch("/api/check-clocked-in")
+            .then((response) => response.json())
+            .then((data) => {
+                isClockedInState = data.clockedIn; // Update internal state based on backend response
+                button.innerText = isClockedInState ? "Time Out" : "Time In"; // Update button text
+            })
+            .catch((error) => console.error("Error checking clock-in status:", error));
 
-              button.addEventListener("click", toggleTime);
+        // Add event listener to the button for time in/out functionality
+        button.addEventListener("click", toggleTime);
 
-              function toggleTime() {
-                const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+        function toggleTime() {
+            const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
 
-                fetch(endpoint, { method: "POST" })
-                  .then((response) => {
+            fetch(endpoint, { method: "POST" })
+                .then((response) => {
                     if (!response.ok) {
-                      throw new Error("You are already rendered your time");
+                        throw new Error("You have already rendered your time");
                     }
                     return response.json(); // Parse JSON response
-                  })
-                  .then((data) => {
-                    // console.log(data);
+                })
+                .then((data) => {
+                    isClockedInState = !isClockedInState; // Toggle internal state
+                    button.innerText = isClockedInState ? "Time Out" : "Time In"; // Update button text
 
-                    // Toggle state
-                    isClockedIn = !isClockedIn;
-                    localStorage.setItem(userSpecificKey, isClockedIn);
-
-                    // Delay reload for UI update
-                    setTimeout(function () {
-                      location.reload();
+                    // Delay page reload for UI updates
+                    setTimeout(() => {
+                        location.reload();
                     }, 2000);
 
-                    // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-                    if (!isClockedIn) {
-                      setTimeout(() => {
-                        localStorage.removeItem(userSpecificKey);
-                        console.log("Local storage cleared after timeout");
-                      }); // 5 minutes
-                    }
-
-                    // Show modal with response data
+                    // Show success or error message in a modal
                     showModal(data.title, data.message, data.status);
-                  })
-                  .catch((error) => {
+                })
+                .catch((error) => {
                     console.error("Error:", error);
-                    showModal("Error", "You are already rendered your time", "error");
-                  });
-              }
-
-              function showModal(title, message, icon) {
-                Swal.fire({
-                  icon: icon, // "success" or "error"
-                  title: title,
-                  text: message,
-                  confirmButtonText: "OK",
-                  background: "#fff",
-                  color: "#333",
-                  position: "center",
+                    showModal("Error", "You have already rendered your time", "error");
                 });
-              }
+        }
+
+        // Function to show a modal with feedback messages
+        function showModal(title, message, icon) {
+            Swal.fire({
+                icon: icon, // "success" or "error"
+                title: title,
+                text: message,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#333",
+                position: "center",
             });
-  //  ! Babala: Wag Buburahin
-//     let isClockedIn = false;
+        }
+    });
 
-// function toggleTime() {
-//   const button = document.getElementById("timeButton");
-//   const endpoint = isClockedIn
-//       ? "/attendance/clock-out"
-//       : "/attendance/clock-in";
+    // Check if the user is already clocked in when the page loads
+    window.onload = function () {
+        fetch("/api/check-clocked-in") // API call to check user's clock-in status
+            .then((response) => response.json())
+            .then((data) => {
+                isClockedIn = data.clockedIn; // Update internal state
+                const button = document.getElementById("timeButton");
+                button.innerText = isClockedIn ? "Time Out" : "Time In"; // Update button label
+            })
+            .catch((error) => {
+                console.error("Error checking clock-in status:", error);
+            });
+    };
 
-//   if (isClockedIn) {
-//       button.innerText = "Time In";
-//       fetch(endpoint, { method: "POST" })
-//           .then((response) => {
-//               if (!response.ok) {
-//                   throw new Error("Network response was not ok");
-//               }
-//               return response.text();
-//           })
-//           .then((data) => {
-//               console.log(data);
-//               location.reload(); // Refresh the page to update the table
-//           })
-//           .catch((error) => {
-//               console.error("Error during clock-out:", error);
-//           });
-
-//       isClockedIn = false;
-//   } else {
-//       button.innerText = "Time Out";
-//       fetch(endpoint, { method: "POST" })
-//           .then((response) => {
-//               if (!response.ok) {
-//                   throw new Error("Network response was not ok");
-//               }
-//               return response.text();
-//           })
-//           .then((data) => {
-//               console.log(data);
-//               location.reload(); // Refresh the page to update the table
-//           })
-//           .catch((error) => {
-//               console.error("Error during clock-in:", error);
-//           });
-//       isClockedIn = true;
-//   }
-//   // isClockedIn = !isClockedIn;
-// }
-
-// Check if the user is already clocked in on page load
-window.onload = function () {
-  fetch("/api/check-clocked-in") // Updated API route
-      .then((response) => response.json())
-      .then((data) => {
-          isClockedIn = data.clockedIn;
-          const button = document.getElementById("timeButton");
-          button.innerText = isClockedIn ? "Time Out" : "Time In";
-      })
-      .catch((error) => {
-          console.error("Error checking clock-in status:", error);
-      });
-};
-    // for realtime clock
+    // Function to update the real-time clock display
     function updateTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
     }
+
+    // Update the clock every second
     setInterval(updateTime, 1000);
-    updateTime(); 
+    updateTime();
+            
 </script>
 
 <!-- !end of added -->
