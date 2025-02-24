@@ -4,6 +4,7 @@ package dev.tgsi.attendance_registration_system.controller;
 
 import org.springframework.security.core.Authentication;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
@@ -28,7 +30,8 @@ import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/attendance")
@@ -154,6 +157,30 @@ public class AttendanceController {
         attendanceService.updateAttendance(attendanceDto.getAttendanceId(),user,attendanceDto);
         activityLogService.saveLog("Edited attendance record" , user);
         return "redirect:/admin-page";
+    }
+
+    // ! For Pagination
+    @GetMapping("/paginated")
+    @ResponseBody
+    public Page<AttendanceRecord> getPaginatedAttendance(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "7") int size,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (startDate != null && endDate != null) {
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            return attendanceService.getUserAttendancePaginatedByDate(user, start, end, page, size);
+        }
+
+        return attendanceService.getUserAttendancePaginated(user, page, size);
     }
 }
 // !End of file

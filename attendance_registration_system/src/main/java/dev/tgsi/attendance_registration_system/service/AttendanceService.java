@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord.Status;
@@ -19,6 +20,11 @@ import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.LeaveRepository;
 //import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
+// Pagination
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class AttendanceService {
@@ -312,6 +318,15 @@ public class AttendanceService {
         }
        
     }
+    // Pagination
+    public Page<AttendanceRecord> getUserAttendancePaginated(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return attendanceRepository.findByUser_EmpId(user.getEmpId(), pageable);
+    }
 
+    public Page<AttendanceRecord> getUserAttendancePaginatedByDate(User user, LocalDate startDate, LocalDate endDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return attendanceRepository.findByUser_EmpIdAndDateBetween(user.getEmpId(), startDate, endDate, pageable);
+    }
 }
 // ! End

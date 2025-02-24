@@ -357,6 +357,21 @@
                 
                     <!-- Table Container -->
                     <div class="flex-grow overflow-hidden bg-white dark:bg-[#292C35] shadow rounded-md">
+                      <div class="overflow-x-auto">
+                      <div class="max-h-[calc(100vh-200px)] min-h-[350px] md:min-h-[450px] overflow-y-auto custom-scrollbar">
+                          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                          <thead class="bg-gray-50 dark:bg-[#292C35]">
+                              <tr>
+                              <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Date</th>
+                              <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time In</th>
+                              <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time Out</th>
+                              <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Edited By</th>
+                              <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Remarks</th>
+                              <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Actions</th>
+                              </tr>
+                          </thead>
+                          <tbody id="attendanceTableBody" class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]">
+                    <!-- <div class="flex-grow overflow-hidden bg-white dark:bg-[#292C35] shadow rounded-md">
                         <div class="overflow-x-auto">
                         <div class="max-h-[calc(100vh-200px)] min-h-[350px] md:min-h-[450px] overflow-y-auto custom-scrollbar">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -370,53 +385,53 @@
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]">
+                            <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]"> -->
                                 <!-- error filter -->
-                                   <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                   <!-- <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
                                   <td colspan="5" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
-                                </tr>
+                                </tr> -->
                                  <!-- !Table records -->
-                                <tr th:each="record : ${records}" th:object="${record}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                <!-- <tr th:each="record : ${records}" th:object="${record}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition"> -->
                                   <!-- Employee -->
                                   <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                       th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
                                       Fritz
                                   </td> -->
                                   <!-- Date -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                       <a href="#" class="hover:underline" 
                                          th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}">2025-01-27</a>
-                                  </td>
+                                  </td> -->
                                   <!-- Time-in -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                       th:text="${record.timeIn != null ? #temporals.format(record.timeIn, 'HH:mm:ss') : '--:--:--'}">
                                       06:00:01
-                                  </td>
+                                  </td> -->
                                   <!-- Time-out -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                       th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--'}">
                                       15:00:48
-                                  </td>
+                                  </td> -->
                                   <!-- Edited by -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" 
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" 
                                   th:text="${record.editedByName != null ? record.editedByName : '-'}">                                   
-                                  </td>
+                                  </td> -->
                                   <!-- remarks -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                       th:text="${record.remarks != null ? record.remarks : 'No remarks'}">
-                                  </td>
-                                <td class="px-6 py-4 flex gap-2 justify-center">
+                                  </td> -->
+                                <!-- <td class="px-6 py-4 flex gap-2 justify-center"> -->
                                     <!-- Edit Button -->
-                                    <button data-modal-target="edit-modal" data-modal-toggle="edit-modal" th:onclick=" 'fetchAttendance(' + ${record.attendanceId} + ')' "
+                                    <!-- <button data-modal-target="edit-modal" data-modal-toggle="edit-modal" th:onclick=" 'fetchAttendance(' + ${record.attendanceId} + ')' "
                                     class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
                                     </svg>
                                     Edit
-                                    </button>
+                                    </button> -->
                                     <!-- Delete Button -->
-                                    <a th:href="@{/attendance/admin/delete/{attendanceId}(attendanceId=${record.attendanceId})}"
+                                    <!-- <a th:href="@{/attendance/admin/delete/{attendanceId}(attendanceId=${record.attendanceId})}"
                                     class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
                                     <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -425,7 +440,7 @@
                                     Delete
                                     </a>
                                 </td>
-                                </tr>
+                                </tr> -->
                                 <!-- ! End of Table records -->
                             </tbody>
                             </table>
@@ -434,8 +449,15 @@
                     </div>
                     
                                     
-                <!-- Pagination -->
+                <!-- Pagination Controls-->
                 <div class="p-2 mt-4 sticky bottom-0">
+                  <nav class="flex items-center justify-center" aria-label="Page navigation">
+                      <ul id="paginationControls" class="flex h-8 items-center -space-x-px text-sm">
+                          <!-- Pagination buttons will be added dynamically -->
+                      </ul>
+                  </nav>
+                </div>
+                <!-- <div class="p-2 mt-4 sticky bottom-0">
                     <nav class="flex items-center justify-center" aria-label="Page navigation example">
                         <ul class="flex h-8 items-center -space-x-px text-sm">
                         <li>
@@ -471,7 +493,7 @@
                         </li>
                         </ul>
                       </nav>
-                </div>
+                </div> -->
             </div>
         </section>
         
@@ -693,67 +715,72 @@
    
 <!-- ! Added: 02/13/25 -->
    <!-- ! auth: stvn -->
-   <script>
-          document.addEventListener("DOMContentLoaded", function () {
-    const button = document.getElementById("timeButton");
-    let isClockedIn = localStorage.getItem("isClockedIn") === "true";
+   
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const username = "[[${#authentication.name}]]";
+              const userSpecificKey = `isClockedIn_${username}`;
 
-    // Set button text based on stored state
-    button.innerText = isClockedIn ? "Time Out" : "Time In";
+              const button = document.getElementById("timeButton");
+              let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
 
-    button.addEventListener("click", toggleTime);
+              // Set button text based on stored state
+              button.innerText = isClockedIn ? "Time Out" : "Time In";
 
-    function toggleTime() {
-        const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+              button.addEventListener("click", toggleTime);
 
-        fetch(endpoint, { method: "POST" })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("You are already rendered your time");
-            }
-            return response.json(); // Parse JSON response
-        })
-        .then(data => {
-            console.log(data);
+              function toggleTime() {
+                const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
 
-            // Toggle state
-            isClockedIn = !isClockedIn;
-            localStorage.setItem("isClockedIn", isClockedIn);
+                fetch(endpoint, { method: "POST" })
+                  .then((response) => {
+                    if (!response.ok) {
+                      throw new Error("You are already rendered your time");
+                    }
+                    return response.json(); // Parse JSON response
+                  })
+                  .then((data) => {
+                    // console.log(data);
 
-            // Delay reload for UI update
-            setTimeout(function() {
-                location.reload();
-            }, 2000);
+                    // Toggle state
+                    isClockedIn = !isClockedIn;
+                    localStorage.setItem(userSpecificKey, isClockedIn);
 
-            // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-            if (!isClockedIn) {
-                setTimeout(() => {
-                    localStorage.removeItem("isClockedIn");
-                    console.log("Local storage cleared after timeout");
-                }, 300000); // 5 minutes
-            }
+                    // Delay reload for UI update
+                    setTimeout(function () {
+                      location.reload();
+                    }, 2000);
 
-            // Show modal with response data
-            showModal(data.title, data.message, data.status);
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            showModal("Error", "You are already rendered your time", "error");
-        });
-    }
+                    // If user clocks out, clear localStorage after 5 minutes (300,000ms)
+                    if (!isClockedIn) {
+                      setTimeout(() => {
+                        localStorage.removeItem(userSpecificKey);
+                        console.log("Local storage cleared after timeout");
+                      }, 300000); // 5 minutes
+                    }
 
-    function showModal(title, message, icon) {
-        Swal.fire({
-            icon: icon, // "success" or "error"
-            title: title,
-            text: message,
-            confirmButtonText: "OK",
-            background: "#fff",
-            color: "#333",
-            position: "center"
-        });
-    }
-});
+                    // Show modal with response data
+                    showModal(data.title, data.message, data.status);
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                    showModal("Error", "You are already rendered your time", "error");
+                  });
+              }
+
+              function showModal(title, message, icon) {
+                Swal.fire({
+                  icon: icon, // "success" or "error"
+                  title: title,
+                  text: message,
+                  confirmButtonText: "OK",
+                  background: "#fff",
+                  color: "#333",
+                  position: "center",
+                });
+              }
+            });
+  //  ! Babala: Wag Buburahin
 //     let isClockedIn = false;
 
 // function toggleTime() {
@@ -952,6 +979,130 @@ window.onload = function () {
   }
   
   </script>
+
+  <!-- !Pagination script -->
+ <!-- pagination -->
+ <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let currentPage = 0;
+    const pageSize = 7; // Adjust records per page
+
+    function fetchAttendanceRecords(page) {
+        fetch(`/attendance/paginated?page=${page}&size=${pageSize}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("attendanceTableBody");
+                tableBody.innerHTML = ""; // Clear previous records
+
+                if (data.content.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4">No attendance records found.</td></tr>`;
+                    return;
+                }
+
+                data.content.forEach(record => {
+                    let row = `<tr>
+                        <td class="px-6 py-3 text-center">${record.date}</td>
+                        <td class="px-6 py-3 text-center">${record.timeIn || "--:--:--"}</td>
+                        <td class="px-6 py-3 text-center">${record.timeOut || "--:--:--"}</td>
+                        <td class="px-6 py-3 text-center">${record.editedBy || "-"}</td>
+                        <td class="px-6 py-3 text-center">${record.remarks || "No remarks"}</td>
+                        <td class="px-6 py-4 flex gap-2 justify-center">
+                                      <!-- Edit Button -->
+                                      <button id="edit-modal" data-modal-target="edit-modal" data-modal-toggle="edit-modal" onclick="fetchAttendance(${record.attendanceId})"
+                                      class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                      <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                                      </svg>
+                                      Edit
+                                      </button>
+
+                                      <!-- Delete Button -->
+                                      <a th:href="@{/attendance/user/delete/{attendanceId}(attendanceId=${record.attendanceId})}"
+                                      class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                      <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                                      </svg>
+                                      Delete
+                                      </a>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+
+                updatePaginationControls(data);
+            })
+            .catch(error => console.error("Error fetching attendance records:", error));
+    }
+
+    function updatePaginationControls(data) {
+        const paginationControls = document.getElementById("paginationControls");
+        paginationControls.innerHTML = "";
+
+        // Previous Button
+        paginationControls.innerHTML += `
+            <li>
+                <a href="#" id="prevPage" class="flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] ${data.first ? "opacity-50 pointer-events-none" : ""}">
+                    <span class="sr-only">Previous</span>
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
+                    </svg>
+                </a>
+            </li>`;
+
+        // Page Numbers
+        for (let i = 0; i < data.totalPages; i++) {
+            let activeClass = i === data.number ? "bg-[#4C5F7F] hover:bg-[#2B4269] text-white" : "bg-gray-100 text-[#333333] hover:bg-gray-200";
+            paginationControls.innerHTML += `
+                <li>
+                    <a href="#" class="flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight ${activeClass}" data-page="${i}">
+                        ${i + 1}
+                    </a>
+                </li>`;
+        }
+
+        // Next Button
+        paginationControls.innerHTML += `
+            <li>
+                <a href="#" id="nextPage" class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] ${data.last ? "opacity-50 pointer-events-none" : ""}">
+                    <span class="sr-only">Next</span>
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
+                    </svg>
+                </a>
+            </li>`;
+
+        // Add event listeners
+        document.getElementById("prevPage").addEventListener("click", function (event) {
+            event.preventDefault();
+            if (!data.first) {
+                currentPage--;
+                fetchAttendanceRecords(currentPage);
+            }
+        });
+
+        document.getElementById("nextPage").addEventListener("click", function (event) {
+            event.preventDefault();
+            if (!data.last) {
+                currentPage++;
+                fetchAttendanceRecords(currentPage);
+            }
+        });
+
+        document.querySelectorAll("[data-page]").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                currentPage = parseInt(this.getAttribute("data-page"));
+                fetchAttendanceRecords(currentPage);
+            });
+        });
+    }
+
+    fetchAttendanceRecords(currentPage);
+});
+</script>
+
 
 </body>
 </html>
