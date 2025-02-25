@@ -68,7 +68,8 @@ public class AttendanceService {
         {
             if(attendanceRecord.getStatus() == Status.ONLINE)
             {
-                throw new RuntimeException("User is already clocked in");
+                System.out.println("Already Login");
+
             }else if(attendanceRecord.getStatus() == Status.ON_LEAVE)
             {
                 attendanceRecord.setStatus(Status.ONLINE);
@@ -78,7 +79,7 @@ public class AttendanceService {
             }
             else
             {
-                throw new RuntimeException("User is offline");
+                System.out.println("User is offline");
             }
         }
         else
