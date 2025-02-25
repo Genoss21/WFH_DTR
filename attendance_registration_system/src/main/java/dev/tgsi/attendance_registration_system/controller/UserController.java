@@ -26,6 +26,7 @@ import java.util.Optional;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.tgsi.attendance_registration_system.dto.FilterDates;
@@ -122,7 +123,7 @@ public class UserController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", attendanceRecords.getTotalPages());
             } else {
-            //model.addAttribute("records", new ArrayList<>());
+            model.addAttribute("attendancePage", Page.empty());
             model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
         }
@@ -205,7 +206,7 @@ public class UserController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", attendanceRecords.getTotalPages());
             } else {
-            //model.addAttribute("records", new ArrayList<>());
+            model.addAttribute("attendancePage", Page.empty());
             model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
 
@@ -216,8 +217,13 @@ public class UserController {
                 model.addAttribute("attendancePage", attendanceRecords);
                 model.addAttribute("currentPage", page);
                 model.addAttribute("totalPages", attendanceRecords.getTotalPages());
+                model.addAttribute("selectedMemberId", memberId);
+                model.addAttribute("selectedProjectId", projectId);
             } else {
+                model.addAttribute("attendancePage", Page.empty());
                 model.addAttribute("filterError", "No attendance records found for the specified date range.");
+                model.addAttribute("selectedMemberId", memberId);
+                model.addAttribute("selectedProjectId", projectId);
             }
         }
         else{
@@ -232,8 +238,7 @@ public class UserController {
         // model.addAttribute("currentPage", page);
         // model.addAttribute("totalPages", attendancePage.getTotalPages());
 
-        model.addAttribute("selectedMemberId", memberId);
-        model.addAttribute("selectedProjectId", projectId);
+        
 
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
