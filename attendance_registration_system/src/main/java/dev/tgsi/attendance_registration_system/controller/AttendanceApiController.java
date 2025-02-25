@@ -50,7 +50,7 @@ public class AttendanceApiController {
         User user = userOptional.get();
         //boolean clockIn = !attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(user.getEmpId()).isEmpty();
         TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceRecord = attendanceRepository.findTodayAttendance(user.getEmpId(), dateTime.getTargetDate());
+        AttendanceRecord attendanceRecord = attendanceRepository.findTodayAttendance(user.getEmpId());
         boolean clockIn = attendanceRecord == null ? false : true;
 
         Map<String, Object> response = new HashMap<>();
