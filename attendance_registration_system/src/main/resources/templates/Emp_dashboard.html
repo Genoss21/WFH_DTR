@@ -376,7 +376,7 @@
                                 </td>
                                 <!-- Time-out -->
                                 <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                    th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--'}">
+                                th:text="${#temporals.format(record.timeOut, 'HH:mm:ss') != '06:00:00' ? ( record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--' ) : '--:--:--'}">
                                     15:00:48
                                 </td>
                                 <!-- Edited by -->
