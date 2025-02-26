@@ -359,7 +359,14 @@ public class AttendanceService {
     public AttendanceRecord updateAttendance(Long id, User user, AttendanceDto attendanceDto) {
 
         LocalDateTime now = LocalDateTime.now();
-
+        LocalTime timeIn =  null;
+        LocalTime timeOut = null;
+        if(attendanceDto.getTimeIn()!=""){
+            timeIn = LocalTime.parse(attendanceDto.getTimeIn());
+        }
+        if(attendanceDto.getTimeOut()!=""){
+            timeOut = LocalTime.parse(attendanceDto.getTimeOut());
+        }
         AttendanceRecord attendanceModel = attendanceRepository.findByAttendanceId(id);
         if (attendanceModel != null) {
 
@@ -368,8 +375,8 @@ public class AttendanceService {
                 attendanceModel.setEditedById(user.getEmpId());
                 attendanceModel.setEditedByRole(user.getRole().getRoleShName());;
                 attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
-                attendanceModel.setTimeIn(LocalTime.parse(attendanceDto.getTimeIn()));
-                attendanceModel.setTimeOut(LocalTime.parse(attendanceDto.getTimeOut()));
+                attendanceModel.setTimeIn(timeIn);
+                attendanceModel.setTimeOut(timeOut);
                 attendanceModel.setRemarks(attendanceDto.getRemarks());
                 return attendanceRepository.save(attendanceModel);
                 
