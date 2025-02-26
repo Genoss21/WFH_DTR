@@ -442,52 +442,64 @@
                     <div class="flex p-4 items-center">
                       <div class="flex-auto"></div>
                       <!-- Pagination Controls-->
-                      <div class="flex-auto" th:if="${totalPages > 1}">
+                      <div class="p-2 flex justify-center" th:if="${totalPages > 1}">
                         <nav>
                             <ul class="flex items-center -space-x-px text-sm">
+                                <!-- Previous Page -->
+                                <li>
+                                    <a th:if="${currentPage > 0}" 
+                                      th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white dark:bg-[#292C35] text-gray-700 hover:bg-gray-100">
+                                        Previous
+                                    </a>
+                                    <span th:if="${currentPage == 0}" 
+                                          class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 dark:bg-[#292C35] text-[#333333] dark:text-gray-200 cursor-not-allowed">
+                                        Previous
+                                    </span>
+                                </li>
+
+                                <!-- First Page -->
+                                <li th:if="${currentPage > 2}">
+                                    <a th:href="@{/admin-page(page=0, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                        1
+                                    </a>
+                                    <span class="px-3 py-2 border text-gray-500">...</span>
+                                </li>
+
+                                <!-- Display Pages -->
+                                <li th:each="i : ${#numbers.sequence(currentPage - 2 > 0 ? currentPage - 2 : 0, currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1)}">
+                                    <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      th:text="${i + 1}"
+                                      th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100'">
+                                    </a>
+                                </li>
+
+                                <!-- Last Page -->
+                                <li th:if="${currentPage < totalPages - 3}">
+                                    <span class="px-3 py-2 border text-gray-500">...</span>
+                                    <a th:href="@{/admin-page(page=${totalPages - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                        [[${totalPages}]]
+                                    </a>
+                                </li>
+
+                                <!-- Next Page -->
+                                <li>
+                                    <a th:if="${currentPage < totalPages - 1}" 
+                                      th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                        Next
+                                    </a>
+                                    <span th:if="${currentPage >= totalPages - 1}" 
+                                          class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
+                                        Next
+                                    </span>
+                                </li>
                             </ul>
                         </nav>
-                          <!-- Previous Page -->
-                          <div class="p-2 flex justify-center" th:if="${totalPages > 1}">
-                            <nav>
-                                <ul class="flex items-center -space-x-px text-sm ">
-                                    <!-- Previous Page -->
-                                    <li>
-                                        <a th:if="${currentPage > 0}" 
-                                          th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                          class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white dark:bg-[#292C35] text-gray-700 hover:bg-gray-100">
-                                            Previous
-                                        </a>
-                                        <span th:if="${currentPage == 0}" 
-                                              class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 dark:bg-[#292C35] text-[#333333] dark:text-gray-200 cursor-not-allowed">
-                                            Previous
-                                        </span>
-                                    </li>
-                        
-                                    <!-- Page Numbers -->
-                                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                                        <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                          th:text="${i + 1}"
-                                          th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100'">
-                                        </a>
-                                    </li>
-                        
-                                    <!-- Next Page -->
-                                    <li>
-                                        <a th:if="${currentPage < totalPages - 1}" 
-                                          th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                          class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
-                                            Next
-                                        </a>
-                                        <span th:if="${currentPage >= totalPages - 1}" 
-                                              class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                            Next
-                                        </span>
-                                    </li>
-                                </ul>
-                            </nav>
-                          </div>
                       </div>
+                      <!-- End of Pagination -->
                         <div class="flex-auto flex justify-end">
                         <button onclick="previewExcel()"
                             class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
