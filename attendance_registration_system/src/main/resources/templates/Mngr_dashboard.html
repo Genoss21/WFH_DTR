@@ -454,7 +454,7 @@
                                     <!-- Previous Page -->
                                     <li>
                                         <a th:if="${currentPage > 0}" 
-                                          th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
+                                          th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
                                           class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white dark:bg-[#292C35] text-gray-700 hover:bg-gray-100">
                                             Previous
                                         </a>
@@ -466,7 +466,7 @@
                         
                                     <!-- Page Numbers -->
                                     <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                                        <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
+                                        <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
                                           th:text="${i + 1}"
                                           th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100'">
                                         </a>
@@ -475,7 +475,7 @@
                                     <!-- Next Page -->
                                     <li>
                                         <a th:if="${currentPage < totalPages - 1}" 
-                                          th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
+                                          th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
                                           class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
                                             Next
                                         </a>
