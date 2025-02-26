@@ -436,96 +436,66 @@
                             </table>
                         </div>
                         </div>
-                        <!-- Export CSV Button (Positioned at Bottom Right) -->
-                        <div class="flex justify-end p-4">
-                          <button onclick="previewExcel()"
-                                  class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
-                            Export Excel
-                          </button>
-                        </div>
                     </div>
-                <!-- Pagination Controls-->
-                <div class="p-2 mt-4 flex justify-center" th:if="${totalPages > 1}">
-                  <nav>
-                      <ul class="flex items-center -space-x-px text-sm">
+
+                    <!-- Export CSV Button (Positioned at Bottom Right) -->
+                    <div class="flex p-4 items-center">
+                      <div class="flex-auto"></div>
+                      <!-- Pagination Controls-->
+                      <div class="flex-auto" th:if="${totalPages > 1}">
+                        <nav>
+                            <ul class="flex items-center -space-x-px text-sm">
+                            </ul>
+                        </nav>
                           <!-- Previous Page -->
-                <div class="p-2 mt-4 flex justify-center" th:if="${totalPages > 1}">
-                  <nav>
-                      <ul class="flex items-center -space-x-px text-sm">
-                          <!-- Previous Page -->
-                          <li>
-                              <a th:if="${currentPage > 0}" 
-                                 th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                                  Previous
-                              </a>
-                              <span th:if="${currentPage == 0}" 
-                                    class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                  Previous
-                              </span>
-                          </li>
-              
-                          <!-- Page Numbers -->
-                          <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                              <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 th:text="${i + 1}"
-                                 th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border bg-white text-gray-700 hover:bg-gray-100'">
-                              </a>
-                          </li>
-              
-                          <!-- Next Page -->
-                          <li>
-                              <a th:if="${currentPage < totalPages - 1}" 
-                                 th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                                  Next
-                              </a>
-                              <span th:if="${currentPage >= totalPages - 1}" 
-                                    class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                  Next
-                              </span>
-                          </li>
-                      </ul>
-                  </nav>
-              </div>
-                <!-- <div class="p-2 mt-4 sticky bottom-0">
-                    <nav class="flex items-center justify-center" aria-label="Page navigation example">
-                        <ul class="flex h-8 items-center -space-x-px text-sm">
-                        <li>
-                          <a href="#" class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Previous</span>
-                          <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
-                          </svg>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">1</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">2</a>
-                        </li>
-                        <li>
-                          <a href="#" aria-current="page" class="z-10 flex h-8 items-center justify-center border border-primary-300 bg-primary-50 px-3 leading-tight text-primary-600 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 bg-gray-100 dark:bg-[#191A1F] text-[#333333] dark:text-gray-100">3</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">...</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">100</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Next</span>
-                            <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
-                            </svg>
-                          </a>
-                        </li>
-                        </ul>
-                      </nav>
-                </div> -->
-            </div>
+                          <div class="p-2 flex justify-center" th:if="${totalPages > 1}">
+                            <nav>
+                                <ul class="flex items-center -space-x-px text-sm ">
+                                    <!-- Previous Page -->
+                                    <li>
+                                        <a th:if="${currentPage > 0}" 
+                                          th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
+                                          class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white dark:bg-[#292C35] text-gray-700 hover:bg-gray-100">
+                                            Previous
+                                        </a>
+                                        <span th:if="${currentPage == 0}" 
+                                              class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 dark:bg-[#292C35] text-[#333333] dark:text-gray-200 cursor-not-allowed">
+                                            Previous
+                                        </span>
+                                    </li>
+                        
+                                    <!-- Page Numbers -->
+                                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                                        <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
+                                          th:text="${i + 1}"
+                                          th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100'">
+                                        </a>
+                                    </li>
+                        
+                                    <!-- Next Page -->
+                                    <li>
+                                        <a th:if="${currentPage < totalPages - 1}" 
+                                          th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
+                                          class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                            Next
+                                        </a>
+                                        <span th:if="${currentPage >= totalPages - 1}" 
+                                              class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
+                                            Next
+                                        </span>
+                                    </li>
+                                </ul>
+                            </nav>
+                          </div>
+                      </div>
+                        <div class="flex-auto flex justify-end">
+                        <button onclick="previewExcel()"
+                            class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
+                          Export Data
+                        </button>
+                        </div>
+                  </div>
+                
         </section>
         
         <!-- Right Side (20%) -->
@@ -603,23 +573,28 @@
             </div>
         </aside>
     </main>
+
+    
       <!-- Excel Preview Modal -->
-      <div id="excelPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full">
-            <h2 class="text-xl font-bold mb-4 flex justify-between">
-                <span>Excel Preview</span>
-                <button onclick="closePreview()" class="text-gray-500 hover:text-gray-700">&times;</button>
+      <div id="excelPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div class="relative bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 p-6 rounded-lg shadow-lg max-w-7xl w-full">
+          <button onclick="closePreview()" class="absolute top-4 right-6 text-2xl hover:text-[#DC4C44]">&times;</button>
+          <div class="p-2">
+            <h2 class="text-xl font-bold flex justify-between">
+            <span>Excel Preview</span>
             </h2>
+          </div>
+            
 
             <!-- Logo -->
-            <div class="flex justify-center mb-4">
-                <img src="https://www.tsukiden.com.ph/wp-content/uploads/2019/02/tsukiden_logo.png" alt="Company Logo" class="h-16">
+            <div class="flex justify-center mb-10">
+                <img src="https://www.tsukiden.com.ph/wp-content/uploads/2019/02/tsukiden_logo.png" alt="Company Logo" class="h-16 ">
             </div>
 
             <!-- Table Preview -->
-            <div class="overflow-auto max-h-64 border border-gray-300 rounded-lg">
-                <table id="excelPreviewTable" class="w-full border-collapse border border-gray-300">
-                    <thead class="bg-blue-500 text-white">
+            <div class="overflow-auto min-h-[500px] min-w-[800px] rounded-lg custom-scrollbar shadow shadow-md">
+                <table id="excelPreviewTable" class="w-full">
+                    <thead class="bg-gray-50 dark:bg-[#191A1F] text-[#333333] dark:text-white sticky top-0">
                         <tr id="excelPreviewHeader"></tr>
                     </thead>
                     <tbody id="excelPreviewBody"></tbody>
@@ -627,31 +602,11 @@
             </div>
 
             <!-- Buttons -->
-            <div class="flex justify-end mt-4">
-                <button onclick="closePreview()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
-                <button onclick="exportToExcel()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Download Excel</button>
+            <div class="flex justify-end my-6">
+                <button onclick="exportToExcel()" class="px-4 py-2 bg-green-600 hover:bg-green-800  text-white rounded-lg">Export to Excel</button>
             </div>
         </div>
       </div>
-
-      <!-- !CSV Preview Modal -->
-      <!-- <div id="csvPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
-            <h2 class="text-xl font-bold mb-4">CSV Preview</h2>
-            <div class="overflow-auto max-h-64">
-                <table id="csvPreviewTable" class="w-full border-collapse border border-gray-300">
-                    <thead class="bg-gray-200">
-                        <tr id="csvPreviewHeader"></tr>
-                    </thead>
-                    <tbody id="csvPreviewBody"></tbody>
-                </table>
-            </div>
-            <div class="flex justify-end mt-4">
-                <button onclick="closePreview()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
-                <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Download CSV</button>
-            </div>
-        </div>
-      </div> -->
 
     <!-- Footer -->
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
@@ -1079,14 +1034,15 @@
     let previewBody = document.getElementById("excelPreviewBody");
     previewHeader.innerHTML = "";
     previewBody.innerHTML = "";
+  
 
     // Define headers
     let headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
     headers.forEach(header => {
-        let th = document.createElement("th");
-        th.textContent = header;
-        th.classList.add("border", "border-gray-300", "p-2", "text-left");
-        previewHeader.appendChild(th);
+      let th = document.createElement("th");
+      th.textContent = header;
+      th.classList.add("p-6", "text-left", "font-semibold");
+      previewHeader.appendChild(th);
     });
 
     rows.forEach((row, index) => {
@@ -1108,7 +1064,7 @@
             rowData.forEach(cellText => {
                 let td = document.createElement("td");
                 td.textContent = cellText;
-                td.classList.add("border", "border-gray-300", "p-2");
+                td.classList.add("p-6", "border-b");
                 tr.appendChild(td);
             });
             previewBody.appendChild(tr);
@@ -1140,7 +1096,7 @@ function exportToExcel() {
     let ws = XLSX.utils.aoa_to_sheet([]);
 
     
-    let imgBase64 = "../images/tsukiden_logo.png";
+    let imgBase64 = "./images/tsukiden_logo.png";
     let img = new Image();
     img.src = "data:image/png;base64," + imgBase64; 
     ws["!images"] = [{ image: img.src, ref: "A1" }];
@@ -1205,145 +1161,9 @@ function exportToExcel() {
     }
 
     XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
-    XLSX.writeFile(wb, "attendance_report.xlsx");
+    XLSX.writeFile(wb, "Attendance_Report.xlsx");
 }
 
-// Convert Image to Base64 for Excel (Optional, for inline images)
-// function getBase64Image(img) {
-//     let canvas = document.createElement("canvas");
-//     canvas.width = img.width;
-//     canvas.height = img.height;
-//     let ctx = canvas.getContext("2d");
-//     ctx.drawImage(img, 0, 0);
-//     return canvas.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
-// }
-
-
-
-//       let csvContent = "";
-
-// function previewCSV() {
-//     const empid = sessionStorage.getItem("empid") || "N/A";  
-//     const username = sessionStorage.getItem("username") || "N/A";  
-//     const email = sessionStorage.getItem("email") || "N/A";  
-
-//     let table = document.querySelector("table");
-//     if (!table) {
-//         alert("Table not found!");
-//         return;
-//     }
-
-//     let rows = table.querySelectorAll("tr");
-
-//     // Standard CSV Header
-//     csvContent = '\uFEFF' + `"Employee ID","Username","Email","Date","Time In","Time Out","Edited By","Remarks"\n`;
-
-//     let previewHeader = document.getElementById("csvPreviewHeader");
-//     let previewBody = document.getElementById("csvPreviewBody");
-
-//     previewHeader.innerHTML = ""; // Clear previous data
-//     previewBody.innerHTML = ""; 
-
-//     let headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
-//     headers.forEach(header => {
-//         let th = document.createElement("th");
-//         th.textContent = header;
-//         th.classList.add("border", "border-gray-300", "p-2", "text-left");
-//         previewHeader.appendChild(th);
-//     });
-
-//     rows.forEach((row, index) => {
-//         let cols = row.querySelectorAll("td");
-//         if (cols.length > 0) {
-//             let rowData = [
-//                 empid,  
-//                 username,  
-//                 email,  
-//                 cols[0].innerText.trim(),  // Date
-//                 cols[1].innerText.trim(),  // Time In
-//                 cols[2].innerText.trim(),  // Time Out
-//                 cols[3].innerText.trim(),  // Edited By
-//                 cols[4].innerText.trim()   // Remarks
-//             ];
-
-//             // Format CSV row, escaping double quotes
-//             csvContent += rowData.map(value => `"${value.replace(/"/g, '""')}"`).join(",") + "\n";
-
-//             // Add row to preview table
-//             let tr = document.createElement("tr");
-//             rowData.forEach(cellText => {
-//                 let td = document.createElement("td");
-//                 td.textContent = cellText;
-//                 td.classList.add("border", "border-gray-300", "p-2");
-//                 tr.appendChild(td);
-//             });
-//             previewBody.appendChild(tr);
-//         }
-//     });
-
-//     // Show preview modal
-//     document.getElementById("csvPreviewModal").classList.remove("hidden");
-// }
-
-// function closePreview() {
-//     document.getElementById("csvPreviewModal").classList.add("hidden");
-// }
-
-// function downloadCSV() {
-//     let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//     let link = document.createElement("a");
-//     link.href = URL.createObjectURL(blob);
-//     link.download = "attendance_records.csv";
-//     link.click();
-//     closePreview();
-// }
-
-//   function exportToCSV() {
-//     const empid = sessionStorage.getItem("empid") || "N/A";  
-//     const username = sessionStorage.getItem("username") || "N/A";  
-//     const email = sessionStorage.getItem("email") || "N/A";  
-
-//     let table = document.querySelector("table"); 
-
-//     if (!table) {
-//         alert("Table not found!");
-//         return;
-//     }
-
-//     let rows = table.querySelectorAll("tr");
-    
-//     // Standard CSV Header
-//     let csvContent = '\uFEFF' + `"Employee ID","Username","Email","Date","Time In","Time Out","Edited By","Remarks"\n`;
-
-//     rows.forEach((row, index) => {
-//         let cols = row.querySelectorAll("td");
-//         if (cols.length > 0) {
-//             let rowData = [
-//                 empid,  
-//                 username,  
-//                 email,  
-//                 cols[0].innerText.trim(),  // Date
-//                 cols[1].innerText.trim(),  // Time In
-//                 cols[2].innerText.trim(),  // Time Out
-//                 cols[3].innerText.trim(),  // Edited By
-//                 cols[4].innerText.trim()   // Remarks
-//             ];
-
-//             // Properly format CSV row, escaping double quotes
-//             csvContent += rowData.map(value => `"${value.replace(/"/g, '""')}"`).join(",") + "\n";
-//         }
-//     });
-
-//     downloadCSV(csvContent);
-// }
-
-// function downloadCSV(csvContent) {
-//     let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//     let link = document.createElement("a");
-//     link.href = URL.createObjectURL(blob);
-//     link.download = "attendance_records.csv";
-//     link.click();
-// }
   </script>
 
 </body>
