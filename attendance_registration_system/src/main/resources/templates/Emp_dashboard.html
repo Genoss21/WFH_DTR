@@ -129,8 +129,8 @@
 
     <!-- Modals here -->
 
-    <!-- Main Modal -->
-    <div id="default-modal" tabindex="-1" aria-hidden="true" aria-labelledby="modal-title"
+    <!-- Edit Modal -->
+    <div id="edit-modal" tabindex="-1" aria-hidden="true" aria-labelledby="modal-title"
     class="hidden fixed inset-0 z-50 flex items-center justify-center w-full h-full">
 
         <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow-lg dark:bg-gray-800">
@@ -138,7 +138,7 @@
             <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
                 <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-gray-100">Edit Time Logs</h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg w-8 h-8 flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-gray-100"
-                    data-modal-hide="default-modal">
+                    data-modal-hide="edit-modal">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7L1 13" />
@@ -151,38 +151,42 @@
             
         
             <!-- Modal Body -->
-            <form>
                 <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
                     <!-- Time-in -->
+
+                    <!--hidden-->
+                    <input type="text" id="attendanceId"
+                                       name="attendanceId" 
+                                       hidden/>
                     <div>
-                        <label for="time-in" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-in:</label>
-                        <input type="text" id="time-in" name="time_in"
+                        <label for="timeInEditId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-in:</label>
+                        <input type="text" id="timeInEditId" name="timeIn"
                             class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="06:01:01 AM" required />
+                            required />
                     </div>
 
                     <!-- Time-out -->
                     <div>
-                        <label for="time-out" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
-                        <input type="text" id="time-out" name="time_out"
+                        <label for="timeOutEditId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
+                        <input type="text" id="timeOutEditId" name="timeOut"
                             class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="02:59:59 PM" required />
+                            />
                     </div>
                 </div>
 
                 <!-- Remarks -->
                 <div class="px-6 pb-6">
-                    <label for="remarks" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
-                    <textarea id="remarks" name="remarks" rows="4"
+                    <label for="editRemarksId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
+                    <textarea id="editRemarksId" name="remarks" rows="4"
                         class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Enter remarks" required></textarea>
+                        required></textarea>
                 </div>
 
                 <!-- Submit Button -->
                  <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
-                    <button type="submit"
+                    <button type="submit" onclick="updateAttendance()"
                         class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm">
-                        Submit
+                        Save
                     </button>
                 </div>
             </form>
@@ -907,6 +911,54 @@
           timerProgressBar: true,
       });
   }
+</script>
+
+<script>
+
+function fetchAttendance(attendanceId) {
+    fetch(`/attendance/record/${attendanceId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('attendanceId').value = data.attendanceId;
+            document.getElementById('timeInEditId').value = data.timeIn;
+            document.getElementById('timeOutEditId').value = data.timeOut;
+            document.getElementById('editRemarksId').value = data.remarks;
+        })
+        .catch(error => console.error('Error fetching attendance record:', error));
+    }
+
+    function updateAttendance(){
+      const id = document.getElementById('attendanceId').value;
+      const timeIn = document.getElementById('timeInEditId').value;
+      const timeOut = document.getElementById('timeOutEditId').value;
+      const remarks = document.getElementById('editRemarksId').value;
+      fetch('/attendance/edit', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id,
+            timeIn: timeIn,
+            timeOut: timeOut,
+            remarks: remarks
+        })
+      })
+      .then(data => {
+              Swal.fire({
+                  text: 'Attendance record updated successfully',
+                  confirmButtonText: 'OK',
+                  background: '#fff',
+                  color: '#333',
+                  position: 'center'
+              }).then(() => {
+                  const modal = document.getElementById('edit-modal');
+                  modal.classList.add('hidden');
+                  modal.setAttribute('aria-hidden', 'true');
+                  location.reload(); 
+              });
+          });
+      }
 </script>
 
  <!--end-->
