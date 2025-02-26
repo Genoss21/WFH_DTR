@@ -12,25 +12,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord.Status;
-import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
 import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.LeaveModel;
 import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.LeaveRepository;
-//import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import jakarta.transaction.Transactional;
 
 // Pagination
 import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @Service
 public class AttendanceService {
-
-   // @Autowired
-    //private UserRepository userRepository;
 
     @Autowired
     private AttendanceRepository attendanceRepository;
@@ -356,16 +350,16 @@ public class AttendanceService {
     }
     
     @Transactional
-    public AttendanceRecord updateAttendance(Long id, User user, AttendanceDto attendanceDto) {
+    public AttendanceRecord updateAttendance(Long id, User user, String timeInResult, String timeOutResult, String remarks) {
 
         LocalDateTime now = LocalDateTime.now();
         LocalTime timeIn =  null;
         LocalTime timeOut = null;
-        if(attendanceDto.getTimeIn()!=""){
-            timeIn = LocalTime.parse(attendanceDto.getTimeIn());
+        if(timeInResult!=""){
+            timeIn = LocalTime.parse(timeInResult);
         }
-        if(attendanceDto.getTimeOut()!=""){
-            timeOut = LocalTime.parse(attendanceDto.getTimeOut());
+        if(timeOutResult!=""){
+            timeOut = LocalTime.parse(timeOutResult);
         }
         AttendanceRecord attendanceModel = attendanceRepository.findByAttendanceId(id);
         if (attendanceModel != null) {
@@ -377,7 +371,7 @@ public class AttendanceService {
                 attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
                 attendanceModel.setTimeIn(timeIn);
                 attendanceModel.setTimeOut(timeOut);
-                attendanceModel.setRemarks(attendanceDto.getRemarks());
+                attendanceModel.setRemarks(remarks);
                 return attendanceRepository.save(attendanceModel);
                 
         } else {
