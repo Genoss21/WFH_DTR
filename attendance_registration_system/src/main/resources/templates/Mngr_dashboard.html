@@ -9,6 +9,7 @@
     <!-- for tailwindcss -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
     <!-- Add this to your <head> section -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Add this CSS to Tailwind Config or Global Styles -->
@@ -131,7 +132,7 @@
         <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow-lg dark:bg-gray-800">
             <!-- Edit Modal Header -->
             <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
-                <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-gray-100">Edit Attendance Record</h3>
+                <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-gray-100">Edit Time Logs</h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg w-8 h-8 flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-gray-100"
                     data-modal-hide="edit-modal">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -143,7 +144,6 @@
             </div>
 
             <!-- Edit Modal Body -->
-            <form th:action="@{/attendance/admin/edit}" method="put">
                 <div class="px-6 py-6 grid md:grid-cols-2 gap-6"> 
                     <!-- Time-in -->
 
@@ -160,7 +160,7 @@
 
                     <!-- Time-out -->
                     <div>
-                        <label for="timeOurEditId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
+                        <label for="timeOutEditId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
                         <input type="text" id="timeOutEditId" name="timeOut"
                             class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             />
@@ -177,12 +177,11 @@
 
                 <!-- Submit Button -->
                  <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
-                    <button type="submit"
+                    <button type="button" onclick="updateAttendance()"
                         class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm">
                         Save
                     </button>
                 </div>
-            </form>
         </div>
     </div>
 
@@ -373,15 +372,16 @@
                             <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]"> 
                                 <!-- error filter -->
                                    <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                  <td colspan="5" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
+                                  <td colspan="6" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
                                 </tr>
                                  <!-- !Table records -->
-                                <tr th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                <tr th:if= "${filterError == null }" th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
+                                  
                                   <!-- Employee -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
+                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                       th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
                                       Fritz
-                                  </td>
+                                  </td> -->
                                   <!-- Date -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                       <a href="#" class="hover:underline" 
@@ -394,7 +394,7 @@
                                   </td>
                                   <!-- Time-out -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                      th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--'}">
+                                      th:text="${#temporals.format(record.timeOut, 'HH:mm:ss') != '06:00:00' ? ( record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--' ) : '--:--:--'}">
                                       15:00:48
                                   </td>
                                   <!-- Edited by -->
@@ -418,7 +418,7 @@
                                    
                                     <!--JDC 02-24-25-->
                                     <!-- Delete Button -->
-                                <a th:href="@{/attendance/admin/delete/{attendanceId}(attendanceId=${record.attendanceId})}" onclick="confirmDelete(event, this.href)"
+                                <a th:href="@{/attendance/delete/{attendanceId}(attendanceId=${record.attendanceId})}" onclick="confirmDelete(event, this.href)"
                                 class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
                                 <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
@@ -435,84 +435,77 @@
                         </div>
                         </div>
                     </div>
-                <!-- Pagination Controls-->
-                <div class="p-2 mt-4 flex justify-center">
-                  <nav>
-                      <ul class="flex items-center -space-x-px text-sm">
-                          <!-- Previous Page -->
-                          <li>
-                              <a th:if="${currentPage > 0}" 
-                                 th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                                  Previous
-                              </a>
-                              <span th:if="${currentPage == 0}" 
-                                    class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                  Previous
-                              </span>
-                          </li>
-              
-                          <!-- Page Numbers -->
-                          <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                              <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 th:text="${i + 1}"
-                                 th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border bg-white text-gray-700 hover:bg-gray-100'">
-                              </a>
-                          </li>
-              
-                          <!-- Next Page -->
-                          <li>
-                              <a th:if="${currentPage < totalPages - 1}" 
-                                 th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                                  Next
-                              </a>
-                              <span th:if="${currentPage >= totalPages - 1}" 
-                                    class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                  Next
-                              </span>
-                          </li>
-                      </ul>
-                  </nav>
-              </div>
-                <!-- <div class="p-2 mt-4 sticky bottom-0">
-                    <nav class="flex items-center justify-center" aria-label="Page navigation example">
-                        <ul class="flex h-8 items-center -space-x-px text-sm">
-                        <li>
-                          <a href="#" class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Previous</span>
-                          <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
-                          </svg>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">1</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">2</a>
-                        </li>
-                        <li>
-                          <a href="#" aria-current="page" class="z-10 flex h-8 items-center justify-center border border-primary-300 bg-primary-50 px-3 leading-tight text-primary-600 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 bg-gray-100 dark:bg-[#191A1F] text-[#333333] dark:text-gray-100">3</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">...</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">100</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Next</span>
-                            <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
-                            </svg>
-                          </a>
-                        </li>
-                        </ul>
-                      </nav>
-                </div> -->
-            </div>
+
+                    <!-- Export CSV Button (Positioned at Bottom Right) -->
+                    <div class="flex p-4 items-center">
+                      <div class="flex-auto"></div>
+                      <!-- Pagination Controls-->
+                      <div class="p-2 flex justify-center" th:if="${totalPages > 1}">
+                        <nav>
+                            <ul class="flex items-center -space-x-px text-sm">
+                                <!-- Previous Page -->
+                                <li>
+                                    <a th:if="${currentPage > 0}" 
+                                      th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white dark:bg-[#292C35] text-gray-700 hover:bg-gray-100">
+                                        Previous
+                                    </a>
+                                    <span th:if="${currentPage == 0}" 
+                                          class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 dark:bg-[#292C35] text-[#333333] dark:text-gray-200 cursor-not-allowed">
+                                        Previous
+                                    </span>
+                                </li>
+<!-- test -->
+                                <!-- First Page -->
+                                <li th:if="${currentPage > 2}">
+                                    <a th:href="@{/admin-page(page=0, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                        1
+                                    </a>
+                                    <span class="px-3 py-2 border text-gray-500">...</span>
+                                </li>
+
+                                <!-- Display Pages -->
+                                <li th:each="i : ${#numbers.sequence(currentPage - 2 > 0 ? currentPage - 2 : 0, currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1)}">
+                                    <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      th:text="${i + 1}"
+                                      th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100'">
+                                    </a>
+                                </li>
+
+                                <!-- Last Page -->
+                                <li th:if="${currentPage < totalPages - 3}">
+                                    <span class="px-3 py-2 border text-gray-500">...</span>
+                                    <a th:href="@{/admin-page(page=${totalPages - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="px-3 py-2 border dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                        [[${totalPages}]]
+                                    </a>
+                                </li>
+
+                                <!-- Next Page -->
+                                <li>
+                                    <a th:if="${currentPage < totalPages - 1}" 
+                                      th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                      class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 hover:bg-gray-100">
+                                        Next
+                                    </a>
+                                    <span th:if="${currentPage >= totalPages - 1}" 
+                                          class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
+                                        Next
+                                    </span>
+                                </li>
+                            </ul>
+                        </nav>
+                      </div>
+                      <!-- End of Pagination -->
+                        <div class="flex-auto flex justify-end">
+                        <button onclick="previewExcel()"
+                            class="h-[44px] w-[160px] text-[15px] font-bold text-white bg-[#4C5F7F] rounded-lg hover:bg-[#2B4269] focus:outline-none focus:ring-4 focus:ring-blue-300">
+                          Export Data
+                        </button>
+                        </div>
+                  </div>
+                
         </section>
         
         <!-- Right Side (20%) -->
@@ -590,7 +583,41 @@
             </div>
         </aside>
     </main>
+
     
+      <!-- Excel Preview Modal -->
+      <div id="excelPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div class="relative bg-white dark:bg-[#292C35] text-[#333333] dark:text-gray-200 p-6 rounded-lg shadow-lg max-w-7xl w-full">
+          <button onclick="closePreview()" class="absolute top-4 right-6 text-2xl hover:text-[#DC4C44]">&times;</button>
+          <div class="p-2">
+            <h2 class="text-xl font-bold flex justify-between">
+            <span>Excel Preview</span>
+            </h2>
+          </div>
+            
+
+            <!-- Logo -->
+            <div class="flex justify-center mb-10">
+                <img src="https://www.tsukiden.com.ph/wp-content/uploads/2019/02/tsukiden_logo.png" alt="Company Logo" class="h-16 ">
+            </div>
+
+            <!-- Table Preview -->
+            <div class="overflow-auto min-h-[500px] min-w-[800px] rounded-lg custom-scrollbar shadow shadow-md">
+                <table id="excelPreviewTable" class="w-full">
+                    <thead class="bg-gray-50 dark:bg-[#191A1F] text-[#333333] dark:text-white sticky top-0">
+                        <tr id="excelPreviewHeader"></tr>
+                    </thead>
+                    <tbody id="excelPreviewBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end my-6">
+                <button onclick="exportToExcel()" class="px-4 py-2 bg-green-600 hover:bg-green-800  text-white rounded-lg">Export to Excel</button>
+            </div>
+        </div>
+      </div>
+
     <!-- Footer -->
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
         <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
@@ -734,141 +761,94 @@
 <!-- ! Added: 02/13/25 -->
    <!-- ! auth: stvn -->
    
-          <script>
-            document.addEventListener("DOMContentLoaded", function () {
-              const username = "[[${#authentication.name}]]";
-              const userSpecificKey = `isClockedIn_${username}`;
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = "[[${#authentication.name}]]"; // Get the authenticated user's name
+        let isClockedInState = false; // Internal variable to track clock-in status
 
-              const button = document.getElementById("timeButton");
-              let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
+        const button = document.getElementById("timeButton");
 
-              // Set button text based on stored state
-              button.innerText = isClockedIn ? "Time Out" : "Time In";
+        // Fetch the user's clock-in status from the backend when the page loads
+        fetch("/api/check-clocked-in")
+            .then((response) => response.json())
+            .then((data) => {
+                isClockedInState = data.clockedIn; // Update internal state based on backend response
+                button.innerText = isClockedInState ? "Time Out" : "Time In"; // Update button text
+            })
+            .catch((error) => console.error("Error checking clock-in status:", error));
 
-              button.addEventListener("click", toggleTime);
+        // Add event listener to the button for time in/out functionality
+        button.addEventListener("click", toggleTime);
 
-              function toggleTime() {
-                const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
+        function toggleTime() {
+            const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
 
-                fetch(endpoint, { method: "POST" })
-                  .then((response) => {
+            fetch(endpoint, { method: "POST" })
+                .then((response) => {
                     if (!response.ok) {
-                      throw new Error("You are already rendered your time");
+                        throw new Error("You have already rendered your time");
                     }
                     return response.json(); // Parse JSON response
-                  })
-                  .then((data) => {
-                    // console.log(data);
+                })
+                .then((data) => {
+                    isClockedInState = !isClockedInState; // Toggle internal state
+                    button.innerText = isClockedInState ? "Time Out" : "Time In"; // Update button text
 
-                    // Toggle state
-                    isClockedIn = !isClockedIn;
-                    localStorage.setItem(userSpecificKey, isClockedIn);
-
-                    // Delay reload for UI update
-                    setTimeout(function () {
-                      location.reload();
+                    // Delay page reload for UI updates
+                    setTimeout(() => {
+                        location.reload();
                     }, 2000);
 
-                    // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-                    if (!isClockedIn) {
-                      setTimeout(() => {
-                        localStorage.removeItem(userSpecificKey);
-                        console.log("Local storage cleared after timeout");
-                      }); // 5 minutes
-                    }
-
-                    // Show modal with response data
+                    // Show success or error message in a modal
                     showModal(data.title, data.message, data.status);
-                  })
-                  .catch((error) => {
+                })
+                .catch((error) => {
                     console.error("Error:", error);
-                    showModal("Error", "You are already rendered your time", "error");
-                  });
-              }
-
-              function showModal(title, message, icon) {
-                Swal.fire({
-                  icon: icon, // "success" or "error"
-                  title: title,
-                  text: message,
-                  confirmButtonText: "OK",
-                  background: "#fff",
-                  color: "#333",
-                  position: "center",
+                    showModal("Error", "You have already rendered your time", "error");
                 });
-              }
+        }
+
+        // Function to show a modal with feedback messages
+        function showModal(title, message, icon) {
+            Swal.fire({
+                icon: icon, // "success" or "error"
+                title: title,
+                text: message,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#333",
+                position: "center",
             });
-  //  ! Babala: Wag Buburahin
-//     let isClockedIn = false;
+        }
+    });
 
-// function toggleTime() {
-//   const button = document.getElementById("timeButton");
-//   const endpoint = isClockedIn
-//       ? "/attendance/clock-out"
-//       : "/attendance/clock-in";
+    // Check if the user is already clocked in when the page loads
+    window.onload = function () {
+        fetch("/api/check-clocked-in") // API call to check user's clock-in status
+            .then((response) => response.json())
+            .then((data) => {
+                isClockedIn = data.clockedIn; // Update internal state
+                const button = document.getElementById("timeButton");
+                button.innerText = isClockedIn ? "Time Out" : "Time In"; // Update button label
+            })
+            .catch((error) => {
+                console.error("Error checking clock-in status:", error);
+            });
+    };
 
-//   if (isClockedIn) {
-//       button.innerText = "Time In";
-//       fetch(endpoint, { method: "POST" })
-//           .then((response) => {
-//               if (!response.ok) {
-//                   throw new Error("Network response was not ok");
-//               }
-//               return response.text();
-//           })
-//           .then((data) => {
-//               console.log(data);
-//               location.reload(); // Refresh the page to update the table
-//           })
-//           .catch((error) => {
-//               console.error("Error during clock-out:", error);
-//           });
-
-//       isClockedIn = false;
-//   } else {
-//       button.innerText = "Time Out";
-//       fetch(endpoint, { method: "POST" })
-//           .then((response) => {
-//               if (!response.ok) {
-//                   throw new Error("Network response was not ok");
-//               }
-//               return response.text();
-//           })
-//           .then((data) => {
-//               console.log(data);
-//               location.reload(); // Refresh the page to update the table
-//           })
-//           .catch((error) => {
-//               console.error("Error during clock-in:", error);
-//           });
-//       isClockedIn = true;
-//   }
-//   // isClockedIn = !isClockedIn;
-// }
-
-// Check if the user is already clocked in on page load
-window.onload = function () {
-  fetch("/api/check-clocked-in") // Updated API route
-      .then((response) => response.json())
-      .then((data) => {
-          isClockedIn = data.clockedIn;
-          const button = document.getElementById("timeButton");
-          button.innerText = isClockedIn ? "Time Out" : "Time In";
-      })
-      .catch((error) => {
-          console.error("Error checking clock-in status:", error);
-      });
-};
-    // for realtime clock
+    // Function to update the real-time clock display
     function updateTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
     }
+
+    // Update the clock every second
     setInterval(updateTime, 1000);
-    updateTime(); 
+    updateTime();
+            
 </script>
 
 <!-- !end of added -->
@@ -944,6 +924,39 @@ window.onload = function () {
         })
         .catch(error => console.error('Error fetching attendance record:', error));
     }
+
+    function updateAttendance(){
+      const id = document.getElementById('attendanceId').value;
+      const timeIn = document.getElementById('timeInEditId').value;
+      const timeOut = document.getElementById('timeOutEditId').value;
+      const remarks = document.getElementById('editRemarksId').value;
+      fetch('/attendance/edit', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id,
+            timeIn: timeIn,
+            timeOut: timeOut,
+            remarks: remarks
+        })
+      })
+      .then(data => {
+              Swal.fire({
+                  text: 'Attendance record updated successfully',
+                  confirmButtonText: 'OK',
+                  background: '#fff',
+                  color: '#333',
+                  position: 'center'
+              }).then(() => {
+                  const modal = document.getElementById('edit-modal');
+                  modal.classList.add('hidden');
+                  modal.setAttribute('aria-hidden', 'true');
+                  location.reload(); 
+              });
+          });
+      }
 
 </script>
 
@@ -1029,6 +1042,7 @@ window.onload = function () {
   function performDelete(deleteUrl) {
       window.location.href = deleteUrl; // Use the provided URL for deletion
       showDeleteToast(); // Show toast notification after deletion
+      location.reload();
   }
 
   function showDeleteToast() {
@@ -1043,8 +1057,158 @@ window.onload = function () {
       });
   }
 </script>
-
  <!--end-->
+
+ <script>
+    function previewExcel() {
+    const empid = sessionStorage.getItem("empid") || "N/A";
+    const username = sessionStorage.getItem("username") || "N/A";
+    const email = sessionStorage.getItem("email") || "N/A";
+
+    let table = document.querySelector("table");
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+
+    let rows = table.querySelectorAll("tr");
+
+    // Clear previous data
+    let previewHeader = document.getElementById("excelPreviewHeader");
+    let previewBody = document.getElementById("excelPreviewBody");
+    previewHeader.innerHTML = "";
+    previewBody.innerHTML = "";
+  
+
+    // Define headers
+    let headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
+    headers.forEach(header => {
+      let th = document.createElement("th");
+      th.textContent = header;
+      th.classList.add("p-6", "text-left", "font-semibold");
+      previewHeader.appendChild(th);
+    });
+
+    rows.forEach((row, index) => {
+        let cols = row.querySelectorAll("td");
+        if (cols.length > 0) {
+            let rowData = [
+                empid,
+                username,
+                email,
+                cols[0].innerText.trim(),  // Date
+                cols[1].innerText.trim(),  // Time In
+                cols[2].innerText.trim(),  // Time Out
+                cols[3].innerText.trim(),  // Edited By
+                cols[4].innerText.trim()   // Remarks
+            ];
+
+            // Add row to preview table
+            let tr = document.createElement("tr");
+            rowData.forEach(cellText => {
+                let td = document.createElement("td");
+                td.textContent = cellText;
+                td.classList.add("p-6", "border-b");
+                tr.appendChild(td);
+            });
+            previewBody.appendChild(tr);
+        }
+    });
+
+    // Show preview modal
+    document.getElementById("excelPreviewModal").classList.remove("hidden");
+}
+
+function closePreview() {
+    document.getElementById("excelPreviewModal").classList.add("hidden");
+}
+
+function exportToExcel() {
+    const empid = sessionStorage.getItem("empid") || "N/A";
+    const username = sessionStorage.getItem("username") || "N/A";
+    const email = sessionStorage.getItem("email") || "N/A";
+
+    let table = document.querySelector("table");
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+
+    let rows = table.querySelectorAll("tr");
+
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet([]);
+
+    
+    let imgBase64 = "./images/tsukiden_logo.png";
+    let img = new Image();
+    img.src = "data:image/png;base64," + imgBase64; 
+    ws["!images"] = [{ image: img.src, ref: "A1" }];
+
+   
+    const headers = ["Employee ID", "Username", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
+    XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A3" });
+
+    let rowIndex = 4;
+
+    rows.forEach((row) => {
+        let cols = row.querySelectorAll("td");
+        if (cols.length > 0) {
+            let rowData = [
+                empid,
+                username,
+                email,
+                cols[0].innerText.trim(), // Date
+                cols[1].innerText.trim(), // Time In
+                cols[2].innerText.trim(), // Time Out
+                cols[3].innerText.trim(), // Edited By
+                cols[4].innerText.trim()  // Remarks
+            ];
+            XLSX.utils.sheet_add_aoa(ws, [rowData], { origin: `A${rowIndex}` });
+            rowIndex++;
+        }
+    });
+
+    // Styling: Auto-size columns
+    ws["!cols"] = [
+        { wch: 15 }, { wch: 20 }, { wch: 25 }, { wch: 15 },
+        { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 30 }
+    ];
+
+    // Apply header style (blue background, white bold text)
+    let headerRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
+        let cellRef = XLSX.utils.encode_cell({ r: 2, c: C });
+        if (!ws[cellRef]) continue;
+        ws[cellRef].s = {
+            font: { bold: true, color: { rgb: "FFFFFF" } },
+            fill: { fgColor: { rgb: "0070C0" } },
+            alignment: { horizontal: "center", vertical: "center" }
+        };
+    }
+
+    // Apply border to all cells
+    let cellRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let R = cellRange.s.r; R <= cellRange.e.r; R++) {
+        for (let C = cellRange.s.c; C <= cellRange.e.c; C++) {
+            let cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+            if (!ws[cellRef]) continue;
+            ws[cellRef].s = {
+                border: {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    right: { style: "thin" },
+                    bottom: { style: "thin" }
+                }
+            };
+        }
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
+    XLSX.writeFile(wb, "Attendance_Report.xlsx");
+}
+
+  </script>
 
 </body>
 </html>

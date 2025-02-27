@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,11 +28,10 @@ import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import dev.tgsi.attendance_registration_system.service.ActivityLogService;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
-import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/attendance")
@@ -113,7 +113,7 @@ public class AttendanceController {
 
     }
 
-    @GetMapping("/user/delete/{attendanceId}")
+    @GetMapping("/delete/{attendanceId}")
     public String deleteUserAttendance(@PathVariable(name="attendanceId") Long id){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -123,10 +123,12 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.deleteAttendance(id,user);
-        return "redirect:/user-page";
+        // !Added JDC 02/27/2025
+        activityLogService.saveLog("Deleted attendance record" , user);
+        return "Attendance record successfully deleted!";
     }
 
-    @GetMapping("/admin/delete/{attendanceId}")
+    /*@GetMapping("/admin/delete/{attendanceId}")
     public String deleteAdminAttendance(@PathVariable(name="attendanceId") Long id){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -136,8 +138,10 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.deleteAttendance(id,user);
+        // !Added JDC 02/27/2025
+        activityLogService.saveLog("Deleted attendance record" , user);
         return "redirect:/admin-page";
-    }
+    }*/
 
     @GetMapping("/record/{attendanceId}")
     @ResponseBody
@@ -145,8 +149,14 @@ public class AttendanceController {
         return attendanceRepository.findByAttendanceId(attendanceId);
         }
 
-    @RequestMapping(value = "/admin/edit", method = {RequestMethod.PUT , RequestMethod.GET})
-    public String updateAttendance(AttendanceDto attendanceDto){
+    @RequestMapping(value = "/edit", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<String> updateAttendance(@RequestBody Map<String, String> payload){
+
+        Long id = Long.parseLong(payload.get("id"));
+        String timeIn = payload.get("timeIn");
+        String timeOut = payload.get("timeOut");
+        String remarks = payload.get("remarks");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -154,9 +164,9 @@ public class AttendanceController {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
         
-        attendanceService.updateAttendance(attendanceDto.getAttendanceId(),user,attendanceDto);
+        attendanceService.updateAttendance(id,user,timeIn,timeOut,remarks);
         activityLogService.saveLog("Edited attendance record" , user);
-        return "redirect:/admin-page";
+        return ResponseEntity.ok("Successfully edited attendance record");
     }
 
     // ! For Pagination

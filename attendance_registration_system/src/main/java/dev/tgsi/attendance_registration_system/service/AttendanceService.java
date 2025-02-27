@@ -12,25 +12,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord.Status;
-import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
 import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.LeaveModel;
 import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.LeaveRepository;
-//import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import jakarta.transaction.Transactional;
 
 // Pagination
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @Service
 public class AttendanceService {
-
-   // @Autowired
-    //private UserRepository userRepository;
 
     @Autowired
     private AttendanceRepository attendanceRepository;
@@ -59,17 +53,17 @@ public class AttendanceService {
 
     public void saveTimeIn(User user) {
         TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceRecord = attendanceRepository.findbyDate(user.getEmpId(),dateTime.getBeforeDate());
+        AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDate today = LocalDate.now();
         LocalTime timeIn = LocalTime.now();
 
         if(attendanceRecord != null)
         {
             if(attendanceRecord.getStatus() == Status.ONLINE)
             {
-                throw new RuntimeException("User is already clocked in");
+                System.out.println("Already Login");
+
             }else if(attendanceRecord.getStatus() == Status.ON_LEAVE)
             {
                 attendanceRecord.setStatus(Status.ONLINE);
@@ -79,14 +73,14 @@ public class AttendanceService {
             }
             else
             {
-                throw new RuntimeException("User is offline");
+                System.out.println("User is offline");
             }
         }
         else
         {
         AttendanceRecord attendanceModel = new AttendanceRecord();
         attendanceModel.setUser(user);
-        attendanceModel.setDate(LocalDate.parse(today.toString()));
+        attendanceModel.setDate(LocalDate.parse(dateTime.getTargetDate().toString()));
         attendanceModel.setTimeIn(LocalTime.parse(timeIn.toString()));
         attendanceModel.setCreatedOn(LocalDateTime.parse(now.toString()));
         attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
@@ -97,10 +91,9 @@ public class AttendanceService {
 
     public void saveTimeOut(User user) {
 
-        TargetDateTime dateTime = new TargetDateTime();
         LocalDateTime now = LocalDateTime.now();
         LocalTime timeOut = LocalTime.now();
-        AttendanceRecord attendanceModel = attendanceRepository.findTodayAttendance(user.getEmpId(), dateTime.getTargetDate());
+        AttendanceRecord attendanceModel = attendanceRepository.findTodayAttendance(user.getEmpId());
         attendanceModel.setTimeOut(LocalTime.parse(timeOut.toString()));
         attendanceModel.setStatus(Status.OFFLINE);
         attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
@@ -159,7 +152,7 @@ public class AttendanceService {
     }*/
     public boolean isUserClockedIn(User user) {
         TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceRecord = attendanceRepository.findTodayAttendance(user.getEmpId(), dateTime.getTargetDate());
+        AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(), dateTime.getTargetDate());
         return attendanceRecord == null ? false : true;
         
     }
@@ -167,6 +160,48 @@ public class AttendanceService {
     public LocalTime getLatestTimeIn(User user) {
 
         TargetDateTime dateTime = new TargetDateTime();
+        AttendanceRecord attendanceModel;
+
+        if(dateTime.getCurrendtDateTime().isBefore(dateTime.getResetDate())){
+            attendanceModel = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getPreviousDay());
+            if(attendanceModel != null){
+                return attendanceModel.getTimeIn();
+            }
+            else{
+                attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+                if(attendanceModel != null)
+                {
+                    LocalTime timeIn = attendanceModel.getTimeIn();
+                    if (timeIn != null) {
+                        return timeIn;  
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                else{
+                    return null;
+                }
+
+            }
+
+        }
+        else{
+            attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+            if(attendanceModel != null)
+            {
+                LocalTime timeIn = attendanceModel.getTimeIn();
+                if (timeIn != null) {
+                    return timeIn;  
+                }
+                else {
+                    return null;
+                }
+            }
+            else{
+                return null;
+            }
+        }
         /*List<AttendanceRecord> userRecords = attendanceRepository.findByUser_EmpId(empId);
         
         return userRecords.stream()
@@ -175,37 +210,12 @@ public class AttendanceService {
             .max(LocalTime::compareTo)
             .orElse(null);
             */
-        AttendanceRecord attendanceModel = attendanceRepository.findbyDate(user.getEmpId(),dateTime.getBeforeDate());
-        if(attendanceModel == null)
-        {
-            return null;
-        }
-        LocalTime timeIn = attendanceModel.getTimeIn();
-        if (timeIn != null) {
-            return timeIn;  
-        }
-        else {
-            return null;
-        }
         
     }
 
 
     public LocalTime getLatestTimeOut(User user) {
-        /*List<AttendanceRecord> userRecords = attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(empId);
-
-        if (!userRecords.isEmpty()) {
-            return null;
-        }
-
-            return attendanceRepository.findByUser_EmpId(empId)
-                .stream()
-                .filter(record -> record.getTimeOut() != null)
-                .map(AttendanceRecord::getTimeOut)
-                .max(LocalTime::compareTo)
-                .orElse(null);
-        */
-
+        /* 
         TargetDateTime dateTime = new TargetDateTime();
         AttendanceRecord attendanceModel = attendanceRepository.findbyDate(user.getEmpId(),dateTime.getBeforeDate());
         if(attendanceModel == null)
@@ -218,13 +228,57 @@ public class AttendanceService {
             return timeOut;  
         }
         return null;
+        */
 
+        TargetDateTime dateTime = new TargetDateTime();
+        AttendanceRecord attendanceModel;
+
+        if(dateTime.getCurrendtDateTime().isBefore(dateTime.getResetDate())){
+            attendanceModel = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getPreviousDay());
+            if(attendanceModel != null){
+                return attendanceModel.getTimeOut();
+            }
+            else{
+                attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+                if(attendanceModel != null)
+                {
+                    LocalTime timeOut = attendanceModel.getTimeOut();
+                    if (timeOut != null) {
+                        return timeOut;  
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                else{
+                    return null;
+                }
+
+            }
+
+        }
+        else{
+            attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+            if(attendanceModel != null)
+            {
+                LocalTime timeOut = attendanceModel.getTimeOut();
+                if (timeOut != null) {
+                    return timeOut;  
+                }
+                else {
+                    return null;
+                }
+            }
+            else{
+                return null;
+            }
+        }
     }
 
     @Transactional
     public AttendanceRecord saveLeave(LeaveModel leaveModel , User user) {
 
-        AttendanceRecord attendanceRecord = attendanceRepository.getTodayAttendanceByDate(user.getEmpId(), leaveModel.getLeaveDate());
+        AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(), leaveModel.getLeaveDate());
         
         if (attendanceRecord == null){
             AttendanceRecord attendanceModel =  new AttendanceRecord();
@@ -296,10 +350,17 @@ public class AttendanceService {
     }
     
     @Transactional
-    public AttendanceRecord updateAttendance(Long id, User user, AttendanceDto attendanceDto) {
+    public AttendanceRecord updateAttendance(Long id, User user, String timeInResult, String timeOutResult, String remarks) {
 
         LocalDateTime now = LocalDateTime.now();
-
+        LocalTime timeIn =  null;
+        LocalTime timeOut = null;
+        if(timeInResult!=""){
+            timeIn = LocalTime.parse(timeInResult);
+        }
+        if(timeOutResult!=""){
+            timeOut = LocalTime.parse(timeOutResult);
+        }
         AttendanceRecord attendanceModel = attendanceRepository.findByAttendanceId(id);
         if (attendanceModel != null) {
 
@@ -308,9 +369,9 @@ public class AttendanceService {
                 attendanceModel.setEditedById(user.getEmpId());
                 attendanceModel.setEditedByRole(user.getRole().getRoleShName());;
                 attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
-                attendanceModel.setTimeIn(LocalTime.parse(attendanceDto.getTimeIn()));
-                attendanceModel.setTimeOut(LocalTime.parse(attendanceDto.getTimeOut()));
-                attendanceModel.setRemarks(attendanceDto.getRemarks());
+                attendanceModel.setTimeIn(timeIn);
+                attendanceModel.setTimeOut(timeOut);
+                attendanceModel.setRemarks(remarks);
                 return attendanceRepository.save(attendanceModel);
                 
         } else {
