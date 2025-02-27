@@ -60,6 +60,22 @@ public class UserSearchController {
                         break;
                     
                 }
+
+                if(attendanceRecord.getStatus() == AttendanceRecord.Status.ON_LEAVE){
+                    attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getPreviousDay());
+
+                    if(attendanceRecord !=null && attendanceRecord.getTimeOut() == null ){
+                        status = "Online";
+                    }
+                }
+            }
+            else{
+                 attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getPreviousDay());
+
+                 if(attendanceRecord != null && attendanceRecord.getTimeOut() == null){ 
+                    status = "Online";
+                 }
+
             }
 
             String fullName = employee.getFirstName() + " " + employee.getLastName();
