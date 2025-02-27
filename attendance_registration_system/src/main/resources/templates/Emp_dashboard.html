@@ -359,7 +359,7 @@
                           <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]"> 
                               <!-- error filter -->
                                  <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                <td colspan="5" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
+                                <td colspan="6" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
                               </tr>
                                <!-- !Table records -->
                               <tr th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
