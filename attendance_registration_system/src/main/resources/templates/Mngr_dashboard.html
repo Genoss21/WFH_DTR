@@ -830,18 +830,7 @@
   });
 
   // Check if the user is already clocked in when the page loads
-  window.onload = function () {
-      fetch("/api/check-clocked-in")
-          .then((response) => response.json())
-          .then((data) => {
-              isClockedIn = data.clockedIn;
-              const button = document.getElementById("timeButton");
-              button.innerText = isClockedIn ? "Time Out" : "Time In";
-          })
-          .catch((error) => {
-              console.error("Error checking clock-in status:", error);
-          });
-  };
+  
 
   // Function to update the real-time clock display
   function updateTime() {

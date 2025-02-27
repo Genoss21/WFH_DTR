@@ -51,18 +51,23 @@ public class AttendanceService {
     }
     */
 
-    public void saveTimeIn(User user) {
+    public Map<String, String> saveTimeIn(User user) {
         TargetDateTime dateTime = new TargetDateTime();
         AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
 
         LocalDateTime now = LocalDateTime.now();
         LocalTime timeIn = LocalTime.now();
 
+        Map<String, String> response = new HashMap<>();
+        
         if(attendanceRecord != null)
         {
             if(attendanceRecord.getStatus() == Status.ONLINE)
             {
                 System.out.println("Already Login");
+                response.put("title", "You are online!");
+                response.put("message", "Already time in");
+                response.put("status", "success");
 
             }else if(attendanceRecord.getStatus() == Status.ON_LEAVE)
             {
@@ -70,10 +75,17 @@ public class AttendanceService {
                 attendanceRecord.setTimeIn(LocalTime.parse(timeIn.toString()));
                 attendanceRecord.setUpdatedOn(LocalDateTime.parse(now.toString()));
                 attendanceRepository.save(attendanceRecord);
+                
+                response.put("title", "Good Day!");
+                response.put("message", "Time-in Successfully");
+                response.put("status", "success");
             }
             else
-            {
+            {   
                 System.out.println("User is offline");
+                response.put("title", "Error");
+                response.put("message", "You have already rendered your time");
+                response.put("status", "error");
             }
         }
         else
@@ -86,7 +98,12 @@ public class AttendanceService {
         attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
         attendanceModel.setStatus(Status.ONLINE);
         attendanceRepository.save(attendanceModel);
+        response.put("title", "Good Day!");
+        response.put("message", "Time-in Successfully");
+        response.put("status", "success");
         }
+
+        return response;
     }
 
     public void saveTimeOut(User user) {

@@ -74,11 +74,8 @@ public class AttendanceController {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        attendanceService.saveTimeIn(user);
-        Map<String, String> response = new HashMap<>();
-        response.put("title", "Good Morning");
-        response.put("message", "Time-in Successfully");
-        response.put("status", "success");
+        Map<String, String> response = attendanceService.saveTimeIn(user);
+        
         return new Gson().toJson(response);
     }
 
