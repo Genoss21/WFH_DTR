@@ -418,7 +418,7 @@
                                    
                                     <!--JDC 02-24-25-->
                                     <!-- Delete Button -->
-                                <a th:href="@{/attendance/admin/delete/{attendanceId}(attendanceId=${record.attendanceId})}" onclick="confirmDelete(event, this.href)"
+                                <a th:href="@{/attendance/delete/{attendanceId}(attendanceId=${record.attendanceId})}" onclick="confirmDelete(event, this.href)"
                                 class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
                                 <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
@@ -1042,6 +1042,7 @@
   function performDelete(deleteUrl) {
       window.location.href = deleteUrl; // Use the provided URL for deletion
       showDeleteToast(); // Show toast notification after deletion
+      location.reload();
   }
 
   function showDeleteToast() {

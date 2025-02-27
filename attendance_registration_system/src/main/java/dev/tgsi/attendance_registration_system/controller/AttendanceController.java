@@ -113,7 +113,7 @@ public class AttendanceController {
 
     }
 
-    @GetMapping("/user/delete/{attendanceId}")
+    @GetMapping("/delete/{attendanceId}")
     public String deleteUserAttendance(@PathVariable(name="attendanceId") Long id){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -125,10 +125,10 @@ public class AttendanceController {
         attendanceService.deleteAttendance(id,user);
         // !Added JDC 02/27/2025
         activityLogService.saveLog("Deleted attendance record" , user);
-        return "redirect:/user-page";
+        return "Attendance record successfully deleted!";
     }
 
-    @GetMapping("/admin/delete/{attendanceId}")
+    /*@GetMapping("/admin/delete/{attendanceId}")
     public String deleteAdminAttendance(@PathVariable(name="attendanceId") Long id){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -141,7 +141,7 @@ public class AttendanceController {
         // !Added JDC 02/27/2025
         activityLogService.saveLog("Deleted attendance record" , user);
         return "redirect:/admin-page";
-    }
+    }*/
 
     @GetMapping("/record/{attendanceId}")
     @ResponseBody
