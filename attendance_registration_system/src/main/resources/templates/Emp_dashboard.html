@@ -823,7 +823,7 @@
                     }, 2000);
     
                     // Show modal with response data, formatting time
-                    showModal(data.title, formatTimeWithDay(data.message), data.status);
+                    showModal(data.title, data.message, data.status);
                 })
                 .catch((error) => {
                     console.error("Error:", error);
