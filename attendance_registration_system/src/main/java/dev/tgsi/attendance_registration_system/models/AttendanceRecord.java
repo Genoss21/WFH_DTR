@@ -71,6 +71,23 @@ public class AttendanceRecord {
     @Column(name ="deleted_by_id")
     private String deletedById;
 
+    @Transient
+    private boolean isDisabled;
+
+    public boolean getIsDisabled(){
+        boolean result = false;
+        if(getEditedById() != null){
+        
+            if(!getUser().getEmpId().equals(getEditedById())){
+              result = true;
+            }
+            else{
+                result = false;
+            }
+        }
+        return result;
+    }
+
     public AttendanceRecord(User user, LeaveModel leaveModel, LocalDate date, LocalTime timeIn, LocalTime timeOut, String status,
             String remarks, int delFlag, LocalDateTime createdOn, LocalDateTime updatedOn, String editedByRole, String editedByName,
             String editedById, String deletedById) {
