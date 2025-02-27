@@ -78,7 +78,7 @@
             <!-- Show initials if user.imgSrc is null -->
             <div th:if="${user.imgSrc == null }" 
                 class="w-10 h-10 flex items-center justify-center rounded-full text-white text-lg font-bold"
-                style="background-color: #3498db;">
+                style="background-color: #A40011;">
                 <span th:text="${user.personalInfo.getInitials()}"></span>
                 </div>
           </button>
@@ -147,33 +147,36 @@
                 </button>
             </div>
 
-
-            
-        
             <!-- Modal Body -->
-                <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
-                    <!-- Time-in -->
-
-                    <!--hidden-->
-                    <input type="text" id="attendanceId"
-                                       name="attendanceId" 
-                                       hidden/>
-                    <div>
-                        <label for="timeInEditId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-in:</label>
-                        <input type="text" id="timeInEditId" name="timeIn"
-                            class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            required />
-                    </div>
-
-                    <!-- Time-out -->
-                    <div>
-                        <label for="timeOutEditId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
-                        <input type="text" id="timeOutEditId" name="timeOut"
-                            class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            />
-                    </div>
-                </div>
-
+            <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
+              <!-- Time-in -->
+              <input type="text" id="attendanceId" name="attendanceId" hidden/>
+              <div>
+                  <label for="timeInEditId" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time-in:</label>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                              <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
+                          </svg>
+                      </div>
+                      <input type="time" id="timeInEditId" name="timeIn" class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required step="1" />
+                  </div>
+              </div>
+          
+              <!-- Time-out -->
+              <div>
+                  <label for="timeOutEditId" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time-out:</label>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                              <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
+                          </svg>
+                      </div>
+                      <input type="time" id="timeOutEditId" name="timeOut" class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" step="1" />
+                  </div>
+              </div>
+          </div>
+          
                 <!-- Remarks -->
                 <div class="px-6 pb-6">
                     <label for="editRemarksId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
@@ -606,6 +609,25 @@
         <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
     </footer>
 
+    <!--Time picker military time format-->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const timeInputs = document.querySelectorAll('input[type="time"]');
+      
+          timeInputs.forEach(input => {
+              input.addEventListener("change", function () {
+                  let timeValue = this.value;
+                  if (timeValue) {
+                      let [hours, minutes] = timeValue.split(":");
+                      hours = hours.padStart(2, '0'); // Ensure two-digit hour
+                      minutes = minutes.padStart(2, '0'); // Ensure two-digit minutes
+                      this.value = `${hours}:${minutes}`; // Update input value
+                  }
+              });
+          });
+      });
+      </script>
+    <!--End -->
     <!--For employee cards -->
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
@@ -761,78 +783,95 @@
      });
    </script>    -->
 
-   <!-- ! Added: 02/13/25 -->
-   <!-- ! auth: stvn -->
-   <script>
-      document.addEventListener("DOMContentLoaded", function () {
-    const username = "[[${#authentication.name}]]";
-    let isClockedInState = false; // Internal state instead of localStorage
-
-    const button = document.getElementById("timeButton");
-
-    // Fetch user's clock-in status from backend
-    fetch("/api/check-clocked-in")
-        .then((response) => response.json())
-        .then((data) => {
-            isClockedInState = data.clockedIn;
-            button.innerText = isClockedInState ? "Time Out" : "Time In";
-        })
-        .catch((error) => console.error("Error checking clock-in status:", error));
-
-    button.addEventListener("click", toggleTime);
-
-    function toggleTime() {
-        const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
-
-        fetch(endpoint, { method: "POST" })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("You have already rendered your time");
-                }
-                return response.json();
-            })
+  <!-- ! Added: 02/13/25 -->
+  <!-- ! auth: stvn/ modify fritz -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = "[[${#authentication.name}]]";
+        let isClockedInState = false; // Internal state instead of localStorage
+    
+        const button = document.getElementById("timeButton");
+    
+        // Fetch user's clock-in status from backend
+        fetch("/api/check-clocked-in")
+            .then((response) => response.json())
             .then((data) => {
-                isClockedInState = !isClockedInState; // Update internal state
+                isClockedInState = data.clockedIn;
                 button.innerText = isClockedInState ? "Time Out" : "Time In";
-
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-
-                // Show modal with response data
-                showModal(data.title, data.message, data.status);
             })
-            .catch((error) => {
-                console.error("Error:", error);
-                showModal("Error", "You have already rendered your time", "error");
+            .catch((error) => console.error("Error checking clock-in status:", error));
+    
+        button.addEventListener("click", toggleTime);
+    
+        function toggleTime() {
+            const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
+    
+            fetch(endpoint, { method: "POST" })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("You have already rendered your time");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    isClockedInState = !isClockedInState; // Update internal state
+                    button.innerText = isClockedInState ? "Time Out" : "Time In";
+    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+    
+                    // Show modal with response data, formatting time
+                    showModal(data.title, formatTimeWithDay(data.message), data.status);
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    showModal("Error", "You have already rendered your time", "error");
+                });
+        }
+    
+        function showModal(title, message, icon) {
+            Swal.fire({
+                icon: icon, // "success" or "error"
+                title: title,
+                text: message,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#333",
+                position: "center",
             });
-    }
+        }
+    
+        // Real-time clock with short day names and 12-hour format
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerHTML = formatTimeWithDay(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
+        }
+    
+        function formatTimeWithDay(time) {
+            if (!time) return ''; // Handle empty values
+    
+            const shortDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const now = new Date();
+            const dayName = shortDays[now.getDay()];
+    
+            let [hours, minutes, seconds] = time.split(':');
+            hours = parseInt(hours, 10);
+            const amPm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+    
+            return `
+            <small class="text-2xl text-[#333333] dark:text-gray-100">${dayName}</small>
+            ${hours}:${minutes.padStart(2, '0')}:${seconds ? seconds.padStart(2, '0') : '00'} 
+            <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small> 
+            `;
 
-    function showModal(title, message, icon) {
-        Swal.fire({
-            icon: icon, // "success" or "error"
-            title: title,
-            text: message,
-            confirmButtonText: "OK",
-            background: "#fff",
-            color: "#333",
-            position: "center",
-        });
-    }
-
-    // Real-time clock
-    function updateTime() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
-});
-
-</script>
+          }
+    
+        setInterval(updateTime, 1000);
+        updateTime();
+    });
+    </script>
 
    <!-- !end of added -->
 
