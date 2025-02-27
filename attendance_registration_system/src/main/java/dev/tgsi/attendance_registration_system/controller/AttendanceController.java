@@ -123,6 +123,8 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.deleteAttendance(id,user);
+        // !Added JDC 02/27/2025
+        activityLogService.saveLog("Deleted attendance record" , user);
         return "redirect:/user-page";
     }
 
@@ -136,6 +138,8 @@ public class AttendanceController {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         attendanceService.deleteAttendance(id,user);
+        // !Added JDC 02/27/2025
+        activityLogService.saveLog("Deleted attendance record" , user);
         return "redirect:/admin-page";
     }
 
