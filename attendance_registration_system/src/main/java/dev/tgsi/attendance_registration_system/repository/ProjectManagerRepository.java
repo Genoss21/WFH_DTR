@@ -11,6 +11,11 @@ import dev.tgsi.attendance_registration_system.models.User;
 @Repository
 public interface ProjectManagerRepository extends JpaRepository<ProjectManagerModel, Integer>{
     
+    /**
+     * Find all project id's handled by project managers.
+     * @param user the user
+     * @return the list of project managers
+     */
     List<ProjectManagerModel> findByUser(User user);
 
 }

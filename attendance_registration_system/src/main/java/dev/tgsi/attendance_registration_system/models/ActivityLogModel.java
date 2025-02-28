@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tbl_act_log")
+// * to record the activity logs
 public class ActivityLogModel {
     
     @Id
@@ -54,7 +55,4 @@ public class ActivityLogModel {
         this.regDate = regDate;
         this.updateDate = updateDate;
     }
-
-    
-
 }

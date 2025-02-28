@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.security.core.Authentication;
-
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.nio.file.Path;
@@ -26,7 +23,7 @@ import java.util.Optional;
 import dev.tgsi.attendance_registration_system.models.User;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 import dev.tgsi.attendance_registration_system.dto.FilterDates;
@@ -41,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 //pagination
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+
 
 @Controller
 public class UserController {
@@ -61,11 +58,13 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    // * For Login
     @GetMapping("/login")
     public String login() {
         return "Login1";
     }
 
+    // * For User Page
     @GetMapping("/user-page")
     public String userPage(Model model, Principal principal,
                     @ModelAttribute FilterDates filterDates,
@@ -93,16 +92,9 @@ public class UserController {
         List<PersonalInfoModel> employees = userService.getAllEmployees();
         model.addAttribute("employees", employees);
 
-        // !Added
-        // !Author: Stvn
-        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //String empId = user.getEmpId();
-        //model.addAttribute("records", attendanceService.getUserAttendance(user));
-        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
         model.addAttribute("date",filterDates);
@@ -113,10 +105,10 @@ public class UserController {
             && filterDates.getEndDate()!= null && !filterDates.getEndDate().isEmpty()){
 
            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-           LocalDate startdDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
+           LocalDate startDate =  LocalDate.parse(filterDates.getStartDate(),formatter);
            LocalDate endDate =  LocalDate.parse(filterDates.getEndDate(),formatter);
            
-           attendanceRecords = attendanceService.getUserAttendancePaginatedByDate(user,startdDate,endDate,page, 7);
+           attendanceRecords = attendanceService.getUserAttendancePaginatedByDate(user,startDate,endDate,page, 7);
            
            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
             model.addAttribute("attendancePage", attendanceRecords);
@@ -136,12 +128,11 @@ public class UserController {
 
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);   
-        // !end of added
 
         return "Emp_dashboard";
     }
 
-    
+    // * For Admin Page
     @GetMapping("/admin-page")
     public String adminPage(Model model, Principal principal, 
                         @ModelAttribute FilterDates filterDates, 
@@ -172,34 +163,28 @@ public class UserController {
         List<PersonalInfoModel> employees = userService.getAllEmployees();
         model.addAttribute("employees", employees);
 
-        // !Added
-        // !Author: Stvn 
-        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //String empId = user.getEmpId();
-        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
         model.addAttribute("latestTimeIn", attendanceService.getLatestTimeIn(user));
         model.addAttribute("latestTimeOut", attendanceService.getLatestTimeOut(user));
         model.addAttribute("date",filterDates);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        LocalDate startdDate = null;
+        LocalDate startDate = null;
         LocalDate endDate = null;
 
         Page<AttendanceRecord> attendanceRecords;
         if (filterDates.getStartDate() != null && !filterDates.getStartDate().isEmpty() 
             && filterDates.getEndDate() != null && !filterDates.getEndDate().isEmpty()) {
-            startdDate = LocalDate.parse(filterDates.getStartDate(), formatter);
+                startDate = LocalDate.parse(filterDates.getStartDate(), formatter);
             endDate = LocalDate.parse(filterDates.getEndDate(), formatter);
         }
 
         
-        if( (memberId == null || memberId.isEmpty()) && startdDate != null && endDate != null ){
+        if( (memberId == null || memberId.isEmpty()) && startDate != null && endDate != null ){
 
-           attendanceRecords = attendanceService.getUserAttendancePaginatedByDate(user,startdDate,endDate, page, 7);
+           attendanceRecords = attendanceService.getUserAttendancePaginatedByDate(user,startDate,endDate, page, 7);
 
            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
             model.addAttribute("attendancePage", attendanceRecords);
@@ -210,9 +195,9 @@ public class UserController {
             model.addAttribute("filterError", "No attendance records found for the specified date range.");
             }
 
-        }else if( memberId != null && startdDate != null && endDate != null ){
+        }else if( memberId != null && startDate != null && endDate != null ){
 
-            attendanceRecords = attendanceService.getAttendanceRecordPaginatedByMemberAndDate(memberId,startdDate,endDate, page, 7);
+            attendanceRecords = attendanceService.getAttendanceRecordPaginatedByMemberAndDate(memberId,startDate,endDate, page, 7);
             if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
                 model.addAttribute("attendancePage", attendanceRecords);
                 model.addAttribute("currentPage", page);
@@ -232,13 +217,6 @@ public class UserController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", attendanceRecords.getTotalPages());
         }
-        // !end of added
-        
-        // model.addAttribute("attendancePage", attendancePage);
-        // model.addAttribute("currentPage", page);
-        // model.addAttribute("totalPages", attendancePage.getTotalPages());
-
-        
 
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
@@ -250,7 +228,7 @@ public class UserController {
 
   
 
-
+    // * For User Image
     @GetMapping(value = "/user-image/{empId}")
     @ResponseBody
     public ResponseEntity<Resource> getUserImage(@PathVariable("empId") String empId) {

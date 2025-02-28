@@ -18,6 +18,7 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
+    // * For Admin to View Project Members
     @GetMapping("/{projectId}/members")
     public List<User> getMembersByProject(@PathVariable int projectId) {
         return projectService.getMembersByProject(projectId);

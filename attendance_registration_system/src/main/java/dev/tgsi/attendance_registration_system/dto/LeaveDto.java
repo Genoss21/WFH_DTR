@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+// * For all users leave applications
 public class LeaveDto {
     
     private String leaveDateDto;

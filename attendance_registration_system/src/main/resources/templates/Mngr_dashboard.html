@@ -384,12 +384,6 @@
                                 </tr>
                                  <!-- !Table records -->
                                 <tr th:if= "${filterError == null }" th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                  
-                                  <!-- Employee -->
-                                  <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                      th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
-                                      Fritz
-                                  </td> -->
                                   <!-- Date -->
                                   <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                       <a href="#" class="hover:underline" 
@@ -804,7 +798,7 @@
 
                   setTimeout(() => {
                       location.reload();
-                  }, 2000);
+                  }, 4000);
 
                   // Show modal with formatted time and day
                   showModal(data.title, data.message, data.status);
@@ -855,31 +849,6 @@
   setInterval(updateTime, 1000);
   updateTime();
 </script>
-
-
-<!-- !end of added -->
-
-
-
-   <!--Time in Time out-->
-   <!-- <script>
-     // JavaScript to toggle between Time-in and Time-out
-     document.getElementById("time-toggle-btn").addEventListener("click", function () {
-       const timeDisplay = document.getElementById("time-display");
-       const button = this;
-   
-       // Check the current state and toggle
-       if (button.innerText === "Time-in") {
-         const currentTime = new Date().toLocaleTimeString(); // Get current time
-         timeDisplay.innerText = `${currentTime}`;
-         button.innerText = "Time-out"; // Switch button text
-       } else {
-         const currentTime = new Date().toLocaleTimeString(); // Get current time
-         timeDisplay.innerText = `${currentTime}`;
-         button.innerText = "Time-in"; // Switch button text
-       }
-     });
-   </script>    -->
    <script>
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1061,7 +1030,7 @@
           icon: 'success',
           title: 'Record deleted successfully',
           showConfirmButton: false,
-          timer: 3000,
+          timer: 30000,
           timerProgressBar: true,
       });
   }

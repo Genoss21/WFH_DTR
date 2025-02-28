@@ -49,7 +49,7 @@ public class AttendanceApiController {
 
         TargetDateTime dateTime = new TargetDateTime();
         User user = userOptional.get();
-        //boolean clockIn = !attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(user.getEmpId()).isEmpty();
+        
         AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getTargetDate());
         boolean clockIn = attendanceRecord == null ? false : true;
 

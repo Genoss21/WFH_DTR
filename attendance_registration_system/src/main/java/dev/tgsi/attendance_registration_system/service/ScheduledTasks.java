@@ -42,9 +42,13 @@ public class ScheduledTasks {
             User user = userRepository.findByUsername(credentials.getUsername())
             .orElseThrow(() -> new RuntimeException("User not found"));
         
+            // Check if the user has already recorded his attendance for today
             AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getTargetDate());
             if(attendanceRecord != null){
 
+                // if the user has already recorded his attendance for today
+                // and the record is for the previous day, then save the time out
+                // and reset the DTR
                 if(attendanceRecord.getDate().isEqual(dateTime.getPreviousDay())){
                 attendanceService.saveTimeOut(user);
                 System.out.println("Response for user " + credentials.getUsername() + ": done");

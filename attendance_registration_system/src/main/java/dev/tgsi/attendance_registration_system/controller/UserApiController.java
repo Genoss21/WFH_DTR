@@ -16,6 +16,8 @@ public class UserApiController {
     @Autowired
     UserRepository userRepository;
 
+    // * For Register New User using postman
+    // * For testing only
     @PostMapping("/register")
     public User register(@RequestBody User user) {
         String encoded =  new BCryptPasswordEncoder().encode(user.getPassword());

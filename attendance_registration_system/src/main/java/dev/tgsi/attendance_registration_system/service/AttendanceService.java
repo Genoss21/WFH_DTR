@@ -1,5 +1,3 @@
-// ! Added 02/11/2025
-
 package dev.tgsi.attendance_registration_system.service;
 
 import java.time.LocalDate;
@@ -31,25 +29,6 @@ public class AttendanceService {
 
     @Autowired
     private LeaveRepository leaveRepository;
-
-    /*public void clockIn(String empId) {
-        User user = userRepository.findByEmpId(empId)
-            .orElseThrow(() -> new RuntimeException("User not found with emp ID: " + empId));
-
-        if (isUserClockedIn(empId)) {
-            throw new RuntimeException("User is already clocked in");   
-        }
-
-        AttendanceRecord attendanceRecord = new AttendanceRecord();
-        attendanceRecord.setUser(user);
-        attendanceRecord.setDate(LocalDate.now()); // set today's date
-        attendanceRecord.setTimeIn(LocalTime.now()); // time-in record
-        attendanceRecord.setStatus(Status.ONLINE); // set status
-        attendanceRecord.setCreatedOn(LocalDateTime.now()); // set created on
-        attendanceRecord.setUpdatedOn(LocalDateTime.now()); // set updated on
-        attendanceRepository.save(attendanceRecord);
-    }
-    */
 
     public Map<String, String> saveTimeIn(User user) {
         TargetDateTime dateTime = new TargetDateTime();
@@ -119,59 +98,8 @@ public class AttendanceService {
 
 
     public List<AttendanceRecord> getUserAttendance(User user) {
-       /*  // Extensive debugging
-        System.out.println("DEBUG: Attempting to fetch attendance records for empId: " + empId);
-        
-        // Validate input
-        if (empId == null || empId.trim().isEmpty()) {
-            System.err.println("DEBUG: Invalid empId provided");
-            throw new IllegalArgumentException("Employee ID cannot be null or empty");
-        }
-
-        // Check if user exists first
-        User user = userRepository.findByEmpId(empId)
-            .orElseThrow(() -> {
-                System.err.println("DEBUG: User not found with empId: " + empId);
-                return new RuntimeException("User not found with emp ID: " + empId);
-            });
-        
-        System.out.println("DEBUG: User found - Username: " + user.getUsername());
-        System.out.println("DEBUG: User Details - EmpId: " + user.getEmpId());
-        
-        // Fetch records with detailed logging
-        List<AttendanceRecord> records = attendanceRepository.findByUser_EmpId(empId);
-        
-        System.out.println("DEBUG: Total records fetched: " + records.size());
-        
-        // Log details of each record
-        for (AttendanceRecord record : records) {
-            System.out.println("DEBUG: Record Details:");
-            System.out.println("  - Attendance ID: " + record.getAttendanceId());
-            System.out.println("  - Time In: " + record.getTimeIn());
-            System.out.println("  - Time Out: " + record.getTimeOut());
-            
-            // Additional debug: check the associated user
-            if (record.getUser() != null) {
-                System.out.println("  - Associated User EmpId: " + record.getUser().getEmpId());
-            } else {
-                System.err.println("  - WARNING: Record has no associated user!");
-            }
-        }
-        */
         TargetDateTime dateTime = new TargetDateTime();
         return attendanceRepository.getAttendanceRecord(user.getEmpId(), dateTime.getTargetDate());
-    }
-
-
-    /*public boolean isUserClockedIn(String empId) {
-        List<AttendanceRecord> openRecords = attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(empId);
-        return !openRecords.isEmpty();
-    }*/
-    public boolean isUserClockedIn(User user) {
-        TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(), dateTime.getTargetDate());
-        return attendanceRecord == null ? false : true;
-        
     }
 
     public LocalTime getLatestTimeIn(User user) {
@@ -179,7 +107,7 @@ public class AttendanceService {
         TargetDateTime dateTime = new TargetDateTime();
         AttendanceRecord attendanceModel;
 
-        if(dateTime.getCurrendtDateTime().isBefore(dateTime.getResetDate())){
+        if(dateTime.getCurrentDateTime().isBefore(dateTime.getResetDate())){
             attendanceModel = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getPreviousDay());
             if(attendanceModel != null){
                 return attendanceModel.getTimeIn();
@@ -219,38 +147,16 @@ public class AttendanceService {
                 return null;
             }
         }
-        /*List<AttendanceRecord> userRecords = attendanceRepository.findByUser_EmpId(empId);
-        
-        return userRecords.stream()
-            .filter(record -> record.getTimeOut() != null)
-            .map(AttendanceRecord::getTimeIn)
-            .max(LocalTime::compareTo)
-            .orElse(null);
-            */
         
     }
 
 
     public LocalTime getLatestTimeOut(User user) {
-        /* 
-        TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceModel = attendanceRepository.findbyDate(user.getEmpId(),dateTime.getBeforeDate());
-        if(attendanceModel == null)
-        {
-            return null;
-        }
-        LocalTime timeOut = attendanceModel.getTimeOut();
-                        
-        if (timeOut != null) {
-            return timeOut;  
-        }
-        return null;
-        */
-
+      
         TargetDateTime dateTime = new TargetDateTime();
         AttendanceRecord attendanceModel;
 
-        if(dateTime.getCurrendtDateTime().isBefore(dateTime.getResetDate())){
+        if(dateTime.getCurrentDateTime().isBefore(dateTime.getResetDate())){
             attendanceModel = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getPreviousDay());
             if(attendanceModel != null){
                 return attendanceModel.getTimeOut();
@@ -298,8 +204,7 @@ public class AttendanceService {
         AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(), leaveModel.getLeaveDate());
         
         if (attendanceRecord == null){
-            AttendanceRecord attendanceModel =  new AttendanceRecord();
-            //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            AttendanceRecord attendanceModel =  new AttendanceRecord();        
             LocalDateTime now = LocalDateTime.now();
             leaveRepository.save(leaveModel);
             attendanceModel.setLeaveModel(leaveModel);
@@ -397,15 +302,6 @@ public class AttendanceService {
        
     }
     // Pagination
-    // public Page<AttendanceRecord> getUserAttendancePaginated(User user, int page, int size) {
-    //     Pageable pageable = PageRequest.of(page, size);
-    //     return attendanceRepository.findByUser_EmpId(user.getEmpId(), pageable);
-    // }
-
-    // public Page<AttendanceRecord> getUserAttendancePaginatedByDate(User user, LocalDate startDate, LocalDate endDate, int page, int size) {
-    //     Pageable pageable = PageRequest.of(page, size);
-    //     return attendanceRepository.findByUser_EmpIdAndDateBetween(user.getEmpId(), startDate, endDate, pageable);
-    // }
     public Page<AttendanceRecord> getUserAttendancePaginated(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return attendanceRepository.findByUser_EmpId(user.getEmpId(), pageable);
@@ -427,4 +323,3 @@ public class AttendanceService {
         return attendanceRepository.findByUser_EmpIdAndDateBetween(empId, startDate, endDate, pageable);
     }
 }
-// ! End

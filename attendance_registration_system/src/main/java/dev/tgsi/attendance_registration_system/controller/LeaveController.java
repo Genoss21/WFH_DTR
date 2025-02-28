@@ -27,6 +27,7 @@ public class LeaveController {
     @Autowired
     private ActivityLogService activityLogService;
 
+    // * For Member Apply Leave
     @PostMapping("/user-page/file-leave")
     public String saveLeaveEmp(LeaveModel leaveModel, Principal principal, LeaveDto leaveDto) {
         
@@ -44,6 +45,7 @@ public class LeaveController {
        return "redirect:/user-page";
     }
 
+    // * For Admin to Apply Leave
     @PostMapping("/admin-page/file-leave")
     public String saveLeaveMngr(LeaveModel leaveModel, Principal principal, LeaveDto leaveDto) {
         

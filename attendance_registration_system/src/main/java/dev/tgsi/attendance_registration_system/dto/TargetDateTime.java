@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+
+// * For querying purpose to get standard date and time.
 public class TargetDateTime {
     
     public LocalDate getTargetDate(){
@@ -11,7 +13,7 @@ public class TargetDateTime {
         return date;
     }
 
-     public LocalDateTime getCurrendtDateTime(){
+     public LocalDateTime getCurrentDateTime(){
 
         LocalDateTime now = LocalDateTime.parse(LocalDateTime.now().toString());
         return now;

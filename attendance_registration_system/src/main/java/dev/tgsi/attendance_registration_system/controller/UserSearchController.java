@@ -39,7 +39,7 @@ public class UserSearchController {
             );
         }
 
-        // LocalDate today = LocalDate.now();
+        
         TargetDateTime dateTime = new TargetDateTime();
         List<UserSearchDto> results = employees.stream().map(employee -> {
             User user = employee.getUser();
@@ -48,8 +48,7 @@ public class UserSearchController {
             String status = "Offline"; // default status
 
             if (attendanceRecord != null) {
-                // status = attendanceRecord.getStatus().name(); // ONLINE, OFFLINE, or ON_LEAVE
-
+                
                 switch (attendanceRecord.getStatus()) {
                     case ONLINE:
                         status = "Online";

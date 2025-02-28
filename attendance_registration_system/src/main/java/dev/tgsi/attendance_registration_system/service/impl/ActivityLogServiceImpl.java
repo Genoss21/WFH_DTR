@@ -17,6 +17,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     @Autowired
     private ActivityLogRepository activityLogRepository;
 
+    // To save activity logs
     @Override
     public void saveLog(String logDesc, User user) {
         

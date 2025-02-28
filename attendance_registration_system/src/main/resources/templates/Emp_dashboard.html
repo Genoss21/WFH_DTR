@@ -367,11 +367,6 @@
                               </tr>
                                <!-- !Table records -->
                               <tr th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                <!-- Employee -->
-                                <!-- <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                    th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
-                                    Fritz
-                                </td> -->
                                 <!-- Date -->
                                 <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                     <a href="#" class="hover:underline" 
@@ -488,43 +483,6 @@
                     </nav>
                   </div>
                   <!-- End of Pagination -->
-                <!-- <div class="p-2 mt-4 sticky bottom-0">
-                    <nav class="flex items-center justify-center" aria-label="Page navigation example">
-                        <ul class="flex h-8 items-center -space-x-px text-sm">
-                        <li>
-                          <a href="#" class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Previous</span>
-                          <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
-                          </svg>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">1</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">2</a>
-                        </li>
-                        <li>
-                          <a href="#" aria-current="page" class="z-10 flex h-8 items-center justify-center border border-primary-300 bg-primary-50 px-3 leading-tight text-primary-600 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 bg-gray-100 dark:bg-[#191A1F] text-[#333333] dark:text-gray-100">3</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">...</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">100</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Next</span>
-                            <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
-                            </svg>
-                          </a>
-                        </li>
-                        </ul>
-                      </nav>
-                </div> -->
             </div>
         </section>
         
@@ -763,29 +721,7 @@
         darkToggle.addEventListener("click", darkModeListener);
       }
     </script>
-    
-   <!--Time in Time out-->
-   <!-- <script>
-     // JavaScript to toggle between Time-in and Time-out
-     document.getElementById("time-toggle-btn").addEventListener("click", function () {
-       const timeDisplay = document.getElementById("time-display");
-       const button = this;
-   
-       // Check the current state and toggle
-       if (button.innerText === "Time-in") {
-         const currentTime = new Date().toLocaleTimeString(); // Get current time
-         timeDisplay.innerText = `${currentTime}`;
-         button.innerText = "Time-out"; // Switch button text
-       } else {
-         const currentTime = new Date().toLocaleTimeString(); // Get current time
-         timeDisplay.innerText = `${currentTime}`;
-         button.innerText = "Time-in"; // Switch button text
-       }
-     });
-   </script>    -->
 
-  <!-- ! Added: 02/13/25 -->
-  <!-- ! auth: stvn/ modify fritz -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
         const username = "[[${#authentication.name}]]";
@@ -874,9 +810,6 @@
     });
     </script>
 
-   <!-- !end of added -->
-
-<!-- !added by jojit 02-20-25-->
 <script>
   function confirmLogout(event) {
       event.preventDefault(); // Prevent the default anchor behavior
@@ -905,13 +838,6 @@
       window.location.href = '/logout'; // Use /logout directly
   }
   </script>
- <!-- !end of added -->
-
-
- <!--Toast for delete button-->
- <!---JDC 02-24-25-->
- 
-
 <script>
   function confirmDelete(event, deleteUrl) {
       event.preventDefault(); // Prevent the default anchor behavior

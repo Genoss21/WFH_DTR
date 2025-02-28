@@ -15,6 +15,11 @@ public class CredentialService {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Return a list of credentials
+     * for all users in the system.
+     * @return a list of UserCredentials objects
+     */
     public List<UserCredentials> getAllCredentials() {
         List<User> users = userRepository.findAll();
         return users.stream()

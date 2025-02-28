@@ -1,5 +1,3 @@
-// !Added 02/11/2025
-
 package dev.tgsi.attendance_registration_system.controller;
 
 import org.springframework.security.core.Authentication;
@@ -21,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
-
-import org.springframework.ui.Model;
 
 import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
@@ -48,22 +44,6 @@ public class AttendanceController {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
-
-    @GetMapping("/")
-    public String dashboard(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        //String empId = user.getEmpId();
-        model.addAttribute("records", attendanceService.getUserAttendance(user));
-        model.addAttribute("isClockedIn", attendanceService.isUserClockedIn(user));
-        model.addAttribute("username", username);
-        
-        return "Emp_dashboard";
-    }
 
     @PostMapping("/clock-in")
     @ResponseBody
@@ -96,20 +76,7 @@ public class AttendanceController {
         return new Gson().toJson(response);
     }
 
-    @GetMapping("/check-status")
-    @ResponseBody
-    public boolean checkStatus() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        //String empId = user.getEmpId();
-        return attendanceService.isUserClockedIn(user);
-
-    }
-
+    // For Delete
     @GetMapping("/delete/{attendanceId}")
     public String deleteUserAttendance(@PathVariable(name="attendanceId") Long id){
 
@@ -125,21 +92,7 @@ public class AttendanceController {
         return "Attendance record successfully deleted!";
     }
 
-    /*@GetMapping("/admin/delete/{attendanceId}")
-    public String deleteAdminAttendance(@PathVariable(name="attendanceId") Long id){
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        attendanceService.deleteAttendance(id,user);
-        // !Added JDC 02/27/2025
-        activityLogService.saveLog("Deleted attendance record" , user);
-        return "redirect:/admin-page";
-    }*/
-
+    // For Edit And Delete
     @GetMapping("/record/{attendanceId}")
     @ResponseBody
     public AttendanceRecord getAttendanceById(@PathVariable long attendanceId) {
@@ -166,7 +119,7 @@ public class AttendanceController {
         return ResponseEntity.ok("Successfully edited attendance record");
     }
 
-    // ! For Pagination
+    // * For Pagination
     @GetMapping("/paginated")
     @ResponseBody
     public Page<AttendanceRecord> getPaginatedAttendance(

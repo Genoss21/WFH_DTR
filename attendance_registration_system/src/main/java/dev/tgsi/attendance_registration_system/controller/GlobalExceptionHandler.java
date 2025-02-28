@@ -13,6 +13,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // Error 500
     @ExceptionHandler(Exception.class)
     public ModelAndView handleGenericException(HttpServletRequest request, Exception ex) {
         logger.error("Unexpected error occurred", ex);
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
         return modelAndView;
     }
 
+    // Error 403
     @ExceptionHandler(AccessDeniedException.class)
     public ModelAndView handleAccessDeniedException(HttpServletRequest request, AccessDeniedException ex) {
         logger.warn("Access denied for user attempting to access: {}", request.getRequestURI(), ex);
@@ -35,6 +37,7 @@ public class GlobalExceptionHandler {
         return modelAndView;
     }
 
+    // Error 404
     @ExceptionHandler(NoHandlerFoundException.class)
     public ModelAndView handleNotFoundException(HttpServletRequest request, Exception ex) {
         logger.warn("Resource not found: {}", request.getRequestURI(), ex);
