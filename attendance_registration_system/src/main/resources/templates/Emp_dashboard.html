@@ -43,6 +43,334 @@
     
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.js"></script>
 
+    <script>
+      // Prevent flickering by applying dark mode before the page renders
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    </script>
+
+    <!--Time picker military time format-->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const timeInputs = document.querySelectorAll('input[type="time"]');
+      
+          timeInputs.forEach(input => {
+              input.addEventListener("change", function () {
+                  let timeValue = this.value;
+                  if (timeValue) {
+                      let [hours, minutes] = timeValue.split(":");
+                      hours = hours.padStart(2, '0'); // Ensure two-digit hour
+                      minutes = minutes.padStart(2, '0'); // Ensure two-digit minutes
+                      this.value = `${hours}:${minutes}`; // Update input value
+                  }
+              });
+          });
+      });
+      </script>
+    <!--End -->
+    <!--For employee cards -->
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const searchInput = document.getElementById('table-search-users');
+    
+        // Function to generate initials (First Letter of First Name + Last Name)
+        function getInitials(fullName) {
+          const nameParts = fullName.split(" ");
+          const firstInitial = nameParts[0] ? nameParts[0][0] : "";
+          const lastInitial = nameParts.length > 1 ? nameParts[1][0] : "";
+          return (firstInitial + lastInitial).toUpperCase();
+        }
+    
+        // Function to generate a random Tailwind color for avatars
+        function getRandomColor() {
+          const colors = ["bg-[#A40011]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#9F7842]"];
+          return colors[Math.floor(Math.random() * colors.length)];
+        }
+    
+        // Function to update the table with user rows
+        function updateUserTable(users) {
+          const tbody = document.getElementById('userTable');
+          tbody.innerHTML = ''; // Clear current rows
+    
+          users.forEach(user => {
+            // Determine user status color
+            let statusColor = 'bg-red-500'; // Default for OFFLINE
+            if (user.status === 'Online') {
+              statusColor = 'bg-green-500';
+            } else if (user.status === 'On leave') {
+              statusColor = 'bg-gray-500';
+            }
+    
+            // Generate user initials if no image is available
+            const initials = getInitials(user.fullName);
+            const avatar = user.imgSrc
+                ? `<img class="w-10 h-10 rounded-full" src="/user-image/${user.empId}" alt="${user.fullName}">`
+              : `<div class="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${getRandomColor()}">${initials}</div>`;
+    
+            // Create a table row for each user
+            const tr = document.createElement('tr');
+            tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
+            tr.innerHTML = `
+              <th scope="row"
+                class="flex items-center box-border basis-[20%] p-4 font-medium text-gray-900 whitespace-nowrap dark:text-white overflow-hidden">
+              ${avatar}
+              <div class="ps-3 overflow-hidden">
+                <div class="text-base font-semibold truncate">${user.fullName}</div>
+                <div class="font-normal text-gray-500 truncate">${user.email}</div>
+              </div>
+            </th>
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div>
+                ${user.status}
+              </div>
+            </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+    
+        // Function to fetch users with an optional query parameter
+        async function fetchUsers(query = '') {
+          try {
+            const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            const users = await response.json();
+            updateUserTable(users);
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          }
+        }
+    
+        // Initial load: fetch all users (empty query)
+        fetchUsers();
+    
+        // Listen for input events to update the table as the user types
+        searchInput.addEventListener('input', (event) => {
+          const query = event.target.value;
+          fetchUsers(query);
+        });
+      });
+    </script>
+    
+    
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = "[[${#authentication.name}]]";
+        let isClockedInState = false; // Internal state instead of localStorage
+    
+        const button = document.getElementById("timeButton");
+    
+        // Fetch user's clock-in status from backend
+        fetch("/api/check-clocked-in")
+            .then((response) => response.json())
+            .then((data) => {
+                isClockedInState = data.clockedIn;
+                button.innerText = isClockedInState ? "Time Out" : "Time In";
+            })
+            .catch((error) => console.error("Error checking clock-in status:", error));
+    
+        button.addEventListener("click", toggleTime);
+    
+        function toggleTime() {
+            const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
+    
+            fetch(endpoint, { method: "POST" })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("You have already rendered your time");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    isClockedInState = !isClockedInState; // Update internal state
+                    button.innerText = isClockedInState ? "Time Out" : "Time In";
+    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+    
+                    // Show modal with response data, formatting time
+                    showModal(data.title, data.message, data.status);
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    showModal("Error", "You have already rendered your time", "error");
+                });
+        }
+    
+        function showModal(title, message, icon) {
+            Swal.fire({
+                icon: icon, // "success" or "error"
+                title: title,
+                text: message,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#333",
+                position: "center",
+            });
+        }
+    
+        // Real-time clock with short day names and 12-hour format
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerHTML = formatTimeWithDay(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
+        }
+    
+        function formatTimeWithDay(time) {
+            if (!time) return ''; // Handle empty values
+    
+            const shortDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const now = new Date();
+            const dayName = shortDays[now.getDay()];
+    
+            let [hours, minutes, seconds] = time.split(':');
+            hours = parseInt(hours, 10);
+            const amPm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+    
+            return `
+            <small class="text-2xl text-[#333333] dark:text-gray-100">${dayName}</small>
+            ${hours}:${minutes.padStart(2, '0')}:${seconds ? seconds.padStart(2, '0') : '00'} 
+            <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small> 
+            `;
+
+          }
+    
+        setInterval(updateTime, 1000);
+        updateTime();
+    });
+    </script>
+
+<script>
+  function confirmLogout(event) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showLogoutModal();
+  }
+  
+  function showLogoutModal() {
+      Swal.fire({
+          icon: 'warning', // "warning" icon for confirmation
+          title: 'Are you sure?',
+          text: 'Are you sure you want to log out?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, log out',
+          cancelButtonText: 'No, stay',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performLogout();
+          }
+      });
+  }
+  
+  function performLogout() {
+      window.location.href = '/logout'; // Use /logout directly
+  }
+  </script>
+<script>
+  function confirmDelete(event, deleteUrl) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showDeleteModal(deleteUrl);
+  }
+
+  function showDeleteModal(deleteUrl) {
+      Swal.fire({
+         // icon: 'question', // "question" icon for confirmation
+          title: 'Confirmation',
+          text: 'Are you sure you want to delete this record?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it',
+          cancelButtonText: 'No, keep it',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performDelete(deleteUrl);
+          }
+      });
+  }
+
+  function performDelete(deleteUrl) {
+      window.location.href = deleteUrl; // Use the provided URL for deletion
+      showDeleteToast(); // Show toast notification after deletion
+      location.reload();
+  }
+
+  function showDeleteToast() {
+      Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Record deleted successfully',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+      });
+  }
+</script>
+
+<script>
+
+function fetchAttendance(attendanceId) {
+    fetch(`/attendance/record/${attendanceId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('attendanceId').value = data.attendanceId;
+            document.getElementById('timeInEditId').value = data.timeIn;
+            document.getElementById('timeOutEditId').value = data.timeOut;
+            document.getElementById('editRemarksId').value = data.remarks;
+        })
+        .catch(error => console.error('Error fetching attendance record:', error));
+    }
+
+    function updateAttendance(event){
+
+      event.preventDefault();
+
+      const id = document.getElementById('attendanceId').value;
+      const timeIn = document.getElementById('timeInEditId').value;
+      const timeOut = document.getElementById('timeOutEditId').value;
+      const remarks = document.getElementById('editRemarksId').value;
+      fetch('/attendance/edit', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id,
+            timeIn: timeIn,
+            timeOut: timeOut,
+            remarks: remarks
+        })
+      })
+      .then(data => {
+              Swal.fire({
+                  text: 'Attendance record updated successfully',
+                  confirmButtonText: 'OK',
+                  background: '#fff',
+                  color: '#333',
+                  position: 'center'
+              }).then(() => {
+                  const modal = document.getElementById('edit-modal');
+                  modal.classList.add('hidden');
+                  modal.setAttribute('aria-hidden', 'true');
+                  location.reload(); 
+              });
+          });
+      }
+</script>
+
+
 </head>
 <body class="min-h-screen min-w-[320px] flex flex-col text-[#333333] bg-white dark:bg-[#191A1F]">
     
@@ -394,7 +722,8 @@
                                   <!-- Edit Button -->
                                   <button data-modal-target="edit-modal" data-modal-toggle="edit-modal" th:onclick=" 'fetchAttendance(' + ${record.attendanceId} + ')' "
                                   class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300"
-                                  th:disabled = "${record.isDisabled}">
+                                    th:disabled="${record.isDisabled}"
+                                    th:classappend="${record.isDisabled} ? 'bg-[#A0B4D4] hover:bg-[#A0B4D4] cursor-not-allowed' : ''">
                                   <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
@@ -567,112 +896,6 @@
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
         <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
     </footer>
-
-    <!--Time picker military time format-->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          const timeInputs = document.querySelectorAll('input[type="time"]');
-      
-          timeInputs.forEach(input => {
-              input.addEventListener("change", function () {
-                  let timeValue = this.value;
-                  if (timeValue) {
-                      let [hours, minutes] = timeValue.split(":");
-                      hours = hours.padStart(2, '0'); // Ensure two-digit hour
-                      minutes = minutes.padStart(2, '0'); // Ensure two-digit minutes
-                      this.value = `${hours}:${minutes}`; // Update input value
-                  }
-              });
-          });
-      });
-      </script>
-    <!--End -->
-    <!--For employee cards -->
-    <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-        const searchInput = document.getElementById('table-search-users');
-    
-        // Function to generate initials (First Letter of First Name + Last Name)
-        function getInitials(fullName) {
-          const nameParts = fullName.split(" ");
-          const firstInitial = nameParts[0] ? nameParts[0][0] : "";
-          const lastInitial = nameParts.length > 1 ? nameParts[1][0] : "";
-          return (firstInitial + lastInitial).toUpperCase();
-        }
-    
-        // Function to generate a random Tailwind color for avatars
-        function getRandomColor() {
-          const colors = ["bg-[#A40011]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#9F7842]"];
-          return colors[Math.floor(Math.random() * colors.length)];
-        }
-    
-        // Function to update the table with user rows
-        function updateUserTable(users) {
-          const tbody = document.getElementById('userTable');
-          tbody.innerHTML = ''; // Clear current rows
-    
-          users.forEach(user => {
-            // Determine user status color
-            let statusColor = 'bg-red-500'; // Default for OFFLINE
-            if (user.status === 'Online') {
-              statusColor = 'bg-green-500';
-            } else if (user.status === 'On leave') {
-              statusColor = 'bg-gray-500';
-            }
-    
-            // Generate user initials if no image is available
-            const initials = getInitials(user.fullName);
-            const avatar = user.imgSrc
-                ? `<img class="w-10 h-10 rounded-full" src="/user-image/${user.empId}" alt="${user.fullName}">`
-              : `<div class="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${getRandomColor()}">${initials}</div>`;
-    
-            // Create a table row for each user
-            const tr = document.createElement('tr');
-            tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
-            tr.innerHTML = `
-              <th scope="row"
-                class="flex items-center box-border basis-[20%] p-4 font-medium text-gray-900 whitespace-nowrap dark:text-white overflow-hidden">
-              ${avatar}
-              <div class="ps-3 overflow-hidden">
-                <div class="text-base font-semibold truncate">${user.fullName}</div>
-                <div class="font-normal text-gray-500 truncate">${user.email}</div>
-              </div>
-            </th>
-            <td class="px-6 py-4">
-              <div class="flex items-center">
-                <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div>
-                ${user.status}
-              </div>
-            </td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
-    
-        // Function to fetch users with an optional query parameter
-        async function fetchUsers(query = '') {
-          try {
-            const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            const users = await response.json();
-            updateUserTable(users);
-          } catch (error) {
-            console.error('Error fetching search results:', error);
-          }
-        }
-    
-        // Initial load: fetch all users (empty query)
-        fetchUsers();
-    
-        // Listen for input events to update the table as the user types
-        searchInput.addEventListener('input', (event) => {
-          const query = event.target.value;
-          fetchUsers(query);
-        });
-      });
-    </script>
     
     <script>
       // Modal toggle/hide scripts remain unchanged
@@ -681,258 +904,42 @@
           document.body.classList.remove('overflow-hidden');
         });
       });
-    
+  
       document.querySelectorAll('[data-modal-toggle]').forEach(button => {
         button.addEventListener('click', () => {
           document.body.classList.add('overflow-hidden');
         });
       });
-    </script>
-    
-    <script>
+  
+      // Tailwind dark mode configuration
       tailwind.config = {
         darkMode: 'class',
-      }
-    </script>
-    
-    <script>
-      // On page load, check local storage and set dark mode accordingly.
-      if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark");
+      };
+  
+      // Function to update the toggle state based on dark mode
+      function updateDarkModeToggle() {
         const darkToggle = document.querySelector("input[type='checkbox']#dark-toggle");
         if (darkToggle) {
-          darkToggle.checked = true;
+          darkToggle.checked = document.documentElement.classList.contains("dark");
         }
       }
-    
-      // Function to toggle dark mode and save the setting in local storage.
+  
+      // Function to toggle dark mode and save the setting in local storage
       function darkModeListener() {
         document.documentElement.classList.toggle("dark");
-        if (document.documentElement.classList.contains("dark")) {
-          localStorage.setItem("darkMode", "enabled");
-        } else {
-          localStorage.setItem("darkMode", "disabled");
-        }
+        localStorage.setItem("darkMode", document.documentElement.classList.contains("dark") ? "enabled" : "disabled");
+        updateDarkModeToggle();
       }
-    
-      // Add event listener to the dark mode toggle checkbox.
+  
+      // Ensure toggle state is updated on page load
+      updateDarkModeToggle();
+  
+      // Add event listener to the dark mode toggle checkbox
       const darkToggle = document.querySelector("input[type='checkbox']#dark-toggle");
       if (darkToggle) {
         darkToggle.addEventListener("click", darkModeListener);
       }
     </script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const username = "[[${#authentication.name}]]";
-        let isClockedInState = false; // Internal state instead of localStorage
-    
-        const button = document.getElementById("timeButton");
-    
-        // Fetch user's clock-in status from backend
-        fetch("/api/check-clocked-in")
-            .then((response) => response.json())
-            .then((data) => {
-                isClockedInState = data.clockedIn;
-                button.innerText = isClockedInState ? "Time Out" : "Time In";
-            })
-            .catch((error) => console.error("Error checking clock-in status:", error));
-    
-        button.addEventListener("click", toggleTime);
-    
-        function toggleTime() {
-            const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
-    
-            fetch(endpoint, { method: "POST" })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("You have already rendered your time");
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-                    isClockedInState = !isClockedInState; // Update internal state
-                    button.innerText = isClockedInState ? "Time Out" : "Time In";
-    
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000);
-    
-                    // Show modal with response data, formatting time
-                    showModal(data.title, data.message, data.status);
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    showModal("Error", "You have already rendered your time", "error");
-                });
-        }
-    
-        function showModal(title, message, icon) {
-            Swal.fire({
-                icon: icon, // "success" or "error"
-                title: title,
-                text: message,
-                confirmButtonText: "OK",
-                background: "#fff",
-                color: "#333",
-                position: "center",
-            });
-        }
-    
-        // Real-time clock with short day names and 12-hour format
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('clock').innerHTML = formatTimeWithDay(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`);
-        }
-    
-        function formatTimeWithDay(time) {
-            if (!time) return ''; // Handle empty values
-    
-            const shortDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            const now = new Date();
-            const dayName = shortDays[now.getDay()];
-    
-            let [hours, minutes, seconds] = time.split(':');
-            hours = parseInt(hours, 10);
-            const amPm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-    
-            return `
-            <small class="text-2xl text-[#333333] dark:text-gray-100">${dayName}</small>
-            ${hours}:${minutes.padStart(2, '0')}:${seconds ? seconds.padStart(2, '0') : '00'} 
-            <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small> 
-            `;
-
-          }
-    
-        setInterval(updateTime, 1000);
-        updateTime();
-    });
-    </script>
-
-<script>
-  function confirmLogout(event) {
-      event.preventDefault(); // Prevent the default anchor behavior
-      showLogoutModal();
-  }
-  
-  function showLogoutModal() {
-      Swal.fire({
-          icon: 'warning', // "warning" icon for confirmation
-          title: 'Are you sure?',
-          text: 'Are you sure you want to log out?',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, log out',
-          cancelButtonText: 'No, stay',
-          background: '#fff',
-          color: '#333',
-          position: 'center'
-      }).then((result) => {
-          if (result.isConfirmed) {
-              performLogout();
-          }
-      });
-  }
-  
-  function performLogout() {
-      window.location.href = '/logout'; // Use /logout directly
-  }
-  </script>
-<script>
-  function confirmDelete(event, deleteUrl) {
-      event.preventDefault(); // Prevent the default anchor behavior
-      showDeleteModal(deleteUrl);
-  }
-
-  function showDeleteModal(deleteUrl) {
-      Swal.fire({
-         // icon: 'question', // "question" icon for confirmation
-          title: 'Confirmation',
-          text: 'Are you sure you want to delete this record?',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, delete it',
-          cancelButtonText: 'No, keep it',
-          background: '#fff',
-          color: '#333',
-          position: 'center'
-      }).then((result) => {
-          if (result.isConfirmed) {
-              performDelete(deleteUrl);
-          }
-      });
-  }
-
-  function performDelete(deleteUrl) {
-      window.location.href = deleteUrl; // Use the provided URL for deletion
-      showDeleteToast(); // Show toast notification after deletion
-      location.reload();
-  }
-
-  function showDeleteToast() {
-      Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Record deleted successfully',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-      });
-  }
-</script>
-
-<script>
-
-function fetchAttendance(attendanceId) {
-    fetch(`/attendance/record/${attendanceId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('attendanceId').value = data.attendanceId;
-            document.getElementById('timeInEditId').value = data.timeIn;
-            document.getElementById('timeOutEditId').value = data.timeOut;
-            document.getElementById('editRemarksId').value = data.remarks;
-        })
-        .catch(error => console.error('Error fetching attendance record:', error));
-    }
-
-    function updateAttendance(event){
-
-      event.preventDefault();
-
-      const id = document.getElementById('attendanceId').value;
-      const timeIn = document.getElementById('timeInEditId').value;
-      const timeOut = document.getElementById('timeOutEditId').value;
-      const remarks = document.getElementById('editRemarksId').value;
-      fetch('/attendance/edit', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: id,
-            timeIn: timeIn,
-            timeOut: timeOut,
-            remarks: remarks
-        })
-      })
-      .then(data => {
-              Swal.fire({
-                  text: 'Attendance record updated successfully',
-                  confirmButtonText: 'OK',
-                  background: '#fff',
-                  color: '#333',
-                  position: 'center'
-              }).then(() => {
-                  const modal = document.getElementById('edit-modal');
-                  modal.classList.add('hidden');
-                  modal.setAttribute('aria-hidden', 'true');
-                  location.reload(); 
-              });
-          });
-      }
-</script>
-
- <!--end-->
 
 </body>
 </html>
