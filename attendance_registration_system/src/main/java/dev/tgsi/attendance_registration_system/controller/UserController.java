@@ -182,41 +182,59 @@ public class UserController {
         }
 
         
-        if( (memberId == null || memberId.isEmpty()) && startDate != null && endDate != null ){
+        if( memberId == null || memberId.isEmpty() ){
+            if(startDate != null && endDate != null){
+                attendanceRecords = attendanceService.getUserAttendancePaginatedByDate(user,startDate,endDate, page, 7);
 
-           attendanceRecords = attendanceService.getUserAttendancePaginatedByDate(user,startDate,endDate, page, 7);
-
-           if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
-            model.addAttribute("attendancePage", attendanceRecords);
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", attendanceRecords.getTotalPages());
-            } else {
-            model.addAttribute("attendancePage", Page.empty());
-            model.addAttribute("filterError", "No attendance records found for the specified date range.");
-            }
-
-        }else if( memberId != null && startDate != null && endDate != null ){
-
-            attendanceRecords = attendanceService.getAttendanceRecordPaginatedByMemberAndDate(memberId,startDate,endDate, page, 7);
-            if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+                if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+                    model.addAttribute("attendancePage", attendanceRecords);
+                    model.addAttribute("currentPage", page);
+                    model.addAttribute("totalPages", attendanceRecords.getTotalPages());
+                } else {
+                    model.addAttribute("attendancePage", Page.empty());
+                    model.addAttribute("filterError", "No attendance records found for the specified date range.");
+                }
+            }else{
+                attendanceRecords = attendanceService.getUserAttendancePaginated(user, page, 7);
                 model.addAttribute("attendancePage", attendanceRecords);
                 model.addAttribute("currentPage", page);
                 model.addAttribute("totalPages", attendanceRecords.getTotalPages());
-                model.addAttribute("selectedMemberId", memberId);
-                model.addAttribute("selectedProjectId", projectId);
-            } else {
-                model.addAttribute("attendancePage", Page.empty());
-                model.addAttribute("filterError", "No attendance records found for the specified date range.");
-                model.addAttribute("selectedMemberId", memberId);
-                model.addAttribute("selectedProjectId", projectId);
+            }
+
+        }else{
+
+            if( startDate != null && endDate != null ){
+                attendanceRecords = attendanceService.getAttendanceRecordPaginatedByMemberAndDate(memberId,startDate,endDate, page, 7);
+                if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+                    model.addAttribute("attendancePage", attendanceRecords);
+                    model.addAttribute("currentPage", page);
+                    model.addAttribute("totalPages", attendanceRecords.getTotalPages());
+                    model.addAttribute("selectedMemberId", memberId);
+                    model.addAttribute("selectedProjectId", projectId);
+                } else {
+                    model.addAttribute("attendancePage", Page.empty());
+                    model.addAttribute("filterError", "No attendance records found for the specified date range.");
+                    model.addAttribute("selectedMemberId", memberId);
+                    model.addAttribute("selectedProjectId", projectId);
+                }
+            }
+            else{
+                attendanceRecords = attendanceService.getAttendanceRecordPaginatedByMember(memberId, page, 7);
+                if (attendanceRecords != null && !attendanceRecords.isEmpty()) {
+                    model.addAttribute("attendancePage", attendanceRecords);
+                    model.addAttribute("currentPage", page);
+                    model.addAttribute("totalPages", attendanceRecords.getTotalPages());
+                    model.addAttribute("selectedMemberId", memberId);
+                    model.addAttribute("selectedProjectId", projectId);
+                } else {
+                    model.addAttribute("attendancePage", Page.empty());
+                    model.addAttribute("filterError", "No attendance records found for the specified date range.");
+                    model.addAttribute("selectedMemberId", memberId);
+                    model.addAttribute("selectedProjectId", projectId);
+                }
             }
         }
-        else{
-            attendanceRecords = attendanceService.getUserAttendancePaginated(user, page, 7);
-            model.addAttribute("attendancePage", attendanceRecords);
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", attendanceRecords.getTotalPages());
-        }
+
 
         LeaveDto leaveDto = new LeaveDto();
         model.addAttribute("leaveDto", leaveDto);
