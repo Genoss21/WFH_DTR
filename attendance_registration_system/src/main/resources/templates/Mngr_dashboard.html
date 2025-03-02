@@ -209,27 +209,37 @@
   
 
   // Function to update the real-time clock display
-  function updateTime() {
-      const now = new Date();
-      const daysAbbr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const dayName = daysAbbr[now.getDay()];
+  async function updateTime() {
+    try {
+        // Fetch time from the server
+        const response = await fetch("/server-time");
+        if(!response.ok)throw new Error("Failed to fetch time");
 
-      let hours = now.getHours();
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const amPm = hours >= 12 ? 'PM' : 'AM';
+        const data = await response.json();
+        console.log("Fetched server time: ",);
 
-      hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM format
+        const dayName = data.dayOfWeek.substring(0, 3);
+        let hours = data.hour;
+        const minutes = data.minutes.toString().padStart(2, '0');
+        const seconds = data.seconds.toString().padStart(2, '0');
+        const amPm = hours >= 12 ? 'PM' : 'AM';
+ 
+        // Convert 24-hour format to 12-hour format
+        hours = hours % 12 || 12;
 
-      document.getElementById('clock').innerHTML = `
-    <small class="text-2xl text-[#333333] dark:text-gray-100">${dayName}</small>
-    ${hours}:${minutes}:${seconds} 
-    <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small>`;
-  }
+        // Update HTML
+        document.getElementById('clock').innerHTML = `
+            <small class="text-2xl text-[#333333] dark:text-gray-100">${dayName}</small>
+            ${hours}:${minutes}:${seconds}
+            <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small>`;
+    } catch (error) {
+        console.error("Error fetching server time:", error);
+        document.getElementById('clock').innerHTML = "Failed to load time";
+    }
+}
+setInterval(updateTime, 1000);
+updateTime();
 
-  // Update the clock every second
-  setInterval(updateTime, 1000);
-  updateTime();
 </script>
    <script>
 
@@ -1046,7 +1056,7 @@ function exportToExcel() {
                     <div class="flex justify-between items-center">
                       <!-- digital clock -->
                         <span id="clock" class="text-2xl font-normal text-[#333333] dark:text-gray-100">
-                            6:01:00 AM
+                            
                         </span>
                         <!-- time-in btn -->
                         <button id="timeButton" onclick="toggleTime()" 
