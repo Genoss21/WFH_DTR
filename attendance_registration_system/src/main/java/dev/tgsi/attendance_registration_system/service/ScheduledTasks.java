@@ -43,7 +43,7 @@ public class ScheduledTasks {
             .orElseThrow(() -> new RuntimeException("User not found"));
         
             // Check if the user has already recorded his attendance for today
-            AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getTargetDate());
+            AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getDateNow());
             if(attendanceRecord != null){
 
                 // if the user has already recorded his attendance for today

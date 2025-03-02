@@ -50,7 +50,7 @@ public class AttendanceApiController {
         TargetDateTime dateTime = new TargetDateTime();
         User user = userOptional.get();
         
-        AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getTargetDate());
+        AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getDateNow());
         boolean clockIn = attendanceRecord == null ? false : true;
 
         Map<String, Object> response = new HashMap<>();

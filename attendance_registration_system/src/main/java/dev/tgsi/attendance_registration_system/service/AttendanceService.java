@@ -1,7 +1,6 @@
 package dev.tgsi.attendance_registration_system.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -32,10 +31,8 @@ public class AttendanceService {
 
     public Map<String, String> saveTimeIn(User user) {
         TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+        AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getDateNow());
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalTime timeIn = LocalTime.now();
 
         Map<String, String> response = new HashMap<>();
         
@@ -51,8 +48,8 @@ public class AttendanceService {
             }else if(attendanceRecord.getStatus() == Status.ON_LEAVE)
             {
                 attendanceRecord.setStatus(Status.ONLINE);
-                attendanceRecord.setTimeIn(LocalTime.parse(timeIn.toString()));
-                attendanceRecord.setUpdatedOn(LocalDateTime.parse(now.toString()));
+                attendanceRecord.setTimeIn(dateTime.getTimeNow());
+                attendanceRecord.setUpdatedOn(dateTime.getCurrentDateTime());
                 attendanceRepository.save(attendanceRecord);
                 
                 response.put("title", "Good Day!");
@@ -71,10 +68,10 @@ public class AttendanceService {
         {
         AttendanceRecord attendanceModel = new AttendanceRecord();
         attendanceModel.setUser(user);
-        attendanceModel.setDate(LocalDate.parse(dateTime.getTargetDate().toString()));
-        attendanceModel.setTimeIn(LocalTime.parse(timeIn.toString()));
-        attendanceModel.setCreatedOn(LocalDateTime.parse(now.toString()));
-        attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+        attendanceModel.setDate(dateTime.getDateNow());
+        attendanceModel.setTimeIn(dateTime.getTimeNow());
+        attendanceModel.setCreatedOn(dateTime.getCurrentDateTime());
+        attendanceModel.setUpdatedOn(dateTime.getCurrentDateTime());
         attendanceModel.setStatus(Status.ONLINE);
         attendanceRepository.save(attendanceModel);
         response.put("title", "Good Day!");
@@ -87,19 +84,18 @@ public class AttendanceService {
 
     public void saveTimeOut(User user) {
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalTime timeOut = LocalTime.now();
+        TargetDateTime dateTime = new TargetDateTime();
         AttendanceRecord attendanceModel = attendanceRepository.findTodayAttendance(user.getEmpId());
-        attendanceModel.setTimeOut(LocalTime.parse(timeOut.toString()));
+        attendanceModel.setTimeOut(dateTime.getTimeNow());
         attendanceModel.setStatus(Status.OFFLINE);
-        attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+        attendanceModel.setUpdatedOn(dateTime.getCurrentDateTime());
         attendanceRepository.save(attendanceModel);
     }
 
 
     public List<AttendanceRecord> getUserAttendance(User user) {
         TargetDateTime dateTime = new TargetDateTime();
-        return attendanceRepository.getAttendanceRecord(user.getEmpId(), dateTime.getTargetDate());
+        return attendanceRepository.getAttendanceRecord(user.getEmpId(), dateTime.getDateNow());
     }
 
     public LocalTime getLatestTimeIn(User user) {
@@ -113,7 +109,7 @@ public class AttendanceService {
                 return attendanceModel.getTimeIn();
             }
             else{
-                attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+                attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getDateNow());
                 if(attendanceModel != null)
                 {
                     LocalTime timeIn = attendanceModel.getTimeIn();
@@ -132,7 +128,7 @@ public class AttendanceService {
 
         }
         else{
-            attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+            attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getDateNow());
             if(attendanceModel != null)
             {
                 LocalTime timeIn = attendanceModel.getTimeIn();
@@ -162,7 +158,7 @@ public class AttendanceService {
                 return attendanceModel.getTimeOut();
             }
             else{
-                attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+                attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getDateNow());
                 if(attendanceModel != null)
                 {
                     LocalTime timeOut = attendanceModel.getTimeOut();
@@ -181,7 +177,7 @@ public class AttendanceService {
 
         }
         else{
-            attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getTargetDate());
+            attendanceModel = attendanceRepository.findByDate(user.getEmpId(),dateTime.getDateNow());
             if(attendanceModel != null)
             {
                 LocalTime timeOut = attendanceModel.getTimeOut();
@@ -201,17 +197,17 @@ public class AttendanceService {
     @Transactional
     public AttendanceRecord saveLeave(LeaveModel leaveModel , User user) {
 
+        TargetDateTime dateTime = new TargetDateTime();
         AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(), leaveModel.getLeaveDate());
         
         if (attendanceRecord == null){
-            AttendanceRecord attendanceModel =  new AttendanceRecord();        
-            LocalDateTime now = LocalDateTime.now();
+            AttendanceRecord attendanceModel =  new AttendanceRecord();   
             leaveRepository.save(leaveModel);
             attendanceModel.setLeaveModel(leaveModel);
             attendanceModel.setUser(user);
             attendanceModel.setDate(leaveModel.getLeaveDate());
-            attendanceModel.setCreatedOn(LocalDateTime.parse(now.toString()));
-            attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+            attendanceModel.setCreatedOn(dateTime.getCurrentDateTime());
+            attendanceModel.setUpdatedOn(dateTime.getCurrentDateTime());
             attendanceModel.setStatus(Status.ON_LEAVE);
             attendanceModel.setRemarks(leaveModel.getLeaveType() + " leave " + leaveModel.getLeaveDuration() + "; reason: "+leaveModel.getRemarks());
             return attendanceRepository.save(attendanceModel);
@@ -234,7 +230,8 @@ public class AttendanceService {
     }
     @Transactional
     public AttendanceRecord deleteAttendance(Long id, User user) {
-        
+
+            TargetDateTime dateTime = new TargetDateTime();
             AttendanceRecord attendanceModel = attendanceRepository.findByAttendanceId(id);
             if (attendanceModel != null) {
                 if(attendanceModel.getLeaveModel() != null)
@@ -245,11 +242,13 @@ public class AttendanceService {
                     leaveRepository.save(leaveModel);
                     attendanceModel.setDelFlag(1);
                     attendanceModel.setDeletedById(user.getEmpId());
+                    attendanceModel.setUpdatedOn(dateTime.getCurrentDateTime());
                     return attendanceRepository.save(attendanceModel);
                 }
                 else{
                     attendanceModel.setDelFlag(1);
                     attendanceModel.setDeletedById(user.getEmpId());
+                    attendanceModel.setUpdatedOn(dateTime.getCurrentDateTime());
                     return attendanceRepository.save(attendanceModel);
                 }
                 
@@ -274,7 +273,7 @@ public class AttendanceService {
     @Transactional
     public AttendanceRecord updateAttendance(Long id, User user, String timeInResult, String timeOutResult, String remarks) {
 
-        LocalDateTime now = LocalDateTime.now();
+        TargetDateTime dateTime = new TargetDateTime();
         LocalTime timeIn =  null;
         LocalTime timeOut = null;
         if(timeInResult!=""){
@@ -290,7 +289,7 @@ public class AttendanceService {
                 attendanceModel.setEditedByName(fullName);
                 attendanceModel.setEditedById(user.getEmpId());
                 attendanceModel.setEditedByRole(user.getRole().getRoleShName());;
-                attendanceModel.setUpdatedOn(LocalDateTime.parse(now.toString()));
+                attendanceModel.setUpdatedOn(dateTime.getCurrentDateTime());
                 attendanceModel.setTimeIn(timeIn);
                 attendanceModel.setTimeOut(timeOut);
                 attendanceModel.setRemarks(remarks);
