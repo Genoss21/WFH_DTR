@@ -1031,10 +1031,6 @@ updateTime();
                         <div class="flex-auto flex justify-end">
                         <button onclick="previewExcel()"
                             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#4C5F7F] rounded-lg hover:bg-[#4C5F7F] focus:ring-4 focus:outline-none focus:ring-[#4C5F7F]">
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                          </svg>
                           Preview Export
                         </button>
                         </div>
@@ -1267,54 +1263,6 @@ updateTime();
         // Close the preview modal
         closePreview();
       }
-    </script>
-    <script>
-      // Add event listener for enter key on checkboxes
-      document.addEventListener('DOMContentLoaded', function() {
-        // Add event listener to the table container
-        document.addEventListener('keypress', function(event) {
-          if (event.key === 'Enter') {
-            const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
-            if (selectedCheckboxes.length > 0) {
-              // If preview modal is visible, export to Excel
-              const previewModal = document.getElementById("excelPreviewModal");
-              if (!previewModal.classList.contains("hidden")) {
-                exportToExcel();
-              } else {
-                // If preview modal is not visible, show preview
-                previewExcel();
-              }
-            }
-          }
-        });
-
-        // Add event listener for checkboxes to enable/disable preview button
-        const checkboxes = document.querySelectorAll('.record-checkbox');
-        checkboxes.forEach(checkbox => {
-          checkbox.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-              this.checked = !this.checked;
-              event.preventDefault();
-            }
-          });
-        });
-
-        // Add event listener for "Select All" checkbox
-        const selectAllCheckbox = document.getElementById('selectAllRecords');
-        if (selectAllCheckbox) {
-          selectAllCheckbox.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-              this.checked = !this.checked;
-              // Toggle all checkboxes
-              const checkboxes = document.querySelectorAll('.record-checkbox');
-              checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-              });
-              event.preventDefault();
-            }
-          });
-        }
-      });
     </script>
 </body>
 </html>
