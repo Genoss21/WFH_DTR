@@ -2,7 +2,7 @@ package dev.tgsi.attendance_registration_system.controller;
 
 import org.springframework.security.core.Authentication;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import dev.tgsi.attendance_registration_system.service.ActivityLogService;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.service.ExcelExportService;
+import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
 import org.springframework.data.domain.Page;
@@ -194,9 +195,11 @@ public class AttendanceController {
                 targetUser.getPersonalInfo() != null ? targetUser.getPersonalInfo().getEmail() : ""
             );
             // Format current timestamp for filename
-            SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd_HH_mm");
-            String timestamp = sdf.format(new Date());
-            String  filename = "Attendance_Report_" + timestamp + ".xlsx";
+            TargetDateTime dateTime = new TargetDateTime();
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH_mm");
+            String date = dateTime.getDateNow().toString();
+            String time = dateTime.getTimeNow().format(timeFormatter).toString();
+            String  filename = "Attendance_Report_" + date +"_"+ time+ ".xlsx";
             
 
             // Set up the response

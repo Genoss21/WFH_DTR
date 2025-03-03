@@ -893,8 +893,10 @@ updateTime();
                             <thead class="bg-gray-50 dark:bg-[#292C35]">
                                 <tr>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center items-center">
-                                    <input type="checkbox" id="selectAllRecords" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 bg-gray-300">
-                                </th>
+                                  <input type="checkbox" id="selectAllRecords" 
+                                  class="w-4 h-4 text-blue-600 bg-gray-300 border-gray-300 rounded-sm focus:ring-blue-500 
+                                  dark:bg-gray-600 dark:border-gray-600 dark:checked:bg-blue-600 dark:checked:border-blue-600">
+                                                              </th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Date</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time In</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time Out</th>
@@ -912,8 +914,11 @@ updateTime();
                                 <tr th:if="${filterError == null}" th:id="'record-' + ${record.attendanceId}" th:each="record : ${attendancePage.content}" class="group hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
                                     <!-- Checkbox -->
                                     <td class="px-6 py-4 text-center" th:data-empid="${record.user.empId}">
-                                        <input type="checkbox" th:data-id="${record.attendanceId}" class="record-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </td>
+                                      <input type="checkbox" th:data-id="${record.attendanceId}" 
+                                       class="w-4 h-4 text-blue-600 bg-gray-300 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-600 dark:border-gray-700 dark:group-hover:bg-gray-700">
+
+                                  </td>
+                                  
                                     <!-- Date -->
                                     <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                         <a href="#" class="hover:underline" th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}">2025-01-27</a>
