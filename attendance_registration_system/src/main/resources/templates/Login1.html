@@ -52,7 +52,14 @@
                 usernameInput.classList.add("border-red-500");
                 usernameError.classList.remove("hidden");
                 hasError = true;
-            } else {
+              } else if (!/^[a-zA-Z0-9]*$/.test(usernameInput.value) || /[@!]/.test(usernameInput.value)) {
+            // Check for only alphabetic, numeric characters
+            usernameInput.classList.add("border-red-500");
+            usernameError.textContent = "Username can only contain letters and numbers";
+            usernameError.classList.remove("hidden");
+            hasError = true;
+              }
+            else {
                 usernameInput.classList.remove("border-red-500");
                 usernameError.classList.add("hidden");
             }
