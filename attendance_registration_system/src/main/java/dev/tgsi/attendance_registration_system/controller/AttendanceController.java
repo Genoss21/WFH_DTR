@@ -2,10 +2,8 @@ package dev.tgsi.attendance_registration_system.controller;
 
 import org.springframework.security.core.Authentication;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -196,11 +193,16 @@ public class AttendanceController {
                 targetUser.getEmpId(),
                 targetUser.getPersonalInfo() != null ? targetUser.getPersonalInfo().getEmail() : ""
             );
+            // Format current timestamp for filename
+            SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd_HH_mm");
+            String timestamp = sdf.format(new Date());
+            String  filename = "Attendance_Report_" + timestamp + ".xlsx";
+            
 
             // Set up the response
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", "attendance_records.xlsx");
+            headers.setContentDispositionFormData("attachment", filename);
 
             return new ResponseEntity<>(excelContent, headers, HttpStatus.OK);
         } catch (Exception e) {
