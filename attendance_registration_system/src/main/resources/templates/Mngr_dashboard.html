@@ -462,30 +462,49 @@ updateTime();
             previewHeader.appendChild(th);
         });
 
-        // Get selected member's ID
-        const selectedMemberId = document.getElementById('memberSelect')?.value;
+        // Get selected member's ID from the dropdown
+        const memberSelect = document.getElementById('member');
+        const selectedMemberId = memberSelect ? memberSelect.value : '';
 
         // Get user data from the server based on selected member
         let userInfoUrl = '/attendance/get-user-info';
         if (selectedMemberId) {
-            userInfoUrl += '?empId=' + selectedMemberId;
+            userInfoUrl += '?empId=' + encodeURIComponent(selectedMemberId);
+        } else {
+            // Get the member ID from the first selected row
+            const firstRow = rows[0];
+            if (firstRow) {
+                const empIdCell = firstRow.querySelector('td[data-empid]');
+                if (empIdCell) {
+                    userInfoUrl += '?empId=' + encodeURIComponent(empIdCell.getAttribute('data-empid'));
+                }
+            }
         }
 
         fetch(userInfoUrl)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user info');
+                }
+                return response.json();
+            })
             .then(userData => {
+                if (!userData.empId) {
+                    throw new Error('Invalid user data received');
+                }
+
                 rows.forEach(row => {
                     let cols = row.querySelectorAll("td");
                     if (cols.length > 0) {
                         let rowData = [
-                            userData.empId,
-                            userData.fullName,
-                            userData.email,
-                            cols[1].querySelector('a').innerText.trim(),  // Date
-                            cols[2].innerText.trim(),  // Time In
-                            cols[3].innerText.trim(),  // Time Out
-                            cols[4].innerText.trim(),  // Edited By
-                            cols[5].innerText.trim()   // Remarks
+                            userData.empId || '',
+                            userData.fullName || '',
+                            userData.email || '',
+                            cols[1].querySelector('a')?.innerText.trim() || '',  // Date
+                            cols[2].innerText.trim() || '',  // Time In
+                            cols[3].innerText.trim() || '',  // Time Out
+                            cols[4].innerText.trim() || '',  // Edited By
+                            cols[5].innerText.trim() || ''   // Remarks
                         ];
 
                         // Add row to preview table
@@ -493,7 +512,7 @@ updateTime();
                         tr.classList.add("hover:bg-gray-100", "dark:hover:bg-[#191A1F]", "transition");
                         rowData.forEach(cellText => {
                             let td = document.createElement("td");
-                            td.textContent = cellText;
+                            td.textContent = cellText || '-';
                             td.classList.add("px-6", "py-4", "text-[15px]", "text-center", "text-[#333333]", "dark:text-gray-100");
                             tr.appendChild(td);
                         });
@@ -503,7 +522,7 @@ updateTime();
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
-                alert('Failed to load user information');
+                alert('Failed to load user information: ' + error.message);
             });
 
         // Show preview modal
@@ -519,10 +538,10 @@ updateTime();
             return;
         }
 
-        // Get date filter values if they exist
-        const startDate = document.getElementById('startDate')?.value;
-        const endDate = document.getElementById('endDate')?.value;
-        const selectedMemberId = document.getElementById('memberSelect')?.value;
+        // Get filter values
+        const selectedMemberId = document.getElementById('member')?.value;
+        const startDate = document.getElementById('datepicker-range-start')?.value;
+        const endDate = document.getElementById('datepicker-range-end')?.value;
 
         // Construct the URL with query parameters
         let url = '/attendance/export-excel';
@@ -631,7 +650,7 @@ updateTime();
 
     <!-- Edit Modal -->
     <div id="edit-modal" tabindex="-1" aria-hidden="true" aria-labelledby="modal-title"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center w-full h-full">
+    class="hidden fixed inset-0 z-50 flex justify-center items-center w-full h-full">
 
         <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow-lg dark:bg-gray-800">
             <!-- Edit Modal Header -->
@@ -838,7 +857,7 @@ updateTime();
                                       </svg>
                                   </div>
                                   <input id="datepicker-range-start" name="startDate" type="text" placeholder="Start Date"
-                                      class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                      class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-[#4C5F7F] dark:focus:border-[#4C5F7F] dark:text-gray-100"
                                       th:field="${date.startDate}">
                               </div>
                               <span class="mx-4 text-[#333333] dark:text-gray-400">to</span>
@@ -849,7 +868,7 @@ updateTime();
                                       </svg>
                                   </div>
                                   <input id="datepicker-range-end" name="endDate" type="text" placeholder="End Date"
-                                      class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                      class="bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#4C5F7F] focus:border-[#4C5F7F] block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-[#4C5F7F] dark:focus:border-[#4C5F7F] dark:text-gray-100"
                                       th:field="${date.endDate}">
                               </div>
                           </div>
@@ -892,7 +911,7 @@ updateTime();
                                  <!-- !Table records -->
                                 <tr th:if= "${filterError == null }" th:id="'record-' + ${record.attendanceId}" th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
                                   <!-- Checkbox -->
-                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:data-empid="${record.user.empId}">
                                     <input type="checkbox" th:data-id="${record.attendanceId}" class="record-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                                   </td>
                                   <!-- Date -->
@@ -1223,10 +1242,10 @@ updateTime();
             return;
         }
 
-        // Get date filter values if they exist
-        const startDate = document.getElementById('startDate')?.value;
-        const endDate = document.getElementById('endDate')?.value;
-        const selectedMemberId = document.getElementById('memberSelect')?.value;
+        // Get filter values
+        const selectedMemberId = document.getElementById('member')?.value;
+        const startDate = document.getElementById('datepicker-range-start')?.value;
+        const endDate = document.getElementById('datepicker-range-end')?.value;
 
         // Construct the URL with query parameters
         let url = '/attendance/export-excel';

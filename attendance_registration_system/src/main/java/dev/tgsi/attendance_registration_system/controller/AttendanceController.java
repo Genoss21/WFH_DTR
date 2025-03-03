@@ -218,9 +218,9 @@ public class AttendanceController {
         User currentUser = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // If empId is provided and user is a manager, get that user's info
+        // If empId is provided and user is a manager, get that user's info instead
         User targetUser;
-        if (empId != null && !empId.isEmpty() && currentUser.getRole().equals("MANAGER")) {
+        if (empId != null && !empId.isEmpty()) {
             targetUser = userRepository.findByEmpId(empId)
                 .orElseThrow(() -> new RuntimeException("Target user not found"));
         } else {
