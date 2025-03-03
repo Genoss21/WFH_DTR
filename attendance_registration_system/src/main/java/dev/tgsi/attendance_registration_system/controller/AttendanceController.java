@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,18 @@ import dev.tgsi.attendance_registration_system.repository.AttendanceRepository;
 import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import dev.tgsi.attendance_registration_system.service.ActivityLogService;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
+import dev.tgsi.attendance_registration_system.service.ExcelExportService;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/attendance")
@@ -44,6 +53,9 @@ public class AttendanceController {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private ExcelExportService excelExportService;
 
     @PostMapping("/clock-in")
     @ResponseBody
@@ -141,6 +153,87 @@ public class AttendanceController {
         }
 
         return attendanceService.getUserAttendancePaginated(user, page, size);
+    }
+
+    @GetMapping("/export-excel")
+    public ResponseEntity<byte[]> exportToExcel(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String empId,
+            @RequestParam(required = false) String recordIds) {
+        try {
+            // Get the authenticated user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // If empId is provided, use it (for admin/manager view), otherwise use the current user's empId
+            String targetEmpId = empId != null ? empId : user.getEmpId();
+            User targetUser = userRepository.findByEmpId(targetEmpId)
+                    .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+            // Get attendance records
+            List<AttendanceRecord> records;
+            if (recordIds != null && !recordIds.isEmpty()) {
+                // Convert comma-separated IDs to List<Long>
+                List<Long> ids = Arrays.stream(recordIds.split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+                records = attendanceRepository.findAllById(ids);
+            } else if (startDate != null && endDate != null) {
+                LocalDate start = LocalDate.parse(startDate);
+                LocalDate end = LocalDate.parse(endDate);
+                records = attendanceRepository.getAttendanceRecordByDate(targetUser.getEmpId(), start, end);
+            } else {
+                records = attendanceRepository.findByUser_EmpId(targetUser.getEmpId());
+            }
+
+            // Generate Excel file
+            byte[] excelContent = excelExportService.exportToExcel(
+                records, 
+                targetUser.getUsername(),
+                targetUser.getEmpId(),
+                targetUser.getPersonalInfo() != null ? targetUser.getPersonalInfo().getEmail() : ""
+            );
+
+            // Set up the response
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", "attendance_records.xlsx");
+
+            return new ResponseEntity<>(excelContent, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/get-user-info")
+    @ResponseBody
+    public Map<String, String> getUserInfo(@RequestParam(required = false) String empId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        User currentUser = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // If empId is provided and user is a manager, get that user's info
+        User targetUser;
+        if (empId != null && !empId.isEmpty() && currentUser.getRole().equals("MANAGER")) {
+            targetUser = userRepository.findByEmpId(empId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+        } else {
+            targetUser = currentUser;
+        }
+
+        Map<String, String> userInfo = new HashMap<>();
+        userInfo.put("empId", targetUser.getEmpId());
+        userInfo.put("fullName", targetUser.getPersonalInfo() != null ? 
+            targetUser.getPersonalInfo().getFirstName() + " " + targetUser.getPersonalInfo().getLastName() : targetUser.getUsername());
+        userInfo.put("email", targetUser.getPersonalInfo() != null ? targetUser.getPersonalInfo().getEmail() : "");
+        
+        return userInfo;
     }
 }
 // !End of file
