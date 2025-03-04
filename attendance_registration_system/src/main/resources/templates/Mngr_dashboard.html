@@ -912,9 +912,9 @@ updateTime();
                                 <!-- Table records -->
                                 <tr th:if="${filterError == null}" th:id="'record-' + ${record.attendanceId}" th:each="record : ${attendancePage.content}" class="group hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
                                     <!-- Checkbox -->
-                                    <td class="px-6 py-4 text-center" th:data-empid="${record.user.empId}">
-                                        <input type="checkbox" th:data-id="${record.attendanceId}" class="record-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </td>
+                                <td class="px-6 py-4 text-center" th:data-empid="${record.user.empId}">
+                                <input type="checkbox" th:data-id="${record.attendanceId}" class="record-checkbox w-4 h-4 text-blue-600 bg-gray-300 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-600 dark:border-gray-700 dark:group-hover:bg-gray-700">
+                                 </td>
                                     <!-- Date -->
                                     <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                         <a href="#" class="hover:underline" th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}">2025-01-27</a>
