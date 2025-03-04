@@ -430,143 +430,7 @@ updateTime();
 </script>
  <!--end-->
 
- <script>
-    function previewExcel() {
-        let table = document.querySelector("table");
-        if (!table) {
-            alert("Table not found!");
-            return;
-        }
-
-        // Get selected rows
-        const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            alert("Please select at least one record to preview/export.");
-            return;
-        }
-
-        let rows = Array.from(selectedCheckboxes).map(checkbox => 
-            document.getElementById('record-' + checkbox.getAttribute('data-id')));
-
-        // Clear previous data
-        let previewHeader = document.getElementById("excelPreviewHeader");
-        let previewBody = document.getElementById("excelPreviewBody");
-        previewHeader.innerHTML = "";
-        previewBody.innerHTML = "";
-
-        // Define headers
-        let headers = ["Employee ID", "Full Name", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
-        headers.forEach(header => {
-            let th = document.createElement("th");
-            th.textContent = header;
-            th.classList.add("px-6", "py-3", "text-sm", "font-bold", "text-[#333333]", "dark:text-gray-400", "uppercase", "text-center");
-            previewHeader.appendChild(th);
-        });
-
-        // Get selected member's ID from the dropdown
-        const memberSelect = document.getElementById('member');
-        const selectedMemberId = memberSelect ? memberSelect.value : '';
-
-        // Get user data from the server based on selected member
-        let userInfoUrl = '/attendance/get-user-info';
-        if (selectedMemberId) {
-            userInfoUrl += '?empId=' + encodeURIComponent(selectedMemberId);
-        } else {
-            // Get the member ID from the first selected row
-            const firstRow = rows[0];
-            if (firstRow) {
-                const empIdCell = firstRow.querySelector('td[data-empid]');
-                if (empIdCell) {
-                    userInfoUrl += '?empId=' + encodeURIComponent(empIdCell.getAttribute('data-empid'));
-                }
-            }
-        }
-
-        fetch(userInfoUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user info');
-                }
-                return response.json();
-            })
-            .then(userData => {
-                if (!userData.empId) {
-                    throw new Error('Invalid user data received');
-                }
-
-                rows.forEach(row => {
-                    let cols = row.querySelectorAll("td");
-                    if (cols.length > 0) {
-                        let rowData = [
-                            userData.empId || '',
-                            userData.fullName || '',
-                            userData.email || '',
-                            cols[1].querySelector('a')?.innerText.trim() || '',  // Date
-                            cols[2].innerText.trim() || '',  // Time In
-                            cols[3].innerText.trim() || '',  // Time Out
-                            cols[4].innerText.trim() || '',  // Edited By
-                            cols[5].innerText.trim() || ''   // Remarks
-                        ];
-
-                        // Add row to preview table
-                        let tr = document.createElement("tr");
-                        tr.classList.add("hover:bg-gray-100", "dark:hover:bg-[#191A1F]", "transition");
-                        rowData.forEach(cellText => {
-                            let td = document.createElement("td");
-                            td.textContent = cellText || '-';
-                            td.classList.add("px-6", "py-4", "text-[15px]", "text-center", "text-[#333333]", "dark:text-gray-100");
-                            tr.appendChild(td);
-                        });
-                        previewBody.appendChild(tr);
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-                alert('Failed to load user information: ' + error.message);
-            });
-
-        // Show preview modal
-        document.getElementById("excelPreviewModal").classList.remove("hidden");
-    }
-
-    function exportToExcel() {
-        const selectedIds = Array.from(document.querySelectorAll('.record-checkbox:checked'))
-            .map(checkbox => checkbox.getAttribute('data-id'));
-        
-        if (selectedIds.length === 0) {
-            alert("Please select at least one record to export.");
-            return;
-        }
-
-        // Get filter values
-        const selectedMemberId = document.getElementById('member')?.value;
-        const startDate = document.getElementById('datepicker-range-start')?.value;
-        const endDate = document.getElementById('datepicker-range-end')?.value;
-
-        // Construct the URL with query parameters
-        let url = '/attendance/export-excel';
-        const params = new URLSearchParams();
-        
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
-        if (selectedMemberId) params.append('empId', selectedMemberId);
-        params.append('recordIds', selectedIds.join(','));
-        
-        url += '?' + params.toString();
-
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'attendance_records.xlsx');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Close the preview modal
-        closePreview();
-    }
-  </script>
+ 
 </head>
 <body class="min-h-screen min-w-[320px] flex flex-col text-[#333333] bg-white dark:bg-[#191A1F]">
     
@@ -1079,8 +943,8 @@ updateTime();
                         <label for="table-search-users" class="sr-only">Search</label>
                         <div class="relative w-full max-w-full">
                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-[#4C5F7F] dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                <svg class="w-4 h-4 text-[#4C5F7F] dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
                                 </svg>
                             </div>
                             <input type="text" id="table-search-users" class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-[#292C35] dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500" placeholder="Search for users">
@@ -1218,7 +1082,131 @@ updateTime();
       });
     </script>
 
+    <!-- for preview and export excel -->
     <script>
+      function previewExcel() {
+          let table = document.querySelector("table");
+          if (!table) {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'No Rows Selected',
+                  text: 'Please select at least one record to preview/export.',
+                  toast: true,
+                  position: 'top-end',
+                  showConfirmButton: false,
+                  timer: 3000
+              });
+              return;
+          }
+  
+          // Get selected rows
+          const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+          if (selectedCheckboxes.length === 0) {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'No Rows Selected',
+                  text: 'Please select at least one record to preview/export.',
+                  toast: true,
+                  position: 'top-end',
+                  showConfirmButton: false,
+                  timer: 3000
+              });
+              return;
+          }
+  
+          let rows = Array.from(selectedCheckboxes).map(checkbox => 
+              document.getElementById('record-' + checkbox.getAttribute('data-id')));
+  
+          // Clear previous data
+          let previewHeader = document.getElementById("excelPreviewHeader");
+          let previewBody = document.getElementById("excelPreviewBody");
+          previewHeader.innerHTML = "";
+          previewBody.innerHTML = "";
+  
+          // Define headers
+          let headers = ["Employee ID", "Full Name", "Email", "Date", "Time In", "Time Out", "Edited By", "Remarks"];
+          headers.forEach(header => {
+              let th = document.createElement("th");
+              th.textContent = header;
+              th.classList.add("px-6", "py-3", "text-sm", "font-bold", "text-[#333333]", "dark:text-gray-400", "uppercase", "text-center");
+              previewHeader.appendChild(th);
+          });
+  
+          // Get selected member's ID from the dropdown
+          const memberSelect = document.getElementById('member');
+          const selectedMemberId = memberSelect ? memberSelect.value : '';
+  
+          // Get user data from the server based on selected member
+          let userInfoUrl = '/attendance/get-user-info';
+          if (selectedMemberId) {
+              userInfoUrl += '?empId=' + encodeURIComponent(selectedMemberId);
+          } else {
+              // Get the member ID from the first selected row
+              const firstRow = rows[0];
+              if (firstRow) {
+                  const empIdCell = firstRow.querySelector('td[data-empid]');
+                  if (empIdCell) {
+                      userInfoUrl += '?empId=' + encodeURIComponent(empIdCell.getAttribute('data-empid'));
+                  }
+              }
+          }
+  
+          fetch(userInfoUrl)
+              .then(response => {
+                  if (!response.ok) {
+                      throw new Error('Failed to fetch user info');
+                  }
+                  return response.json();
+              })
+              .then(userData => {
+                  if (!userData.empId) {
+                      throw new Error('Invalid user data received');
+                  }
+  
+                  rows.forEach(row => {
+                      let cols = row.querySelectorAll("td");
+                      if (cols.length > 0) {
+                          let rowData = [
+                              userData.empId || '',
+                              userData.fullName || '',
+                              userData.email || '',
+                              cols[1].querySelector('a')?.innerText.trim() || '',  // Date
+                              cols[2].innerText.trim() || '',  // Time In
+                              cols[3].innerText.trim() || '',  // Time Out
+                              cols[4].innerText.trim() || '',  // Edited By
+                              cols[5].innerText.trim() || ''   // Remarks
+                          ];
+  
+                          // Add row to preview table
+                          let tr = document.createElement("tr");
+                          tr.classList.add("hover:bg-gray-100", "dark:hover:bg-[#191A1F]", "transition");
+                          rowData.forEach(cellText => {
+                              let td = document.createElement("td");
+                              td.textContent = cellText || '-';
+                              td.classList.add("px-6", "py-4", "text-[15px]", "text-center", "text-[#333333]", "dark:text-gray-100");
+                              tr.appendChild(td);
+                          });
+                          previewBody.appendChild(tr);
+                      }
+                  });
+              })
+              .catch(error => {
+                  console.error('Error fetching user data:', error);
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: 'Failed to load user information: ' + error.message,
+                      toast: true,
+                      position: 'top-end',
+                      showConfirmButton: false,
+                      timer: 3000
+                  });
+              });
+  
+          // Show preview modal
+          document.getElementById("excelPreviewModal").classList.remove("hidden");
+      }
+  
       function closePreview() {
         document.getElementById("excelPreviewModal").classList.add("hidden");
       }
@@ -1228,7 +1216,15 @@ updateTime();
             .map(checkbox => checkbox.getAttribute('data-id'));
         
         if (selectedIds.length === 0) {
-            alert("Please select at least one record to export.");
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Rows Selected',
+                text: 'Please select at least one row to export.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
             return;
         }
 
