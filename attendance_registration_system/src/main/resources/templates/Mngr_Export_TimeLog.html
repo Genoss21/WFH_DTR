@@ -234,8 +234,7 @@
             <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small>`;
     } catch (error) {
         console.error("Error fetching server time:", error);
-        
-        setTimeout(updateTime, 1000);
+        document.getElementById('clock').innerHTML = "Failed to load time";
     }
 }
 setInterval(updateTime, 1000);
@@ -825,7 +824,7 @@ updateTime();
                   <div class="z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <!-- Title -->
                       <h2 class="text-xl font-semibold text-[#292C35] dark:text-gray-100 sm:text-3xl uppercase p-4 font-noto-sans">
-                          Time Logs
+                          Time Logs Export
                       </h2>
 
                       <!-- Hidden input to store selectedMemberId -->
@@ -896,12 +895,13 @@ updateTime();
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-[#292C35]">
                                 <tr>
+                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Name</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Date</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time In</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time Out</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Edited By</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Remarks</th>
-                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Actions</th>
+                                
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]"> 
@@ -911,7 +911,10 @@ updateTime();
                                 </tr>
                                 <!-- Table records -->
                                 <tr th:if="${filterError == null}" th:id="'record-' + ${record.attendanceId}" th:each="record : ${attendancePage.content}" class="group hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                    <!-- Date -->
+                                  <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
+                                    <a href="#" class="hover:underline" th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}">2025-01-27</a>
+                                  </td>
+                                  <!-- Date -->
                                     <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                         <a href="#" class="hover:underline" th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}">2025-01-27</a>
                                     </td>
@@ -933,29 +936,6 @@ updateTime();
                                     <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
                                         th:text="${record.remarks != null ? record.remarks : 'No remarks'}">
                                     </td>
-                                    <td class="px-6 py-4 flex gap-2 justify-center">
-                                        <!-- Edit Button -->
-                                        <button data-modal-target="edit-modal" data-modal-toggle="edit-modal" 
-                                            th:onclick=" 'fetchAttendance(' + ${record.attendanceId} + ')' "
-                                            class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300"
-                                           >
-                                            <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
-                                            </svg>
-                                            Edit
-                                        </button>
-                                        <!-- Delete Button -->
-                                        <a th:href="@{/attendance/delete/{attendanceId}(attendanceId=${record.attendanceId})}" 
-                                            onclick="confirmDelete(event, this.href)" 
-                                            class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
-                                            <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                    d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
-                                            </svg>
-                                            Delete
-                                        </a>
-                                    </td>
                                 </tr>
                             </tbody>
                             </table>
@@ -965,75 +945,13 @@ updateTime();
 
                     <!-- Export CSV Button (Positioned at Bottom Right) -->
                     <div class="flex p-4 items-center">
-                      <div class="flex-auto"></div>
-                      <!-- Pagination Controls-->
-                      <div class="p-2 flex justify-center" th:if="${totalPages > 1}">
-                        <nav>
-                            <ul class="flex items-center -space-x-px text-sm">
-                                <!-- Previous Page -->
-                                <li>
-                                    <a th:if="${currentPage > 0}" 
-                                       th:href="@{/admin-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                       class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
-                                        Previous
-                                    </a>
-                                    <span th:if="${currentPage == 0}" 
-                                          class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-gray-200 text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed">
-                                        Previous
-                                    </span>
-                                </li>
-                    
-                                <!-- First Page -->
-                                <li th:if="${currentPage > 2}">
-                                    <a th:href="@{/admin-page(page=0, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                       class="px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
-                                        1
-                                    </a>
-                                    <span class="px-3 py-2 border text-gray-500 dark:text-gray-400 dark:border-gray-600">...</span>
-                                </li>
-                    
-                                <!-- Display Pages -->
-                                <li th:each="i : ${#numbers.sequence(currentPage - 2 > 0 ? currentPage - 2 : 0, currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1)}">
-                                    <a th:href="@{/admin-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                       th:text="${i + 1}"
-                                       th:class="${i == currentPage} ? 'px-3 py-2 bg-blue-600 text-white border border-gray-300 dark:border-gray-600' 
-                                                                    : 'px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700'">
-                                    </a>
-                                </li>
-                    
-                                <!-- Last Page -->
-                                <li th:if="${currentPage < totalPages - 3}">
-                                    <span class="px-3 py-2 border text-gray-500 dark:text-gray-400 dark:border-gray-600">...</span>
-                                    <a th:href="@{/admin-page(page=${totalPages - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                       class="px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
-                                        [[${totalPages}]]
-                                    </a>
-                                </li>
-                    
-                                <!-- Next Page -->
-                                <li>
-                                    <a th:if="${currentPage < totalPages - 1}" 
-                                       th:href="@{/admin-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
-                                       class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
-                                        Next
-                                    </a>
-                                    <span th:if="${currentPage >= totalPages - 1}" 
-                                          class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed">
-                                        Next
-                                    </span>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                    
-                      <!-- End of Pagination -->
                         <div class="flex-auto flex justify-end">
                         <button onclick="previewExcel()"
                             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#4C5F7F] rounded-lg hover:bg-[#4C5F7F] focus:ring-4 focus:outline-none focus:ring-[#4C5F7F]">
                           Preview Export
                         </button>
                         </div>
-                  </div>
+                    </div>
                 
         </section>
         
