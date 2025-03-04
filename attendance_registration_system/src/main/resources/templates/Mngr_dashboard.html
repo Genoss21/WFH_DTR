@@ -431,22 +431,15 @@ updateTime();
  <!--end-->
 
  <script>
-    function previewExcel() {
+    function previewExcel(event) {
+
+      event.preventDefault();
+
         let table = document.querySelector("table");
         if (!table) {
             alert("Table not found!");
             return;
         }
-
-        // Get selected rows
-        const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            alert("Please select at least one record to preview/export.");
-            return;
-        }
-
-        let rows = Array.from(selectedCheckboxes).map(checkbox => 
-            document.getElementById('record-' + checkbox.getAttribute('data-id')));
 
         // Clear previous data
         let previewHeader = document.getElementById("excelPreviewHeader");
@@ -462,84 +455,52 @@ updateTime();
             th.classList.add("px-6", "py-3", "text-sm", "font-bold", "text-[#333333]", "dark:text-gray-400", "uppercase", "text-center");
             previewHeader.appendChild(th);
         });
+        
+        const startDate = document.getElementById('datepicker-range-start')?.value;
+        const endDate = document.getElementById('datepicker-range-end')?.value;
+        const empId = document.getElementById('member')?.value;
 
-        // Get selected member's ID from the dropdown
-        const memberSelect = document.getElementById('member');
-        const selectedMemberId = memberSelect ? memberSelect.value : '';
+        let url = '/attendance/preview';
+        const params = new URLSearchParams();
+        
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        if (empId) params.append('empId', empId);
+        
+        url += '?' + params.toString();
+        fetch(url)
+        .then(response => response.json())
+          .then(attendance => {               
+          // Add row to preview table
+          
+          attendance.forEach(rowData => {
+              let tr = document.createElement("tr");
+              tr.classList.add("hover:bg-gray-100", "dark:hover:bg-[#191A1F]", "transition");
+              
+              let values = [rowData.empId,rowData.fullName,rowData.email,rowData.date,rowData.timeIn,
+                          rowData.timeOut,rowData.editedBy,rowData.remarks]
 
-        // Get user data from the server based on selected member
-        let userInfoUrl = '/attendance/get-user-info';
-        if (selectedMemberId) {
-            userInfoUrl += '?empId=' + encodeURIComponent(selectedMemberId);
-        } else {
-            // Get the member ID from the first selected row
-            const firstRow = rows[0];
-            if (firstRow) {
-                const empIdCell = firstRow.querySelector('td[data-empid]');
-                if (empIdCell) {
-                    userInfoUrl += '?empId=' + encodeURIComponent(empIdCell.getAttribute('data-empid'));
-                }
-            }
-        }
+              values.forEach(cellText=>{
+                    let td = document.createElement("td");
+                    td.textContent = cellText || '-';
+                    td.classList.add("px-6", "py-4", "text-[15px]", "text-center", "text-[#333333]", "dark:text-gray-100");
+                    tr.appendChild(td);
+              });
+              previewBody.appendChild(tr);
+          });
 
-        fetch(userInfoUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user info');
-                }
-                return response.json();
-            })
-            .then(userData => {
-                if (!userData.empId) {
-                    throw new Error('Invalid user data received');
-                }
-
-                rows.forEach(row => {
-                    let cols = row.querySelectorAll("td");
-                    if (cols.length > 0) {
-                        let rowData = [
-                            userData.empId || '',
-                            userData.fullName || '',
-                            userData.email || '',
-                            cols[1].querySelector('a')?.innerText.trim() || '',  // Date
-                            cols[2].innerText.trim() || '',  // Time In
-                            cols[3].innerText.trim() || '',  // Time Out
-                            cols[4].innerText.trim() || '',  // Edited By
-                            cols[5].innerText.trim() || ''   // Remarks
-                        ];
-
-                        // Add row to preview table
-                        let tr = document.createElement("tr");
-                        tr.classList.add("hover:bg-gray-100", "dark:hover:bg-[#191A1F]", "transition");
-                        rowData.forEach(cellText => {
-                            let td = document.createElement("td");
-                            td.textContent = cellText || '-';
-                            td.classList.add("px-6", "py-4", "text-[15px]", "text-center", "text-[#333333]", "dark:text-gray-100");
-                            tr.appendChild(td);
-                        });
-                        previewBody.appendChild(tr);
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-                alert('Failed to load user information: ' + error.message);
-            });
+        })
+          .catch(error => {
+              console.error('Error fetching user data:', error);
+              alert('Failed to load user information: ' + error.message);
+          });
 
         // Show preview modal
         document.getElementById("excelPreviewModal").classList.remove("hidden");
     }
 
     function exportToExcel() {
-        const selectedIds = Array.from(document.querySelectorAll('.record-checkbox:checked'))
-            .map(checkbox => checkbox.getAttribute('data-id'));
         
-        if (selectedIds.length === 0) {
-            alert("Please select at least one record to export.");
-            return;
-        }
-
-        // Get filter values
         const selectedMemberId = document.getElementById('member')?.value;
         const startDate = document.getElementById('datepicker-range-start')?.value;
         const endDate = document.getElementById('datepicker-range-end')?.value;
@@ -551,7 +512,6 @@ updateTime();
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
         if (selectedMemberId) params.append('empId', selectedMemberId);
-        params.append('recordIds', selectedIds.join(','));
         
         url += '?' + params.toString();
 
@@ -893,9 +853,6 @@ updateTime();
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-[#292C35]">
                                 <tr>
-                                <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center items-center">
-                                    <input type="checkbox" id="selectAllRecords" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 bg-gray-300">
-                                </th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Date</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time In</th>
                                 <th class="px-6 py-3 text-sm font-bold text-[#333333] dark:text-gray-400 uppercase text-center">Time Out</th>
@@ -911,10 +868,6 @@ updateTime();
                                 </tr>
                                 <!-- Table records -->
                                 <tr th:if="${filterError == null}" th:id="'record-' + ${record.attendanceId}" th:each="record : ${attendancePage.content}" class="group hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                    <!-- Checkbox -->
-                                    <td class="px-6 py-4 text-center" th:data-empid="${record.user.empId}">
-                                        <input type="checkbox" th:data-id="${record.attendanceId}" class="record-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </td>
                                     <!-- Date -->
                                     <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                         <a href="#" class="hover:underline" th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}">2025-01-27</a>
@@ -1025,7 +978,7 @@ updateTime();
                       </div>
                       <!-- End of Pagination -->
                         <div class="flex-auto flex justify-end">
-                        <button onclick="previewExcel()"
+                        <button onclick="previewExcel(event)"
                             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#4C5F7F] rounded-lg hover:bg-[#4C5F7F] focus:ring-4 focus:outline-none focus:ring-[#4C5F7F]">
                           Preview Export
                         </button>
@@ -1209,55 +1162,8 @@ updateTime();
     </script>
 
     <script>
-      // Add select all functionality
-      document.getElementById('selectAllRecords')?.addEventListener('change', function(e) {
-        const checkboxes = document.querySelectorAll('.record-checkbox');
-        checkboxes.forEach(checkbox => {
-          checkbox.checked = e.target.checked;
-        });
-      });
-    </script>
-
-    <script>
       function closePreview() {
         document.getElementById("excelPreviewModal").classList.add("hidden");
-      }
-
-      function exportToExcel() {
-        const selectedIds = Array.from(document.querySelectorAll('.record-checkbox:checked'))
-            .map(checkbox => checkbox.getAttribute('data-id'));
-        
-        if (selectedIds.length === 0) {
-            alert("Please select at least one record to export.");
-            return;
-        }
-
-        // Get filter values
-        const selectedMemberId = document.getElementById('member')?.value;
-        const startDate = document.getElementById('datepicker-range-start')?.value;
-        const endDate = document.getElementById('datepicker-range-end')?.value;
-
-        // Construct the URL with query parameters
-        let url = '/attendance/export-excel';
-        const params = new URLSearchParams();
-        
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
-        if (selectedMemberId) params.append('empId', selectedMemberId);
-        params.append('recordIds', selectedIds.join(','));
-        
-        url += '?' + params.toString();
-
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'attendance_records.xlsx');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Close the preview modal
-        closePreview();
       }
     </script>
 </body>

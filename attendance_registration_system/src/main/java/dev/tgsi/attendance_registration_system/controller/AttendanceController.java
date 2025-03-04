@@ -24,6 +24,7 @@ import dev.tgsi.attendance_registration_system.repository.UserRepository;
 import dev.tgsi.attendance_registration_system.service.ActivityLogService;
 import dev.tgsi.attendance_registration_system.service.AttendanceService;
 import dev.tgsi.attendance_registration_system.service.ExcelExportService;
+import dev.tgsi.attendance_registration_system.dto.AttendanceDto;
 import dev.tgsi.attendance_registration_system.dto.TargetDateTime;
 import dev.tgsi.attendance_registration_system.models.AttendanceRecord;
 import dev.tgsi.attendance_registration_system.models.User;
@@ -154,11 +155,11 @@ public class AttendanceController {
     }
 
     @GetMapping("/export-excel")
-    public ResponseEntity<byte[]> exportToExcel(
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
-            @RequestParam(required = false) String empId,
-            @RequestParam(required = false) String recordIds) {
+    public ResponseEntity<byte[]> exportToExcel(@RequestParam(required = false) String startDate,
+        @RequestParam(required = false) String endDate,
+        @RequestParam(required = false) String empId
+        ) {
+
         try {
             // Get the authenticated user
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -173,18 +174,14 @@ public class AttendanceController {
 
             // Get attendance records
             List<AttendanceRecord> records;
-            if (recordIds != null && !recordIds.isEmpty()) {
-                // Convert comma-separated IDs to List<Long>
-                List<Long> ids = Arrays.stream(recordIds.split(","))
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList());
-                records = attendanceRepository.findAllById(ids);
-            } else if (startDate != null && endDate != null) {
-                LocalDate start = LocalDate.parse(startDate);
-                LocalDate end = LocalDate.parse(endDate);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            
+            if (startDate != null && endDate != null) {
+                LocalDate start = LocalDate.parse(startDate,formatter);
+                LocalDate end = LocalDate.parse(endDate,formatter);
                 records = attendanceRepository.getAttendanceRecordByDate(targetUser.getEmpId(), start, end);
             } else {
-                records = attendanceRepository.findByUser_EmpId(targetUser.getEmpId());
+                records = attendanceRepository.getAttendanceRecordByMember(targetUser.getEmpId());
             }
 
             // Generate Excel file
@@ -214,31 +211,44 @@ public class AttendanceController {
         }
     }
 
-    @GetMapping("/get-user-info")
-    @ResponseBody
-    public Map<String, String> getUserInfo(@RequestParam(required = false) String empId) {
+
+    @GetMapping("/preview")
+    public ResponseEntity<List<AttendanceDto>> getAttendancePreview(@RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String empId
+    ) {
+        
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        
-        User currentUser = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // If empId is provided and user is a manager, get that user's info instead
-        User targetUser;
-        if (empId != null && !empId.isEmpty()) {
-            targetUser = userRepository.findByEmpId(empId)
-                .orElseThrow(() -> new RuntimeException("Target user not found"));
-        } else {
-            targetUser = currentUser;
+               
+        String targetEmpId = empId != null ? empId : user.getEmpId();
+        User targetUser = userRepository.findByEmpId(targetEmpId)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        
+
+        List<AttendanceRecord> records;
+        if (startDate != null && endDate != null) {
+            LocalDate start = LocalDate.parse(startDate, formatter);
+            LocalDate end = LocalDate.parse(endDate, formatter);
+            records = attendanceRepository.getAttendanceRecordByDate(targetUser.getEmpId(),start,end);
+        }
+        else{
+            records = attendanceRepository.getAttendanceRecordByMember(targetUser.getEmpId());
         }
 
-        Map<String, String> userInfo = new HashMap<>();
-        userInfo.put("empId", targetUser.getEmpId());
-        userInfo.put("fullName", targetUser.getPersonalInfo() != null ? 
-            targetUser.getPersonalInfo().getFirstName() + " " + targetUser.getPersonalInfo().getLastName() : targetUser.getUsername());
-        userInfo.put("email", targetUser.getPersonalInfo() != null ? targetUser.getPersonalInfo().getEmail() : "");
-        
-        return userInfo;
+        List<AttendanceDto> attendancePreview = records.stream().map(attendance -> {
+
+        String fullName = attendance.getUser().getPersonalInfo().getFirstName() + " " + attendance.getUser().getPersonalInfo().getLastName();
+        return new AttendanceDto(attendance.getUser().getEmpId(),fullName,targetUser.getPersonalInfo().getEmail(),attendance.getDate(),attendance.getTimeIn(),
+                attendance.getTimeOut(),attendance.getEditedByName(),attendance.getRemarks());
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(attendancePreview);
     }
 }
 // !End of file
