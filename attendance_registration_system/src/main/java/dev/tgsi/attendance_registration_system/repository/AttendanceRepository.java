@@ -48,6 +48,8 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, Lo
     // *date range in descending order.
     List<AttendanceRecord> getAttendanceRecordByDate(String empId, LocalDate startDate, LocalDate endDate);
 
+    @Query("SELECT a FROM AttendanceRecord a WHERE a.user.empId = :empId AND a.delFlag = 0 ORDER BY a.date DESC")
+    List<AttendanceRecord> getAttendanceRecordByMember(String empId);
     // * For pagination
     @Query("SELECT a FROM AttendanceRecord a WHERE a.user.empId = :empId AND a.delFlag = 0 ORDER BY a.date DESC")
     // *Get all attendance records for the given employee ID
