@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "tbl_project_mst")
 @Data
 @NoArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    // Exclude these fields from being serialized to JSON, as they are not actual fields in the database
+    // and are added by Hibernate for its own purposes.
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProjectModel {
 
     @Id

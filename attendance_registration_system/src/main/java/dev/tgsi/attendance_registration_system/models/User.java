@@ -53,12 +53,10 @@ public class User {
         this.personalInfo = personalInfo;
     }
 
-    // ! Added: 02/11/2025
     // Mapping the user for attendance records
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<AttendanceRecord> attendanceRecords;
-    // ! End of added
 
     @Override
     public String toString() {

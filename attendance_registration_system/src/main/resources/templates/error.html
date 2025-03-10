@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title th:text="${'Error ' + (status ?: 'Unknown')}">Error</title>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+        }
+        .error-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+   <!-- Custom Error Page Component -->
+<div class="h-screen w-screen bg-blue-50 flex items-center justify-center">
+    <div class="container flex flex-col md:flex-row items-center justify-center text-center px-5 text-gray-700">
+        <div class="w-full lg:w-1/2 mx-8">
+            <div class="text-7xl text-[#2f2f40] font-dark font-extrabold mb-8 cursor-pointer error-shake" 
+                 id="errorCode" 
+                 th:text="${status ?: '500'}">500</div>
+            <p class="text-2xl md:text-3xl font-light italic leading-normal mb-8" 
+               th:text="${
+                   #strings.equals(status, '404') ? 'Oops! Page Not Found' :
+                   #strings.equals(status, '403') ? 'Access Denied' :
+                   #strings.equals(status, '500') ? 'Internal Server Error' :
+                   #strings.equals(status, '400') ? 'Bad Request' :
+                   #strings.equals(status, '401') ? 'Unauthorized Access' :
+                   message ?: 'An unexpected error occurred'
+               }">
+                Oops! Something went wrong on our end.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="/login" 
+                       class="px-5 inline py-3 text-sm font-medium leading-5 shadow-2xl text-white transition-all duration-400 
+                              border border-transparent rounded-lg focus:outline-none 
+                              bg-[#4C5F7F] hover:bg-[#2B4269] active:bg-[#2B4269] 
+                              focus:ring-4 focus:ring-[#4C5F7F]">
+                        Return to Login
+                </a>
+                <a href="javascript:history.back()" 
+                       class="px-5 inline py-3 text-sm font-medium leading-5 shadow-2xl text-white transition-all duration-400 
+                              border border-transparent rounded-lg focus:outline-none 
+                              bg-[#DC4C44] hover:bg-[#A40011] active:bg-[#A40011] 
+                              focus:ring-4 focus:ring-[#DC4C44]">
+                        Back to Dashboard
+                </a>
+            </div>
+        </div>
+        <div class="w-full lg:flex lg:justify-center lg:w-1/2 mx-5 my-12">
+            <img src="https://user-images.githubusercontent.com/43953425/166269493-acd08ccb-4df3-4474-95c7-ad1034d3c070.svg" alt="Error Illustration">
+        </div>
+    </div>
+</div>
+</body>
+</html>

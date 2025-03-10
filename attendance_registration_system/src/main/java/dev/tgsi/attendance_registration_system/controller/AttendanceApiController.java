@@ -47,10 +47,10 @@ public class AttendanceApiController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
 
-        User user = userOptional.get();
-        //boolean clockIn = !attendanceRepository.findByUser_EmpIdAndTimeOutIsNull(user.getEmpId()).isEmpty();
         TargetDateTime dateTime = new TargetDateTime();
-        AttendanceRecord attendanceRecord = attendanceRepository.findTodayAttendance(user.getEmpId(), dateTime.getTargetDate());
+        User user = userOptional.get();
+        
+        AttendanceRecord attendanceRecord = attendanceRepository.getTimeInRecord(user.getEmpId(),dateTime.getDateNow());
         boolean clockIn = attendanceRecord == null ? false : true;
 
         Map<String, Object> response = new HashMap<>();

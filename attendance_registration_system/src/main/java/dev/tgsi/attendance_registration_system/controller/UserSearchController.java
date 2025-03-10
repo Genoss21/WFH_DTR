@@ -39,17 +39,16 @@ public class UserSearchController {
             );
         }
 
-        // LocalDate today = LocalDate.now();
+        
         TargetDateTime dateTime = new TargetDateTime();
         List<UserSearchDto> results = employees.stream().map(employee -> {
             User user = employee.getUser();
             // Retrieve today’s attendance record, if it exists
-            AttendanceRecord attendanceRecord = attendanceRepository.findbyDate(user.getEmpId(), dateTime.getBeforeDate());
+            AttendanceRecord attendanceRecord = attendanceRepository.findByDate(user.getEmpId(), dateTime.getDateNow());
             String status = "Offline"; // default status
 
             if (attendanceRecord != null) {
-                // status = attendanceRecord.getStatus().name(); // ONLINE, OFFLINE, or ON_LEAVE
-
+                
                 switch (attendanceRecord.getStatus()) {
                     case ONLINE:
                         status = "Online";
@@ -60,6 +59,22 @@ public class UserSearchController {
                         break;
                     
                 }
+
+                if(attendanceRecord.getStatus() == AttendanceRecord.Status.ON_LEAVE){
+                    attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getPreviousDay());
+
+                    if(attendanceRecord !=null && attendanceRecord.getTimeOut() == null ){
+                        status = "Online";
+                    }
+                }
+            }
+            else{
+                 attendanceRecord = attendanceRepository.findByDate(user.getEmpId(),dateTime.getPreviousDay());
+
+                 if(attendanceRecord != null && attendanceRecord.getTimeOut() == null){ 
+                    status = "Online";
+                 }
+
             }
 
             String fullName = employee.getFirstName() + " " + employee.getLastName();

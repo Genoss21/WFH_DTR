@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+// * User search purposes. User card.
 public class UserSearchDto {
     private String fullName;
     private String email;

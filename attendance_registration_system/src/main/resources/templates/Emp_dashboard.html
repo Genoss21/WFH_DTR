@@ -43,6 +43,322 @@
     
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.0.0/dist/flowbite.min.js"></script>
 
+    <script>
+      // Prevent flickering by applying dark mode before the page renders
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    </script>
+
+    <!--Time picker military time format-->
+    
+    <!--End -->
+    <!--For employee cards -->
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const searchInput = document.getElementById('table-search-users');
+    
+        // Function to generate initials (First Letter of First Name + Last Name)
+        function getInitials(fullName) {
+          const nameParts = fullName.split(" ");
+          const firstInitial = nameParts[0] ? nameParts[0][0] : "";
+          const lastInitial = nameParts.length > 1 ? nameParts[1][0] : "";
+          return (firstInitial + lastInitial).toUpperCase();
+        }
+    
+        // Function to generate a random Tailwind color for avatars
+        function getRandomColor() {
+          const colors = ["bg-[#A40011]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#9F7842]"];
+          return colors[Math.floor(Math.random() * colors.length)];
+        }
+    
+        // Function to update the table with user rows
+        function updateUserTable(users) {
+          const tbody = document.getElementById('userTable');
+          tbody.innerHTML = ''; // Clear current rows
+    
+          users.forEach(user => {
+            // Determine user status color
+            let statusColor = 'bg-red-500'; // Default for OFFLINE
+            if (user.status === 'Online') {
+              statusColor = 'bg-green-500';
+            } else if (user.status === 'On leave') {
+              statusColor = 'bg-gray-500';
+            }
+    
+            // Generate user initials if no image is available
+            const initials = getInitials(user.fullName);
+            const avatar = user.imgSrc
+                ? `<img class="w-10 h-10 rounded-full" src="/user-image/${user.empId}" alt="${user.fullName}">`
+              : `<div class="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${getRandomColor()}">${initials}</div>`;
+    
+            // Create a table row for each user
+            const tr = document.createElement('tr');
+            tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
+            tr.innerHTML = `
+              <th scope="row"
+                class="flex items-center box-border basis-[20%] p-4 font-medium text-gray-900 whitespace-nowrap dark:text-white overflow-hidden">
+              ${avatar}
+              <div class="ps-3 overflow-hidden">
+                <div class="text-base font-semibold truncate">${user.fullName}</div>
+                <div class="font-normal text-gray-500 truncate">${user.email}</div>
+              </div>
+            </th>
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div>
+                ${user.status}
+              </div>
+            </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+    
+        // Function to fetch users with an optional query parameter
+        async function fetchUsers(query = '') {
+          try {
+            const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            const users = await response.json();
+            updateUserTable(users);
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          }
+        }
+    
+        // Initial load: fetch all users (empty query)
+        fetchUsers();
+    
+        // Listen for input events to update the table as the user types
+        searchInput.addEventListener('input', (event) => {
+          const query = event.target.value;
+          fetchUsers(query);
+        });
+      });
+    </script>
+    
+    
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = "[[${#authentication.name}]]";
+        let isClockedInState = false; // Internal state instead of localStorage
+    
+        const button = document.getElementById("timeButton");
+    
+        // Fetch user's clock-in status from backend
+        fetch("/api/check-clocked-in")
+            .then((response) => response.json())
+            .then((data) => {
+                isClockedInState = data.clockedIn;
+                button.innerText = isClockedInState ? "Time Out" : "Time In";
+            })
+            .catch((error) => console.error("Error checking clock-in status:", error));
+    
+        button.addEventListener("click", toggleTime);
+    
+        function toggleTime() {
+            const endpoint = isClockedInState ? "/attendance/clock-out" : "/attendance/clock-in";
+    
+            fetch(endpoint, { method: "POST" })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("You have already rendered your time");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    isClockedInState = !isClockedInState; // Update internal state
+                    button.innerText = isClockedInState ? "Time Out" : "Time In";
+    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+    
+                    // Show modal with response data, formatting time
+                    showModal(data.title, data.message, data.status);
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    showModal("Error", "You have already rendered your time", "error");
+                });
+        }
+    
+        function showModal(title, message, icon) {
+            Swal.fire({
+                icon: icon, // "success" or "error"
+                title: title,
+                text: message,
+                confirmButtonText: "OK",
+                background: "#fff",
+                color: "#333",
+                position: "center",
+            });
+        }
+    
+        // Real-time clock with short day names and 12-hour format
+        async function updateTime() {
+            try {
+            // Fetch time from the server
+              const response = await fetch("/server-time");
+              if(!response.ok)throw new Error("Failed to fetch time");
+
+              const data = await response.json();
+              console.log("Fetched server time: ",);
+
+              const dayName = data.dayOfWeek.substring(0, 3);
+              let hours = data.hour;
+              const minutes = data.minutes.toString().padStart(2, '0');
+              const seconds = data.seconds.toString().padStart(2, '0');
+              const amPm = hours >= 12 ? 'PM' : 'AM';
+ 
+              // Convert 24-hour format to 12-hour format
+              hours = hours % 12 || 12;
+
+              // Update HTML
+              document.getElementById('clock').innerHTML = `
+                <small class="text-2xl text-[#333333] dark:text-gray-100">${dayName}</small>
+                ${hours}:${minutes}:${seconds}
+                <small class="text-sm text-[#333333] dark:text-gray-100">${amPm}</small>`;
+              } catch (error) {
+                    console.error("Error fetching server time:", error);
+                    
+                    setTimeout(updateTime, 1000);
+                  }
+          }
+          setInterval(updateTime, 1000);
+          updateTime();
+    });
+    </script>
+
+<script>
+  function confirmLogout(event) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showLogoutModal();
+  }
+  
+  function showLogoutModal() {
+      Swal.fire({
+          icon: 'warning', // "warning" icon for confirmation
+          title: 'Are you sure?',
+          text: 'Are you sure you want to log out?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, log out',
+          cancelButtonText: 'No, stay',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performLogout();
+          }
+      });
+  }
+  
+  function performLogout() {
+      window.location.href = '/logout'; // Use /logout directly
+  }
+  </script>
+<script>
+  function confirmDelete(event, deleteUrl) {
+      event.preventDefault(); // Prevent the default anchor behavior
+      showDeleteModal(deleteUrl);
+  }
+
+  function showDeleteModal(deleteUrl) {
+      Swal.fire({
+         // icon: 'question', // "question" icon for confirmation
+          title: 'Confirmation',
+          text: 'Are you sure you want to delete this record?',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it',
+          cancelButtonText: 'No, keep it',
+          background: '#fff',
+          color: '#333',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              performDelete(deleteUrl);
+          }
+      });
+  }
+
+  function performDelete(deleteUrl) {
+      window.location.href = deleteUrl; // Use the provided URL for deletion
+      showDeleteToast(); // Show toast notification after deletion
+      location.reload();
+  }
+
+  function showDeleteToast() {
+      Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Record deleted successfully',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+      });
+  }
+</script>
+
+<script>
+
+function fetchAttendance(attendanceId) {
+    fetch(`/attendance/record/${attendanceId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('attendanceId').value = data.attendanceId;
+            document.getElementById('timeInEditId').value = data.timeIn;
+            document.getElementById('timeOutEditId').value = data.timeOut;
+            document.getElementById('editRemarksId').value = data.remarks;
+        })
+        .catch(error => console.error('Error fetching attendance record:', error));
+    }
+
+    function updateAttendance(event){
+
+      event.preventDefault();
+
+      const id = document.getElementById('attendanceId').value;
+      const timeIn = document.getElementById('timeInEditId').value;
+      const timeOut = document.getElementById('timeOutEditId').value;
+      const remarks = document.getElementById('editRemarksId').value;
+      fetch('/attendance/edit', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id,
+            timeIn: timeIn,
+            timeOut: timeOut,
+            remarks: remarks
+        })
+      })
+      .then(data => {
+              Swal.fire({
+                  text: 'Attendance record updated successfully',
+                  confirmButtonText: 'OK',
+                  background: '#fff',
+                  color: '#333',
+                  position: 'center'
+              }).then(() => {
+                  const modal = document.getElementById('edit-modal');
+                  modal.classList.add('hidden');
+                  modal.setAttribute('aria-hidden', 'true');
+                  location.reload(); 
+              });
+          });
+      }
+</script>
+
+
 </head>
 <body class="min-h-screen min-w-[320px] flex flex-col text-[#333333] bg-white dark:bg-[#191A1F]">
     
@@ -78,7 +394,7 @@
             <!-- Show initials if user.imgSrc is null -->
             <div th:if="${user.imgSrc == null }" 
                 class="w-10 h-10 flex items-center justify-center rounded-full text-white text-lg font-bold"
-                style="background-color: #3498db;">
+                style="background-color: #A40011;">
                 <span th:text="${user.personalInfo.getInitials()}"></span>
                 </div>
           </button>
@@ -129,8 +445,8 @@
 
     <!-- Modals here -->
 
-    <!-- Main Modal -->
-    <div id="default-modal" tabindex="-1" aria-hidden="true" aria-labelledby="modal-title"
+    <!-- Edit Modal -->
+    <div id="edit-modal" tabindex="-1" aria-hidden="true" aria-labelledby="modal-title"
     class="hidden fixed inset-0 z-50 flex items-center justify-center w-full h-full">
 
         <div class="relative p-4 w-full max-w-2xl bg-white rounded-lg shadow-lg dark:bg-gray-800">
@@ -138,7 +454,7 @@
             <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
                 <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-gray-100">Edit Time Logs</h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg w-8 h-8 flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-gray-100"
-                    data-modal-hide="default-modal">
+                    data-modal-hide="edit-modal">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7L1 13" />
@@ -147,42 +463,50 @@
                 </button>
             </div>
 
-
-            
-        
-            <!-- Modal Body -->
-            <form>
-                <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
-                    <!-- Time-in -->
-                    <div>
-                        <label for="time-in" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-in:</label>
-                        <input type="text" id="time-in" name="time_in"
-                            class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="06:01:01 AM" required />
-                    </div>
-
-                    <!-- Time-out -->
-                    <div>
-                        <label for="time-out" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Time-out:</label>
-                        <input type="text" id="time-out" name="time_out"
-                            class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="02:59:59 PM" required />
-                    </div>
-                </div>
-
+          <!-- Edit Modal Body -->
+          <form id= "edit-form" onsubmit="return updateAttendance(event)">
+            <div class="px-6 py-6 grid md:grid-cols-2 gap-6">
+              <!-- Time-in -->
+              <input type="text" id="attendanceId" name="attendanceId" hidden/>
+              <div>
+                  <label for="timeInEditId" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time-in:</label>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                              <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
+                          </svg>
+                      </div>
+                      <input type="time" id="timeInEditId" name="timeIn" class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required step="1" />
+                  </div>
+              </div>
+          
+              <!-- Time-out -->
+              <div>
+                  <label for="timeOutEditId" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time-out:</label>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                              <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
+                          </svg>
+                      </div>
+                      <input type="time" id="timeOutEditId" name="timeOut" class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" step="1" />
+                  </div>
+              </div>
+          </div>
+          
                 <!-- Remarks -->
                 <div class="px-6 pb-6">
-                    <label for="remarks" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
-                    <textarea id="remarks" name="remarks" rows="4"
+                    <label for="editRemarksId" class="block text-sm font-medium text-[#333333] dark:text-gray-100">Remarks:</label>
+                    <textarea id="editRemarksId" name="remarks" rows="4"
                         class="w-full mt-1 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Enter remarks" required></textarea>
+                        required></textarea>
                 </div>
 
                 <!-- Submit Button -->
                  <div class="flex justify-end px-6 py-4 border-t dark:border-gray-700">
                     <button type="submit"
                         class="text-[15px] h-[44px] w-[160px] text-white bg-[#4C5F7F] hover:bg-[#2B4269] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm">
-                        Submit
+                        Save
                     </button>
                 </div>
             </form>
@@ -355,15 +679,10 @@
                           <tbody class="bg-white dark:bg-[#292C35] divide-y divide-gray-200 dark:divide-[#191A1F]"> 
                               <!-- error filter -->
                                  <tr th:if="${filterError != null }" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                <td colspan="5" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
+                                <td colspan="6" class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100" th:text="${filterError}">error</td>
                               </tr>
                                <!-- !Table records -->
                               <tr th:each="record : ${attendancePage.content}" class="hover:bg-gray-100 dark:hover:bg-[#191A1F] transition">
-                                <!-- Employee -->
-                                <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                    th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : null}">
-                                    Fritz
-                                </td>
                                 <!-- Date -->
                                 <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100">
                                     <a href="#" class="hover:underline" 
@@ -376,7 +695,7 @@
                                 </td>
                                 <!-- Time-out -->
                                 <td class="px-6 py-4 text-[15px] text-center text-[#333333] dark:text-gray-100"
-                                    th:text="${record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--'}">
+                                th:text="${#temporals.format(record.timeOut, 'HH:mm:ss') != '06:00:00' ? ( record.timeOut != null ? #temporals.format(record.timeOut, 'HH:mm:ss') : '--:--:--' ) : '--:--:--'}">
                                     15:00:48
                                 </td>
                                 <!-- Edited by -->
@@ -390,22 +709,27 @@
                               <td class="px-6 py-4 flex gap-2 justify-center">
                                   <!-- Edit Button -->
                                   <button data-modal-target="edit-modal" data-modal-toggle="edit-modal" th:onclick=" 'fetchAttendance(' + ${record.attendanceId} + ')' "
-                                  class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                  class="flex items-center justify-center gap-2 bg-[#4C5F7F] hover:bg-[#2B4269] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                    th:disabled="${record.isDisabled}"
+                                    th:classappend="${record.isDisabled} ? 'bg-[#A0B4D4] hover:bg-[#A0B4D4] cursor-not-allowed' : ''">
                                   <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
                                   </svg>
                                   Edit
                                   </button>
-                                  <!-- Delete Button -->
-                                   <a th:href="@{/attendance/admin/delete/{attendanceId}(attendanceId=${record.attendanceId})}"
-                                  class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
-                                  <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
-                                  </svg>
-                                  Delete
-                                  </a>
+
+                                   <!--JDC 02-24-25-->
+                                    <!-- Delete Button -->
+                                <a th:href="@{/attendance/delete/{attendanceId}(attendanceId=${record.attendanceId})}" onclick="confirmDelete(event, this.href)"
+                                class="flex items-center justify-center gap-2 bg-[#DC4C44] text-gray-100 font-bold rounded-lg text-[15px] h-[44px] w-[160px] hover:bg-red-700 focus:ring-4 focus:ring-red-200">
+                                <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                               </svg>
+                                 Delete
+                             </a>
+                              <!--end-->
+
                               </td>
                               </tr>
                               <!-- ! End of Table records -->
@@ -417,83 +741,67 @@
                     
                                     
                 <!-- ! Pagination -->
-                <!-- Pagination Controls-->
-                <div class="p-2 mt-4 flex justify-center">
-                  <nav>
-                      <ul class="flex items-center -space-x-px text-sm">
-                          <!-- Previous Page -->
-                          <li>
-                              <a th:if="${currentPage > 0}" 
-                                 th:href="@{/user-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                                  Previous
-                              </a>
-                              <span th:if="${currentPage == 0}" 
-                                    class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                  Previous
-                              </span>
-                          </li>
-              
-                          <!-- Page Numbers -->
-                          <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                              <a th:href="@{/user-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 th:text="${i + 1}"
-                                 th:class="${i == currentPage} ? 'px-3 py-2 bg-[#2B4269] text-white border' : 'px-3 py-2 border bg-white text-gray-700 hover:bg-gray-100'">
-                              </a>
-                          </li>
-              
-                          <!-- Next Page -->
-                          <li>
-                              <a th:if="${currentPage < totalPages - 1}" 
-                                 th:href="@{/user-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId})}"
-                                 class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                                  Next
-                              </a>
-                              <span th:if="${currentPage >= totalPages - 1}" 
-                                    class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 cursor-not-allowed">
-                                  Next
-                              </span>
-                          </li>
-                      </ul>
-                  </nav>
-              </div>
-                <!-- <div class="p-2 mt-4 sticky bottom-0">
-                    <nav class="flex items-center justify-center" aria-label="Page navigation example">
-                        <ul class="flex h-8 items-center -space-x-px text-sm">
-                        <li>
-                          <a href="#" class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Previous</span>
-                          <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
-                          </svg>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">1</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">2</a>
-                        </li>
-                        <li>
-                          <a href="#" aria-current="page" class="z-10 flex h-8 items-center justify-center border border-primary-300 bg-primary-50 px-3 leading-tight text-primary-600 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 bg-gray-100 dark:bg-[#191A1F] text-[#333333] dark:text-gray-100">3</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">...</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">100</a>
-                        </li>
-                        <li>
-                          <a href="#" class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-[#333333] hover:bg-gray-100 hover:text-[#333333] dark:border-gray-700 dark:bg-[#292C35] dark:text-gray-400 dark:hover:bg-[#191A1F] dark:hover:text-gray-100">
-                          <span class="sr-only">Next</span>
-                            <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
-                            </svg>
-                          </a>
-                        </li>
+                  <!-- Pagination Controls-->
+                  <div class="p-2 flex justify-center" th:if="${totalPages > 1}">
+                    <nav>
+                        <ul class="flex items-center -space-x-px text-sm">
+                            <!-- Previous Page -->
+                            <li>
+                                <a th:if="${currentPage > 0}" 
+                                   th:href="@{/user-page(page=${currentPage - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                   class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
+                                    Previous
+                                </a>
+                                <span th:if="${currentPage == 0}" 
+                                      class="flex items-center justify-center px-3 py-2 border rounded-s-lg border-gray-300 bg-gray-200 text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed">
+                                    Previous
+                                </span>
+                            </li>
+                
+                            <!-- First Page -->
+                            <li th:if="${currentPage > 2}">
+                                <a th:href="@{/user-page(page=0, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                   class="px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
+                                    1
+                                </a>
+                                <span class="px-3 py-2 border text-gray-500 dark:text-gray-400 dark:border-gray-600">...</span>
+                            </li>
+                
+                            <!-- Display Pages -->
+                            <li th:each="i : ${#numbers.sequence(currentPage - 2 > 0 ? currentPage - 2 : 0, currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1)}">
+                                <a th:href="@{/user-page(page=${i}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                   th:text="${i + 1}"
+                                   th:class="${i == currentPage} ? 'px-3 py-2 bg-blue-600 text-white border border-gray-300 dark:border-gray-600' 
+                                                                : 'px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700'">
+                                </a>
+                            </li>
+                
+                            <!-- Last Page -->
+                            <li th:if="${currentPage < totalPages - 3}">
+                                <span class="px-3 py-2 border text-gray-500 dark:text-gray-400 dark:border-gray-600">...</span>
+                                <a th:href="@{/user-page(page=${totalPages - 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                   class="px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
+                                    [[${totalPages}]]
+                                </a>
+                            </li>
+                
+                            <!-- Next Page -->
+                            <li>
+                                <a th:if="${currentPage < totalPages - 1}" 
+                                   th:href="@{/user-page(page=${currentPage + 1}, size=7, memberId=${selectedMemberId}, projectId=${selectedProjectId}, startDate=${date.startDate}, endDate=${date.endDate})}"
+                                   class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-white text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-[#292C35] dark:text-gray-200 dark:hover:bg-gray-700">
+                                    Next
+                                </a>
+                                <span th:if="${currentPage >= totalPages - 1}" 
+                                      class="flex items-center justify-center px-3 py-2 border rounded-e-lg border-gray-300 bg-gray-200 text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed">
+                                    Next
+                                </span>
+                            </li>
                         </ul>
-                      </nav>
-                </div> -->
+                    </nav>
+                </div>
+                
+                  <!-- End of Pagination -->
             </div>
         </section>
         
@@ -507,7 +815,7 @@
                     <div class="flex justify-between items-center">
                       <!-- digital clock -->
                         <span id="clock" class="text-2xl font-normal text-[#333333] dark:text-gray-100">
-                            6:01:00 AM
+                        
                         </span>
                         <!-- time-in btn -->
                         <button id="timeButton" onclick="toggleTime()" 
@@ -578,93 +886,6 @@
     <footer class="w-full bg-white dark:bg-[#292C35] text-[#333333] text-xs dark:text-gray-200 p-2 text-center mt-auto">
         <p>&copy; 2025 Attendance Registration System. All rights reserved.</p>
     </footer>
-
-    <!--For employee cards -->
-    <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-        const searchInput = document.getElementById('table-search-users');
-    
-        // Function to generate initials (First Letter of First Name + Last Name)
-        function getInitials(fullName) {
-          const nameParts = fullName.split(" ");
-          const firstInitial = nameParts[0] ? nameParts[0][0] : "";
-          const lastInitial = nameParts.length > 1 ? nameParts[1][0] : "";
-          return (firstInitial + lastInitial).toUpperCase();
-        }
-    
-        // Function to generate a random Tailwind color for avatars
-        function getRandomColor() {
-          const colors = ["bg-[#A40011]", "bg-[#4C5F7F]", "bg-[#F3711D]", "bg-[#9F7842]"];
-          return colors[Math.floor(Math.random() * colors.length)];
-        }
-    
-        // Function to update the table with user rows
-        function updateUserTable(users) {
-          const tbody = document.getElementById('userTable');
-          tbody.innerHTML = ''; // Clear current rows
-    
-          users.forEach(user => {
-            // Determine user status color
-            let statusColor = 'bg-red-500'; // Default for OFFLINE
-            if (user.status === 'Online') {
-              statusColor = 'bg-green-500';
-            } else if (user.status === 'On leave') {
-              statusColor = 'bg-gray-500';
-            }
-    
-            // Generate user initials if no image is available
-            const initials = getInitials(user.fullName);
-            const avatar = user.imgSrc
-                ? `<img class="w-10 h-10 rounded-full" src="/user-image/${user.empId}" alt="${user.fullName}">`
-              : `<div class="w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${getRandomColor()}">${initials}</div>`;
-    
-            // Create a table row for each user
-            const tr = document.createElement('tr');
-            tr.className = 'bg-white dark:bg-[#292C35] hover:bg-gray-50 dark:hover:bg-[#191A1F]';
-            tr.innerHTML = `
-              <th scope="row"
-                class="flex items-center box-border basis-[20%] p-4 font-medium text-gray-900 whitespace-nowrap dark:text-white overflow-hidden">
-              ${avatar}
-              <div class="ps-3 overflow-hidden">
-                <div class="text-base font-semibold truncate">${user.fullName}</div>
-                <div class="font-normal text-gray-500 truncate">${user.email}</div>
-              </div>
-            </th>
-            <td class="px-6 py-4">
-              <div class="flex items-center">
-                <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div>
-                ${user.status}
-              </div>
-            </td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
-    
-        // Function to fetch users with an optional query parameter
-        async function fetchUsers(query = '') {
-          try {
-            const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`);
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            const users = await response.json();
-            updateUserTable(users);
-          } catch (error) {
-            console.error('Error fetching search results:', error);
-          }
-        }
-    
-        // Initial load: fetch all users (empty query)
-        fetchUsers();
-    
-        // Listen for input events to update the table as the user types
-        searchInput.addEventListener('input', (event) => {
-          const query = event.target.value;
-          fetchUsers(query);
-        });
-      });
-    </script>
     
     <script>
       // Modal toggle/hide scripts remain unchanged
@@ -673,238 +894,42 @@
           document.body.classList.remove('overflow-hidden');
         });
       });
-    
+  
       document.querySelectorAll('[data-modal-toggle]').forEach(button => {
         button.addEventListener('click', () => {
           document.body.classList.add('overflow-hidden');
         });
       });
-    </script>
-    
-    <script>
+  
+      // Tailwind dark mode configuration
       tailwind.config = {
         darkMode: 'class',
-      }
-    </script>
-    
-    <script>
-      // On page load, check local storage and set dark mode accordingly.
-      if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark");
+      };
+  
+      // Function to update the toggle state based on dark mode
+      function updateDarkModeToggle() {
         const darkToggle = document.querySelector("input[type='checkbox']#dark-toggle");
         if (darkToggle) {
-          darkToggle.checked = true;
+          darkToggle.checked = document.documentElement.classList.contains("dark");
         }
       }
-    
-      // Function to toggle dark mode and save the setting in local storage.
+  
+      // Function to toggle dark mode and save the setting in local storage
       function darkModeListener() {
         document.documentElement.classList.toggle("dark");
-        if (document.documentElement.classList.contains("dark")) {
-          localStorage.setItem("darkMode", "enabled");
-        } else {
-          localStorage.setItem("darkMode", "disabled");
-        }
+        localStorage.setItem("darkMode", document.documentElement.classList.contains("dark") ? "enabled" : "disabled");
+        updateDarkModeToggle();
       }
-    
-      // Add event listener to the dark mode toggle checkbox.
+  
+      // Ensure toggle state is updated on page load
+      updateDarkModeToggle();
+  
+      // Add event listener to the dark mode toggle checkbox
       const darkToggle = document.querySelector("input[type='checkbox']#dark-toggle");
       if (darkToggle) {
         darkToggle.addEventListener("click", darkModeListener);
       }
     </script>
-    
-   <!--Time in Time out-->
-   <!-- <script>
-     // JavaScript to toggle between Time-in and Time-out
-     document.getElementById("time-toggle-btn").addEventListener("click", function () {
-       const timeDisplay = document.getElementById("time-display");
-       const button = this;
-   
-       // Check the current state and toggle
-       if (button.innerText === "Time-in") {
-         const currentTime = new Date().toLocaleTimeString(); // Get current time
-         timeDisplay.innerText = `${currentTime}`;
-         button.innerText = "Time-out"; // Switch button text
-       } else {
-         const currentTime = new Date().toLocaleTimeString(); // Get current time
-         timeDisplay.innerText = `${currentTime}`;
-         button.innerText = "Time-in"; // Switch button text
-       }
-     });
-   </script>    -->
 
-   <!-- ! Added: 02/13/25 -->
-   <!-- ! auth: stvn -->
-   <script>
-      document.addEventListener("DOMContentLoaded", function () {
-              const username = "[[${#authentication.name}]]";
-              const userSpecificKey = `isClockedIn_${username}`;
-
-              const button = document.getElementById("timeButton");
-              let isClockedIn = localStorage.getItem(userSpecificKey) === "true";
-
-              // Set button text based on stored state
-              button.innerText = isClockedIn ? "Time Out" : "Time In";
-
-              button.addEventListener("click", toggleTime);
-
-              function toggleTime() {
-                const endpoint = isClockedIn ? "/attendance/clock-out" : "/attendance/clock-in";
-
-                fetch(endpoint, { method: "POST" })
-                  .then((response) => {
-                    if (!response.ok) {
-                      throw new Error("You are already rendered your time");
-                    }
-                    return response.json(); // Parse JSON response
-                  })
-                  .then((data) => {
-                    // console.log(data);
-
-                    // Toggle state
-                    isClockedIn = !isClockedIn;
-                    localStorage.setItem(userSpecificKey, isClockedIn);
-
-                    // Delay reload for UI update
-                    setTimeout(function () {
-                      location.reload();
-                    }, 2000);
-
-                    // If user clocks out, clear localStorage after 5 minutes (300,000ms)
-                    if (!isClockedIn) {
-                      setTimeout(() => {
-                        localStorage.removeItem(userSpecificKey);
-                        console.log("Local storage cleared after timeout");
-                      }); // 5 minutes
-                    }
-
-                    // Show modal with response data
-                    showModal(data.title, data.message, data.status);
-                  })
-                  .catch((error) => {
-                    console.error("Error:", error);
-                    showModal("Error", "You are already rendered your time", "error");
-                  });
-              }
-
-              function showModal(title, message, icon) {
-                Swal.fire({
-                  icon: icon, // "success" or "error"
-                  title: title,
-                  text: message,
-                  confirmButtonText: "OK",
-                  background: "#fff",
-                  color: "#333",
-                  position: "center",
-                });
-              }
-            });
-
-      // ! Babala: wag gagalawin
-        //       let isClockedIn = false;
-
-        // function toggleTime() {
-        //     const button = document.getElementById("timeButton");
-        //     const endpoint = isClockedIn
-        //         ? "/attendance/clock-out"
-        //         : "/attendance/clock-in";
-
-        //     if (isClockedIn) {
-        //         button.innerText = "Time In";
-        //         fetch(endpoint, { method: "POST" })
-        //             .then((response) => {
-        //                 if (!response.ok) {
-        //                     throw new Error("Network response was not ok");
-        //                 }
-        //                 return response.text();
-        //             })
-        //             .then((data) => {
-        //                 console.log(data);
-        //                 location.reload(); // Refresh the page to update the table
-        //             })
-        //             .catch((error) => {
-        //                 console.error("Error during clock-out:", error);
-        //             });
-
-        //         isClockedIn = false;
-        //     } else {
-        //         button.innerText = "Time Out";
-        //         fetch(endpoint, { method: "POST" })
-        //             .then((response) => {
-        //                 if (!response.ok) {
-        //                     throw new Error("Network response was not ok");
-        //                 }
-        //                 return response.text();
-        //             })
-        //             .then((data) => {
-        //                 console.log(data);
-        //                 location.reload(); // Refresh the page to update the table
-        //             })
-        //             .catch((error) => {
-        //                 console.error("Error during clock-in:", error);
-        //             });
-        //         isClockedIn = true;
-        //     }
-        //     // isClockedIn = !isClockedIn;
-        // }
-
-        // Check if the user is already clocked in on page load
-        window.onload = function () {
-            fetch("/api/check-clocked-in") // Updated API route
-                .then((response) => response.json())
-                .then((data) => {
-                    isClockedIn = data.clockedIn;
-                    const button = document.getElementById("timeButton");
-                    button.innerText = isClockedIn ? "Time Out" : "Time In";
-                })
-                .catch((error) => {
-                    console.error("Error checking clock-in status:", error);
-                });
-        };
-              // for realtime clock
-              function updateTime() {
-              const now = new Date();
-              const hours = String(now.getHours()).padStart(2, '0');
-              const minutes = String(now.getMinutes()).padStart(2, '0');
-              const seconds = String(now.getSeconds()).padStart(2, '0');
-              document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-              }
-              setInterval(updateTime, 1000);
-              updateTime(); 
-</script>
-
-   <!-- !end of added -->
-
-<!-- !added by jojit 02-20-25-->
-<script>
-  function confirmLogout(event) {
-      event.preventDefault(); // Prevent the default anchor behavior
-      showLogoutModal();
-  }
-  
-  function showLogoutModal() {
-      Swal.fire({
-          icon: 'warning', // "warning" icon for confirmation
-          title: 'Are you sure?',
-          text: 'Are you sure you want to log out?',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, log out',
-          cancelButtonText: 'No, stay',
-          background: '#fff',
-          color: '#333',
-          position: 'center'
-      }).then((result) => {
-          if (result.isConfirmed) {
-              performLogout();
-          }
-      });
-  }
-  
-  function performLogout() {
-      window.location.href = '/logout'; // Use /logout directly
-  }
-  </script>
- <!-- !end of added -->
 </body>
 </html>

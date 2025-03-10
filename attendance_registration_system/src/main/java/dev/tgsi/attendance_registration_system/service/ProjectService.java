@@ -29,6 +29,8 @@ public class ProjectService {
     }
 
     //this will be used as the project name
+    //This function is used to get the list of projects managed by the admin who is logged in.
+    //The list of project models is used to populate the project dropdown in the manager dashboard
     public List<ProjectModel> projectList(User user) {
         
         List<ProjectModel> projectModels = new ArrayList<>();
@@ -42,6 +44,8 @@ public class ProjectService {
         return projectModels;
     }
 
+    //This function is used to get the list of members of a project.
+    //The list of user objects is used to populate the member dropdown in the manager dashboard
     public List<User> getMembersByProject(int projectId){
         
         List<UserProjectModel> userProjectModels = userProjectRepository.findByProject_ProjectId(projectId);

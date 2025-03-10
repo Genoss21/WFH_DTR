@@ -22,7 +22,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Using SimpleGrantedAuthority to return the role as an authority
+        // Using Simple Granted Authority to return the role as an authority
         return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getRoleShName()));
     }
 
